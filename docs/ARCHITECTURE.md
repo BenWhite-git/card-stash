@@ -153,6 +153,26 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### Screen Brightness: screen_brightness Package
+
+**Decision:** Use the `screen_brightness` package for programmatic brightness control on the card display screen.
+
+**Rationale:** The card display screen must force brightness to maximum so barcodes scan reliably at the till. `screen_brightness` is the standard Flutter package for this - it supports iOS, Android, and macOS with a simple set/reset API. No real alternatives exist in the ecosystem.
+
+**Implementation:** `BrightnessService` wraps the package behind a `ScreenBrightnessControl` interface for testability. The service is injected via Riverpod provider and the cached reference is stored in `initState` so `dispose` can restore brightness after `ref` is invalidated.
+
+---
+
+### Card Display: Usage Tracking by Caller, Not Screen
+
+**Decision:** `CardDisplayScreen` does not call `incrementUsage` itself. The caller must call `CardProvider.incrementUsage()` when navigating to the screen.
+
+**Rationale:** `incrementUsage` writes to the Hive box, which involves disk I/O. Flutter's `testWidgets` runs in FakeAsync, which cannot process real I/O - any Hive write triggered during the widget lifecycle deadlocks the test. Moving the side effect to the caller keeps the screen as a pure display widget and makes it fully testable.
+
+**Trade-off:** The caller must remember to call `incrementUsage`. This is wired up when the HomeScreen is built in Phase 3.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

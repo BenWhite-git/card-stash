@@ -22,6 +22,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - CardListNotifier (Riverpod): full CRUD with sorted card list (favourites pinned, then usage count descending)
 - First-launch flag via SharedPreferences for onboarding
 - Unit tests for all CardProvider CRUD operations (10 tests)
+- BrightnessService: save/force max/restore screen brightness via screen_brightness package
+- BarcodeView widget: renders all barcode types at max safe width with quiet zones preserved, card number fallback text, displayOnly mode
+- CardDisplayScreen: full-screen card display with max brightness, card name, barcode, number, expiry, notes, tap to dismiss
+- Widget tests for BarcodeView (12 tests), BrightnessService (7 tests), CardDisplayScreen (12 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry

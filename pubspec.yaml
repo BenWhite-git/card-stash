@@ -24,6 +24,8 @@ dependencies:
   pointycastle: ^3.9.1
   uuid: ^4.5.1
   shared_preferences: ^2.5.4
+  screen_brightness: ^2.1.7
+  barcode: ^2.2.9
 
 dev_dependencies:
   flutter_test:
