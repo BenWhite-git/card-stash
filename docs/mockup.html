@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Stash — UI Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   SUNLIGHT DESIGN SYSTEM — TOKENS
+   ============================================================ */
+:root {
+  --sp-xs:   4px;
+  --sp-sm:   8px;
+  --sp-md:   12px;
+  --sp-base: 16px;
+  --sp-lg:   20px;
+  --sp-xl:   24px;
+  --sp-2xl:  32px;
+  --sp-3xl:  48px;
+
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-2xl:  24px;
+  --r-full: 9999px;
+
+  --ease: 150ms ease;
+}
+
+[data-theme="dark"] {
+  --bg-primary:   #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-deep:      #020617;
+  --night:        #1E1B4B;
+  --twilight:     #312E81;
+  --sun:          #FBBF24;
+  --accent:       #F59E0B;
+  --text-primary: #F8FAFC;
+  --text-secondary:#CBD5E1;
+  --text-muted:   #94A3B8;
+  --divider:      #334155;
+  --card-bg:      #1E293B;
+  --card-border:  #334155;
+  --positive:     #34D399;
+  --negative:     #FB7185;
+  --warning:      #FBBF24;
+}
+
+[data-theme="light"] {
+  --bg-primary:   #FFFBF7;
+  --bg-secondary: #FEF7ED;
+  --bg-deep:      #FFF9F0;
+  --night:        #1E1B4B;
+  --twilight:     #6D28D9;
+  --sun:          #F59E0B;
+  --accent:       #D97706;
+  --text-primary: #1C1917;
+  --text-secondary:#44403C;
+  --text-muted:   #78716C;
+  --divider:      #E7E5E4;
+  --card-bg:      #FFFFFF;
+  --card-border:  #E7E5E4;
+  --positive:     #059669;
+  --negative:     #E11D48;
+  --warning:      #D97706;
+}
+
+/* ============================================================
+   GLOBAL RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: var(--sp-3xl) var(--sp-xl);
+  transition: background var(--ease), color var(--ease);
+}
+
+/* ============================================================
+   MOCKUP CANVAS
+   ============================================================ */
+.canvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1100px;
+  margin: 0 auto var(--sp-3xl);
+}
+
+.canvas-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+}
+
+.canvas-title h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.canvas-title .version {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+}
+
+.theme-toggle {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-full);
+  padding: 8px 16px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--ease);
+  letter-spacing: 0.3px;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--text-primary); }
+
+.screens-grid {
+  display: flex;
+  gap: var(--sp-2xl);
+  justify-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.screen-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-base);
+}
+
+.screen-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   PHONE FRAME
+   ============================================================ */
+.phone {
+  width: 320px;
+  height: 690px;
+  background: var(--bg-primary);
+  border-radius: 44px;
+  border: 2px solid var(--card-border);
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+    0 32px 64px color-mix(in srgb, #000 40%, transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px 6px;
+  flex-shrink: 0;
+}
+
+.status-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.status-icons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.status-icons span {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+/* Notch pill */
+.notch {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 28px;
+  background: #000;
+  border-radius: var(--r-full);
+  z-index: 10;
+}
+
+/* Screen content area */
+.screen-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================
+   SCREEN 1: HOME — CARD LIST
+   ============================================================ */
+
+.app-header {
+  padding: var(--sp-lg) var(--sp-lg) var(--sp-md);
+}
+
+.app-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-md);
+}
+
+.app-name {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  color: var(--text-primary);
+}
+
+.app-name span {
+  color: var(--accent);
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-xl);
+  padding: 10px 14px;
+}
+
+.search-bar span {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-sm) var(--sp-lg) var(--sp-xs);
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Card list */
+.card-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--sp-base) var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  scrollbar-width: none;
+}
+.card-list::-webkit-scrollbar { display: none; }
+
+/* Loyalty card tile */
+.card-tile {
+  border-radius: var(--r-xl);
+  padding: var(--sp-md) var(--sp-base);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--ease), filter var(--ease);
+  border: 1px solid transparent;
+}
+.card-tile:active { transform: scale(0.98); }
+
+.card-tile--tesco    { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); border-color: #3949ab30; }
+.card-tile--waitrose { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); border-color: #43a04730; }
+.card-tile--nectart  { background: linear-gradient(135deg, #b71c1c 0%, #c62828 100%); border-color: #ef535030; }
+.card-tile--boots    { background: linear-gradient(135deg, #004d99 0%, #0066cc 100%); border-color: #2196f330; }
+.card-tile--gym      { background: linear-gradient(135deg, #4a148c 0%, #6a1b9a 100%); border-color: #9c27b030; }
+
+.card-tile__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.card-tile__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-tile__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.card-tile__note {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-tile__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.3px;
+}
+
+.badge--fav {
+  background: rgba(251,191,36,0.2);
+  color: #FBBF24;
+}
+
+.badge--expiry {
+  background: rgba(251,191,36,0.15);
+  color: #FBBF24;
+}
+
+.badge--expiry-warn {
+  background: rgba(251,113,133,0.2);
+  color: #FB7185;
+}
+
+.badge--note {
+  background: rgba(148,163,184,0.15);
+  color: #94A3B8;
+  font-size: 9px;
+}
+
+.usage-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.usage-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: rgba(255,255,255,0.25);
+}
+.usage-dot--active { background: rgba(255,255,255,0.75); }
+
+/* FAB */
+.fab {
+  position: absolute;
+  bottom: 24px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-full);
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  cursor: pointer;
+}
+
+.fab svg { width: 22px; height: 22px; stroke: #000; stroke-width: 2.5; fill: none; }
+
+/* Bottom nav */
+.bottom-nav {
+  display: flex;
+  padding: var(--sp-sm) var(--sp-xl) 20px;
+  gap: 4px;
+  border-top: 1px solid var(--divider);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: var(--sp-sm);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+}
+
+.nav-item--active { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-muted);
+  stroke-width: 1.8;
+  fill: none;
+}
+
+.nav-item--active svg { stroke: var(--accent); }
+
+.nav-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.nav-item--active .nav-label { color: var(--accent); }
+
+/* ============================================================
+   SCREEN 2: CARD DISPLAY
+   ============================================================ */
+
+.card-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  position: relative;
+}
+
+.card-display--dark {
+  background: var(--bg-primary);
+}
+
+.card-display__header {
+  padding: var(--sp-base) var(--sp-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: transparent;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-xs);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.back-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+.card-display__card-face {
+  margin: var(--sp-base) var(--sp-lg);
+  border-radius: var(--r-xl);
+  padding: var(--sp-xl);
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-face__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.card-face__sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
+
+.card-face__emoji { font-size: 28px; }
+
+/* Barcode area */
+.barcode-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-lg);
+  gap: var(--sp-base);
+}
+
+.barcode-bg {
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: var(--sp-lg) var(--sp-xl);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-sm);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* SVG barcode simulation */
+.barcode-svg {
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.bar {
+  background: #111;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.card-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 2px;
+}
+
+.barcode-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+/* Brightness indicator */
+.brightness-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  border-radius: var(--r-full);
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.brightness-pill svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Card display bottom */
+.card-display__footer {
+  padding: var(--sp-base) var(--sp-lg) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  border-top: 1px solid var(--divider);
+}
+
+.card-display__footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.footer-value { font-size: 12px; color: var(--text-secondary); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+.footer-value--positive { color: var(--positive); }
+
+/* ============================================================
+   SCREEN 3: ADD CARD
+   ============================================================ */
+
+.add-card-header {
+  padding: var(--sp-base) var(--sp-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.close-btn svg { width: 14px; height: 14px; stroke: var(--text-muted); stroke-width: 2.5; fill: none; }
+
+/* Scan area */
+.scan-area {
+  margin: 0 var(--sp-lg);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  position: relative;
+  height: 180px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.scan-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-frame {
+  width: 200px;
+  height: 100px;
+  position: relative;
+}
+
+.scan-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--accent);
+  border-style: solid;
+}
+.scan-corner--tl { top: 0; left: 0; border-width: 2px 0 0 2px; border-radius: 4px 0 0 0; }
+.scan-corner--tr { top: 0; right: 0; border-width: 2px 2px 0 0; border-radius: 0 4px 0 0; }
+.scan-corner--bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; border-radius: 0 0 0 4px; }
+.scan-corner--br { bottom: 0; right: 0; border-width: 0 2px 2px 0; border-radius: 0 0 4px 0; }
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  top: 40%;
+  animation: scanline 2s ease-in-out infinite;
+}
+
+@keyframes scanline {
+  0%, 100% { top: 10%; opacity: 0.8; }
+  50% { top: 85%; opacity: 1; }
+}
+
+.scan-hint {
+  position: absolute;
+  bottom: var(--sp-sm);
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* OR divider */
+.or-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: var(--sp-base) var(--sp-lg);
+}
+
+.or-line { flex: 1; height: 1px; background: var(--divider); }
+.or-text { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; }
+
+/* Form fields */
+.form-fields {
+  padding: 0 var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.field-group { display: flex; flex-direction: column; gap: var(--sp-xs); }
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.field-input {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-lg);
+  padding: 10px var(--sp-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-sm);
+}
+
+.field-input--mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.field-input--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.field-placeholder { color: var(--text-muted); }
+
+.field-input__icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.field-input__icon svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 1.8; fill: none; display: block; }
+
+/* Barcode type selector */
+.barcode-chips {
+  display: flex;
+  gap: var(--sp-sm);
+  flex-wrap: wrap;
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--card-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.chip--active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Colour picker row */
+.colour-row {
+  display: flex;
+  gap: var(--sp-sm);
+  align-items: center;
+}
+
+.colour-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+}
+.colour-swatch--selected { border-color: var(--text-primary); }
+
+/* Submit button */
+.btn-primary {
+  margin: var(--sp-base) var(--sp-lg) 24px;
+  background: var(--accent);
+  color: #000;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--r-xl);
+  padding: 14px;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: -0.2px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ============================================================
+   SCREEN 4: EDIT / DETAIL (compact)
+   ============================================================ */
+
+.edit-header {
+  padding: var(--sp-base) var(--sp-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-title { font-size: 17px; font-weight: 700; letter-spacing: -0.4px; }
+
+.text-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.preview-card {
+  margin: 0 var(--sp-lg) var(--sp-md);
+  border-radius: var(--r-xl);
+  padding: var(--sp-lg);
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.preview-card__left h3 { font-size: 15px; font-weight: 700; color: #fff; }
+.preview-card__left p { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.preview-card__right { font-size: 26px; }
+
+.edit-sections {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--sp-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-sm);
+  scrollbar-width: none;
+}
+
+.edit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-md);
+}
+
+.edit-row__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.edit-row__icon svg { width: 15px; height: 15px; stroke: var(--accent); stroke-width: 2; fill: none; }
+
+.edit-row__label { font-size: 13px; font-weight: 500; color: var(--text-secondary); flex: 1; }
+.edit-row__value { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.edit-row__chevron svg { width: 14px; height: 14px; stroke: var(--text-muted); stroke-width: 2; fill: none; }
+
+.edit-row--danger { border-color: color-mix(in srgb, var(--negative) 25%, transparent); }
+.edit-row--danger .edit-row__icon { background: color-mix(in srgb, var(--negative) 10%, transparent); }
+.edit-row--danger .edit-row__icon svg { stroke: var(--negative); }
+.edit-row--danger .edit-row__label { color: var(--negative); }
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-sm);
+  background: color-mix(in srgb, var(--positive) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--positive) 20%, transparent);
+  border-radius: var(--r-lg);
+  padding: var(--sp-sm) var(--sp-md);
+}
+
+.notif-row svg { width: 14px; height: 14px; stroke: var(--positive); stroke-width: 2; fill: none; flex-shrink: 0; }
+.notif-row span { font-size: 11px; color: var(--positive); font-weight: 600; }
+
+/* Rejection screen */
+.rejection-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-2xl);
+  gap: var(--sp-lg);
+  text-align: center;
+}
+
+.rejection-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--r-2xl);
+  background: color-mix(in srgb, var(--negative) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rejection-icon svg { width: 28px; height: 28px; stroke: var(--negative); stroke-width: 2; fill: none; }
+
+.rejection-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.rejection-body {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.rejection-body strong { color: var(--text-secondary); }
+
+.btn-ghost {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--r-xl);
+  padding: 12px var(--sp-xl);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  width: 100%;
+}
+
+</style>
+</head>
+<body>
+
+<div class="canvas-header">
+  <div class="canvas-title">
+    <h1>Card Stash</h1>
+    <span class="version">v0.1 mockup</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    ☀ / ☾ Toggle theme
+  </button>
+</div>
+
+<div class="screens-grid">
+
+  <!-- ====================================================
+       SCREEN 1: HOME
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <span>●●●</span>
+          <span>WiFi</span>
+          <span>🔋</span>
+        </div>
+      </div>
+
+      <div class="screen-content">
+        <div class="app-header">
+          <div class="app-header-row">
+            <div class="app-name">Card<span>wise</span></div>
+            <div class="icon-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="stroke:var(--text-secondary)">
+                <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+              </svg>
+            </div>
+          </div>
+          <div class="search-bar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="stroke:var(--text-muted)">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <span style="font-size:13px;color:var(--text-muted)">Search cards…</span>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <span class="section-title">Pinned</span>
+          <span style="font-size:11px;color:var(--accent)">★ 1</span>
+        </div>
+
+        <div class="card-list">
+          <!-- Tesco — favourite, most used -->
+          <div class="card-tile card-tile--tesco">
+            <div class="card-tile__icon">🛒</div>
+            <div class="card-tile__info">
+              <div class="card-tile__name">Tesco Clubcard</div>
+              <div class="card-tile__note">Used 42 times</div>
+            </div>
+            <div class="card-tile__meta">
+              <span class="badge badge--fav">★ Fav</span>
+              <div class="usage-dots">
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header" style="padding-top:var(--sp-sm)">
+            <span class="section-title">Most Used</span>
+          </div>
+
+          <!-- Waitrose — has note, used often -->
+          <div class="card-tile card-tile--waitrose">
+            <div class="card-tile__icon">🌿</div>
+            <div class="card-tile__info">
+              <div class="card-tile__name">Waitrose myWaitrose</div>
+              <div class="card-tile__note">📝 Susie's card</div>
+            </div>
+            <div class="card-tile__meta">
+              <span class="badge badge--note">note</span>
+              <div class="usage-dots">
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nectar — expiry warning -->
+          <div class="card-tile card-tile--nectart">
+            <div class="card-tile__icon">🔴</div>
+            <div class="card-tile__info">
+              <div class="card-tile__name">Nectar</div>
+              <div class="card-tile__note">Used 18 times</div>
+            </div>
+            <div class="card-tile__meta">
+              <span class="badge badge--expiry-warn">7d left</span>
+              <div class="usage-dots">
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boots -->
+          <div class="card-tile card-tile--boots">
+            <div class="card-tile__icon">💊</div>
+            <div class="card-tile__info">
+              <div class="card-tile__name">Boots Advantage</div>
+              <div class="card-tile__note">Used 11 times</div>
+            </div>
+            <div class="card-tile__meta">
+              <span class="badge badge--expiry">exp Mar 27</span>
+              <div class="usage-dots">
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gym -->
+          <div class="card-tile card-tile--gym">
+            <div class="card-tile__icon">💪</div>
+            <div class="card-tile__info">
+              <div class="card-tile__name">Village Gym</div>
+              <div class="card-tile__note">📝 Joint membership</div>
+            </div>
+            <div class="card-tile__meta">
+              <span class="badge badge--note">note</span>
+              <div class="usage-dots">
+                <div class="usage-dot usage-dot--active"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+                <div class="usage-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fab">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
+
+        <div class="bottom-nav">
+          <div class="nav-item nav-item--active">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="nav-label">Cards</span>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="nav-label">Alerts</span>
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span class="nav-label">Profile</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">1 — Home</span>
+  </div>
+
+  <!-- ====================================================
+       SCREEN 2: CARD DISPLAY
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <span>●●●</span><span>🔋</span>
+        </div>
+      </div>
+
+      <div class="screen-content">
+        <div class="card-display">
+
+          <div class="card-display__header">
+            <div class="back-btn">
+              <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+              Cards
+            </div>
+            <div class="brightness-pill">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              Brightness max
+            </div>
+          </div>
+
+          <div class="card-display__card-face">
+            <div>
+              <div class="card-face__name">Tesco Clubcard</div>
+              <div class="card-face__sub">Used 42 times · ★ Favourite</div>
+            </div>
+            <div class="card-face__emoji">🛒</div>
+          </div>
+
+          <div class="barcode-area">
+            <div class="barcode-bg">
+              <!-- Simulated Code128 barcode -->
+              <div class="barcode-svg" id="barcode"></div>
+              <div class="card-number">6 3411 7829 0034 1</div>
+              <div class="barcode-type">Code128</div>
+            </div>
+          </div>
+
+          <div class="card-display__footer">
+            <div class="card-display__footer-row">
+              <span class="footer-label">Last used</span>
+              <span class="footer-value">Today</span>
+            </div>
+            <div class="card-display__footer-row">
+              <span class="footer-label">Expiry</span>
+              <span class="footer-value footer-value--positive">No expiry</span>
+            </div>
+            <div class="card-display__footer-row">
+              <span class="footer-label">Note</span>
+              <span class="footer-value" style="font-family:Inter;letter-spacing:0">—</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">2 — Card Display</span>
+  </div>
+
+  <!-- ====================================================
+       SCREEN 3: ADD CARD
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons"><span>●●●</span><span>🔋</span></div>
+      </div>
+
+      <div class="screen-content">
+        <div class="add-card-header">
+          <div class="add-card-title">Add Card</div>
+          <div class="close-btn">
+            <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+
+        <div class="scan-area">
+          <!-- Camera viewfinder simulation -->
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 100%)"></div>
+          <div style="position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 40px)"></div>
+          <div class="scan-overlay">
+            <div class="scan-frame">
+              <div class="scan-corner scan-corner--tl"></div>
+              <div class="scan-corner scan-corner--tr"></div>
+              <div class="scan-corner scan-corner--bl"></div>
+              <div class="scan-corner scan-corner--br"></div>
+              <div class="scan-line"></div>
+            </div>
+          </div>
+          <div class="scan-hint">Point camera at card barcode</div>
+        </div>
+
+        <div class="or-divider">
+          <div class="or-line"></div>
+          <span class="or-text">or enter manually</span>
+          <div class="or-line"></div>
+        </div>
+
+        <div class="form-fields">
+          <div class="field-group">
+            <div class="field-label">Card name</div>
+            <div class="field-input field-input--active">
+              <span>Tesco Clubcard</span>
+              <div class="field-input__icon">
+                <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Card number</div>
+            <div class="field-input field-input--mono">
+              <span class="field-placeholder">e.g. 634117829003</span>
+              <div class="field-input__icon">
+                <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Barcode type</div>
+            <div class="barcode-chips">
+              <div class="chip chip--active">Code128</div>
+              <div class="chip">QR</div>
+              <div class="chip">EAN-13</div>
+              <div class="chip">PDF417</div>
+              <div class="chip">Display only</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Colour</div>
+            <div class="colour-row">
+              <div class="colour-swatch colour-swatch--selected" style="background:#1a237e"></div>
+              <div class="colour-swatch" style="background:#1b5e20"></div>
+              <div class="colour-swatch" style="background:#b71c1c"></div>
+              <div class="colour-swatch" style="background:#004d99"></div>
+              <div class="colour-swatch" style="background:#4a148c"></div>
+              <div class="colour-swatch" style="background:#e65100"></div>
+              <div class="colour-swatch" style="background:#37474f"></div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Note (optional)</div>
+            <div class="field-input">
+              <span class="field-placeholder">e.g. Susie's card</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Expiry (optional)</div>
+            <div class="field-input">
+              <span class="field-placeholder">No expiry set</span>
+              <div class="field-input__icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-primary">Add Card</div>
+      </div>
+    </div>
+    <span class="screen-label">3 — Add Card</span>
+  </div>
+
+  <!-- ====================================================
+       SCREEN 4: PAYMENT CARD REJECTION
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-bar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons"><span>●●●</span><span>🔋</span></div>
+      </div>
+
+      <div class="screen-content">
+        <div class="add-card-header">
+          <div class="add-card-title">Add Card</div>
+          <div class="close-btn">
+            <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+
+        <div class="rejection-screen">
+          <div class="rejection-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+
+          <div>
+            <div class="rejection-title">Payment card detected</div>
+          </div>
+
+          <div class="rejection-body">
+            This looks like a <strong>credit or debit card</strong>. For your security, Card Stash doesn't store payment cards.<br><br>
+            Use <strong>Apple Pay</strong> or <strong>Google Wallet</strong> for payment cards instead.
+          </div>
+
+          <div style="width:100%;display:flex;flex-direction:column;gap:var(--sp-sm)">
+            <div class="btn-primary" style="margin:0;text-align:center">Try a different card</div>
+            <div class="btn-ghost">Use Display Only mode</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">4 — Payment Rejected</span>
+  </div>
+
+  <!-- ====================================================
+       SCREEN 5: HOME WIDGET (4×2)
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div style="width:320px;display:flex;flex-direction:column;gap:var(--sp-base)">
+
+      <!-- Widget preview -->
+      <div style="
+        width:100%;
+        background:var(--card-bg);
+        border:1px solid var(--card-border);
+        border-radius:24px;
+        overflow:hidden;
+        box-shadow:0 16px 48px color-mix(in srgb,#000 30%,transparent);
+      ">
+        <!-- Widget header row -->
+        <div style="
+          display:flex;justify-content:space-between;align-items:center;
+          padding:14px 16px 10px;
+          border-bottom:1px solid var(--divider);
+        ">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="
+              width:22px;height:22px;border-radius:6px;
+              background:var(--accent);
+              display:flex;align-items:center;justify-content:center;
+              font-size:12px;
+            ">🗂</div>
+            <span style="font-size:12px;font-weight:700;color:var(--text-primary);letter-spacing:-0.3px">Card Stash</span>
+          </div>
+          <span style="font-size:12px;font-weight:600;color:var(--text-secondary)">Tesco Clubcard</span>
+        </div>
+
+        <!-- Barcode area -->
+        <div style="
+          background:#fff;
+          padding:16px 20px 12px;
+          display:flex;flex-direction:column;align-items:center;gap:8px;
+          cursor:pointer;
+        ">
+          <div class="barcode-svg" id="barcode-widget" style="width:100%;height:56px;display:flex;align-items:center;justify-content:center;gap:1px"></div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6b7280;letter-spacing:1.5px">6341 1782 9003 41</div>
+          <div style="
+            display:flex;align-items:center;gap:5px;
+            font-size:9px;font-weight:600;letter-spacing:0.5px;
+            color:#9ca3af;text-transform:uppercase;
+          ">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            Tap to scan full screen
+          </div>
+        </div>
+
+        <!-- Swap strip -->
+        <div style="display:flex;border-top:1px solid var(--divider)">
+          <!-- Card 1 - active -->
+          <div style="
+            flex:1;padding:10px 8px;
+            display:flex;flex-direction:column;align-items:center;gap:4px;
+            background:color-mix(in srgb,var(--accent) 8%,transparent);
+            border-right:1px solid var(--divider);cursor:pointer;
+          ">
+            <div style="font-size:16px">🛒</div>
+            <div style="font-size:9px;font-weight:700;color:var(--accent);letter-spacing:0.3px;text-align:center">Tesco</div>
+            <div style="width:16px;height:2px;border-radius:1px;background:var(--accent)"></div>
+          </div>
+          <!-- Card 2 -->
+          <div style="
+            flex:1;padding:10px 8px;
+            display:flex;flex-direction:column;align-items:center;gap:4px;
+            border-right:1px solid var(--divider);cursor:pointer;
+          ">
+            <div style="font-size:16px">🌿</div>
+            <div style="font-size:9px;font-weight:600;color:var(--text-muted);letter-spacing:0.3px;text-align:center">Waitrose</div>
+          </div>
+          <!-- Card 3 -->
+          <div style="
+            flex:1;padding:10px 8px;
+            display:flex;flex-direction:column;align-items:center;gap:4px;
+            cursor:pointer;
+          ">
+            <div style="font-size:16px">🔴</div>
+            <div style="font-size:9px;font-weight:600;color:var(--text-muted);letter-spacing:0.3px;text-align:center">Nectar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform note -->
+      <div style="
+        background:var(--bg-secondary);
+        border:1px solid var(--card-border);
+        border-radius:var(--r-lg);
+        padding:var(--sp-md);
+        display:flex;gap:var(--sp-sm);
+      ">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.5">
+          <strong style="color:var(--text-secondary)">Android</strong> swaps the barcode in-place.
+          <strong style="color:var(--text-secondary)">iOS</strong> deep-links to the card. Both open full-screen display on tap.
+        </div>
+      </div>
+
+      <!-- Home screen context mockup -->
+      <div style="
+        background:#111;
+        border-radius:20px;
+        padding:20px 16px;
+        border:1px solid #333;
+        display:flex;flex-direction:column;gap:12px;
+      ">
+        <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#555">Home screen context</div>
+        <!-- fake home screen icons row -->
+        <div style="display:flex;gap:8px">
+          <div style="width:44px;height:44px;border-radius:12px;background:#1a237e;opacity:0.5"></div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#1b5e20;opacity:0.5"></div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#4a148c;opacity:0.5"></div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#b71c1c;opacity:0.5"></div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#004d99;opacity:0.5"></div>
+        </div>
+        <!-- Widget sitting on home screen -->
+        <div style="
+          background:rgba(30,41,59,0.9);
+          border:1px solid rgba(255,255,255,0.08);
+          border-radius:18px;
+          overflow:hidden;
+          backdrop-filter:blur(12px);
+        ">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px 8px;border-bottom:1px solid rgba(255,255,255,0.06)">
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:18px;height:18px;border-radius:5px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px">🗂</div>
+              <span style="font-size:11px;font-weight:700;color:#f8fafc">Card Stash</span>
+            </div>
+            <span style="font-size:10px;color:#94a3b8;font-weight:600">Tesco Clubcard</span>
+          </div>
+          <div style="background:#fff;padding:10px 14px 8px;display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="barcode-svg" id="barcode-widget2" style="width:100%;height:36px;display:flex;align-items:center;justify-content:center;gap:1px"></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#6b7280;letter-spacing:1.5px">6341 1782 9003 41</div>
+          </div>
+          <div style="display:flex;border-top:1px solid rgba(255,255,255,0.06)">
+            <div style="flex:1;padding:7px 6px;text-align:center;border-right:1px solid rgba(255,255,255,0.06)">
+              <div style="font-size:12px">🛒</div>
+              <div style="font-size:8px;color:var(--accent);font-weight:700">Tesco</div>
+            </div>
+            <div style="flex:1;padding:7px 6px;text-align:center;border-right:1px solid rgba(255,255,255,0.06)">
+              <div style="font-size:12px">🌿</div>
+              <div style="font-size:8px;color:#64748b">Waitrose</div>
+            </div>
+            <div style="flex:1;padding:7px 6px;text-align:center">
+              <div style="font-size:12px">🔴</div>
+              <div style="font-size:8px;color:#64748b">Nectar</div>
+            </div>
+          </div>
+        </div>
+        <!-- more fake icons -->
+        <div style="display:flex;gap:8px">
+          <div style="width:44px;height:44px;border-radius:12px;background:#37474f;opacity:0.5"></div>
+          <div style="width:44px;height:44px;border-radius:12px;background:#e65100;opacity:0.5"></div>
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">5 — Home Widget (4×2)</span>
+  </div>
+
+  <!-- ====================================================
+       SCREEN 6: ABOUT
+       Faithfully follows the Sunlight app about page pattern:
+       - Always light theme regardless of global toggle
+       - Warm cream background
+       - Grouped white cards (description / support / legal)
+       - Outlined Ko-fi button, amber text links for legal
+       - Footer carries copyright, no separate attribution section
+       ==================================================== -->
+  <div class="screen-wrapper">
+    <div class="phone" style="background:#FEF7ED;">
+      <div class="notch" style="background:#1a1a1a;"></div>
+
+      <!-- Status bar — light theme always -->
+      <div class="status-bar">
+        <span class="status-time" style="color:#1C1917;">9:41</span>
+        <div class="status-icons">
+          <span style="color:#1C1917;">●●●</span>
+          <span style="color:#1C1917;">🔋</span>
+        </div>
+      </div>
+
+      <div class="screen-content" style="background:#FEF7ED;">
+
+        <!-- Nav bar -->
+        <div style="
+          display:flex;align-items:center;gap:var(--sp-md);
+          padding:var(--sp-sm) var(--sp-lg) var(--sp-base);
+          border-bottom:1px solid #E7E5E4;
+        ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1917" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          <span style="font-size:17px;font-weight:700;color:#1C1917;letter-spacing:-0.3px;">About</span>
+        </div>
+
+        <div style="
+          flex:1;overflow-y:auto;scrollbar-width:none;
+          padding:var(--sp-xl) var(--sp-lg) 24px;
+          display:flex;flex-direction:column;gap:var(--sp-base);
+          background:#FEF7ED;
+        ">
+
+          <!-- App identity -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;padding-bottom:var(--sp-sm);">
+            <!-- Icon -->
+            <div style="
+              width:72px;height:72px;border-radius:18px;
+              background:linear-gradient(145deg,#D97706,#F59E0B);
+              display:flex;align-items:center;justify-content:center;
+              margin-bottom:4px;
+            ">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <path d="M2 10h20"/>
+                <path d="M6 15h4M14 15h4"/>
+              </svg>
+            </div>
+            <div style="font-size:22px;font-weight:700;color:#1C1917;letter-spacing:-0.5px;">Card Stash</div>
+            <div style="font-size:14px;color:#78716C;">Version 1.0.0</div>
+          </div>
+
+          <!-- Description card -->
+          <div style="
+            background:#fff;
+            border:1px solid #E7E5E4;
+            border-radius:14px;
+            padding:var(--sp-base);
+            font-size:13px;
+            color:#44403C;
+            line-height:1.6;
+            text-align:center;
+          ">
+            A simple app to stash your loyalty and membership cards.<br>Built in Cheshire, England.
+          </div>
+
+          <!-- Support card -->
+          <div style="
+            background:#fff;
+            border:1px solid #E7E5E4;
+            border-radius:14px;
+            padding:var(--sp-base);
+            display:flex;flex-direction:column;gap:var(--sp-md);
+          ">
+            <div style="font-size:14px;font-weight:700;color:#1C1917;">Support</div>
+            <div style="font-size:13px;color:#44403C;line-height:1.6;">
+              Card Stash is free with no ads. If you find it useful, you can support its development.
+            </div>
+            <!-- Outlined Ko-fi button — matches Sunlight exactly -->
+            <div style="display:flex;justify-content:center;">
+              <div style="
+                border:1.5px solid #D97706;
+                border-radius:var(--r-full);
+                padding:10px 24px;
+                display:flex;align-items:center;gap:8px;
+                cursor:pointer;
+              ">
+                <span style="font-size:15px;">☕</span>
+                <span style="font-size:14px;font-weight:600;color:#D97706;">Buy me a coffee</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legal card -->
+          <div style="
+            background:#fff;
+            border:1px solid #E7E5E4;
+            border-radius:14px;
+            overflow:hidden;
+          ">
+            <div style="padding:var(--sp-md) var(--sp-base) var(--sp-sm);font-size:14px;font-weight:700;color:#1C1917;">Legal</div>
+
+            <!-- Privacy Policy -->
+            <div style="
+              display:flex;align-items:center;justify-content:space-between;
+              padding:var(--sp-md) var(--sp-base);
+              border-top:1px solid #F5F5F4;
+              cursor:pointer;
+            ">
+              <span style="font-size:14px;color:#D97706;font-weight:500;">Privacy Policy</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+
+            <!-- Open Source Licences -->
+            <div style="
+              display:flex;align-items:center;justify-content:space-between;
+              padding:var(--sp-md) var(--sp-base);
+              border-top:1px solid #F5F5F4;
+              cursor:pointer;
+            ">
+              <span style="font-size:14px;color:#D97706;font-weight:500;">Open Source Licenses</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+          </div>
+
+          <!-- Footer — copyright only, matches Sunlight pattern -->
+          <div style="
+            display:flex;flex-direction:column;align-items:center;gap:3px;
+            padding-top:var(--sp-sm);
+          ">
+            <div style="font-size:11px;color:#A8A29E;text-align:center;">
+              Open source. MIT Licence.
+            </div>
+            <div style="font-size:11px;color:#A8A29E;text-align:center;">
+              © 2026 Ben White. All rights reserved.
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <span class="screen-label">6 — About</span>
+  </div>
+
+</div>
+
+<script>
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+// Generate a convincing Code128-style barcode
+function generateBarcode() {
+  const container = document.getElementById('barcode');
+  if (!container) return;
+
+  const pattern = [
+    2,1,3,1,1,2,2,1,1,2,1,3,1,2,1,1,3,1,2,2,1,1,2,1,1,3,2,1,
+    1,2,3,1,1,1,2,2,1,3,1,1,2,1,2,3,1,1,1,2,1,1,3,1,2,2,1,2,
+    1,1,2,1,3,1,2,1,3,1,1,2,1,1,2,3,1,2,1,1,3,1,1,2,2,1,3,1,2
+  ];
+
+  const totalUnits = pattern.reduce((a, b) => a + b, 0);
+  const availableWidth = 248; // approx container width in px
+  const unitWidth = availableWidth / totalUnits;
+
+  pattern.forEach((units, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.width = (units * unitWidth) + 'px';
+    if (i % 2 === 0) {
+      bar.style.background = '#111';
+    } else {
+      bar.style.background = 'transparent';
+    }
+    container.appendChild(bar);
+  });
+}
+
+generateBarcode();
+
+// Generate smaller barcode for widget screens
+function generateWidgetBarcode(id, height) {
+  const container = document.getElementById(id);
+  if (!container) return;
+  const pattern = [
+    2,1,2,1,1,3,2,1,1,2,3,1,1,2,1,2,1,1,3,1,2,1,1,2,3,1,
+    1,3,1,1,2,1,2,1,1,3,2,1,1,2,1,3,1,1,2,2,1,3,1,2,1,2
+  ];
+  const totalUnits = pattern.reduce((a, b) => a + b, 0);
+  const unitWidth = 260 / totalUnits;
+  pattern.forEach((units, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.width = (units * unitWidth) + 'px';
+    bar.style.background = i % 2 === 0 ? '#111' : 'transparent';
+    container.appendChild(bar);
+  });
+}
+
+generateWidgetBarcode('barcode-widget');
+generateWidgetBarcode('barcode-widget2');
+</script>
+
+</body>
+</html>

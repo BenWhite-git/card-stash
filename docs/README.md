@@ -33,14 +33,14 @@ Your data is encrypted using a 256-bit key stored in your device's secure enclav
 
 ### Requirements
 
-- Flutter 3.41+
-- Dart 3.11+
+- Flutter 3.19+
+- Dart 3.3+
 - iOS 13+ / Android 6.0+ (API 23+)
 
 ### Setup
 
 ```bash
-git clone https://github.com/BenWhite-git/card-stash.git
+git clone https://github.com/yourname/card-stash.git
 cd card-stash
 flutter pub get
 flutter run
@@ -69,7 +69,7 @@ Add the following to `android/app/src/main/AndroidManifest.xml` to prevent encry
   ...>
 ```
 
-See [docs/SECURITY.md](docs/SECURITY.md) for full rationale.
+See [SECURITY.md](SECURITY.md) for full rationale.
 
 ---
 
@@ -90,13 +90,13 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full rationale.
 
 ## Roadmap
 
-See [docs/SPEC.md](docs/SPEC.md) for the full product specification and planned future features.
+See [SPEC.md](SPEC.md) for the full product specification and planned future features.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) before opening a pull request.
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ---
 
