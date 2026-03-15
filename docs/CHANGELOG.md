@@ -26,11 +26,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - BarcodeView widget: renders all barcode types at max safe width with quiet zones preserved, card number fallback text, displayOnly mode
 - CardDisplayScreen: full-screen card display with max brightness, card name, barcode, number, expiry, notes, tap to dismiss
 - Widget tests for BarcodeView (12 tests), BrightnessService (7 tests), CardDisplayScreen (12 tests)
+- ExpiryBadge widget: amber badge for 30 days or less, red for 7 days or less, expired state
+- CardTile widget: card name, colour accent, favourite star, note indicator, expiry badge, tap and long-press callbacks
+- HomeScreen: card list sorted by usage (favourites pinned), fuzzy search on name and issuer, section headers (Pinned/Most Used), empty state, long-press action sheet (Edit/Share/Toggle Favourite/Delete with confirmation), FAB to add card
+- go_router navigation with bottom nav bar (Cards, Alerts, About), card display as full-screen overlay
+- NotificationsScreen placeholder for Alerts tab
+- Sunlight dark theme applied to app shell and navigation bar
+- Widget tests for ExpiryBadge (10 tests), CardTile (9 tests), HomeScreen (12 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry
 - Barcode display: full screen, maximum brightness, all major formats
-- Card list sorted by usage count; favourites pinned
 - Rename cards and add notes
 - Optional expiry date with notifications (30 days, 7 days, expiry day)
 - Encrypted local storage (AES-256 via Hive CE)

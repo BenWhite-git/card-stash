@@ -173,6 +173,22 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### Navigation: ShellRoute with Bottom Nav
+
+**Decision:** Use `go_router`'s `ShellRoute` to wrap the bottom navigation bar around tab screens (Cards, Alerts, About), with full-screen routes (CardDisplayScreen, AddCardScreen) pushed outside the shell.
+
+**Rationale:** ShellRoute keeps the nav bar persistent across tabs without rebuilding it on each navigation. Full-screen routes like card display break out of the shell using `parentNavigatorKey` so they cover the nav bar entirely, which is the correct UX for a barcode scanning screen.
+
+---
+
+### Hive I/O in Widget Tests: tester.runAsync Pattern
+
+**Decision:** All Hive box writes in widget tests must use `tester.runAsync()` to avoid FakeAsync deadlocks.
+
+**Rationale:** Flutter's `testWidgets` runs in FakeAsync by default. Hive's disk I/O operations (put, delete) use real timers and Futures that cannot complete inside FakeAsync, causing the test to hang indefinitely. The `tester.runAsync()` escape hatch runs code with real async, allowing Hive writes to complete. UI interactions that trigger Hive writes (e.g. toggling a favourite) cannot be wrapped in `runAsync` since the tap itself is a FakeAsync operation. These mutation effects are tested through the CardProvider unit tests instead.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration
