@@ -129,6 +129,30 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 **What was rejected:** Encrypting with the device key — impossible to decrypt on a new device. Storing the passphrase in the secure enclave — defeats the purpose of the passphrase. Using PBKDF2 instead of Argon2id — PBKDF2 is weaker against GPU attacks; Argon2id is the better current choice.
 
+### Model Name: LoyaltyCard, not Card
+
+**Decision:** The Hive model class is named `LoyaltyCard`, not `Card`.
+
+**Rationale:** Flutter has a built-in `Card` widget in Material. Naming the data model `Card` would require disambiguation imports throughout the codebase. `LoyaltyCard` is unambiguous and domain-specific.
+
+---
+
+### First-Launch Flag: SharedPreferences, not Hive
+
+**Decision:** Store the first-launch/onboarding flag in `SharedPreferences`, separate from the encrypted Hive box.
+
+**Rationale:** The first-launch flag needs to be readable before the encryption key is retrieved and the Hive box is opened. If key retrieval fails, the app still needs to know whether to show onboarding. Storing it in Hive creates a chicken-and-egg dependency.
+
+---
+
+### Provider Architecture: Synchronous NotifierProvider
+
+**Decision:** Use `NotifierProvider` (synchronous) for the card list, not `AsyncNotifierProvider`.
+
+**Rationale:** Hive box opening is async and happens in `StorageService.init()` before `runApp`. By the time the provider is first read, the box is already open. The provider overrides inject the initialised `StorageService`, so there is no async gap. This avoids `AsyncValue` wrapping throughout the UI layer for state that is always immediately available.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

@@ -1,11 +1,28 @@
 // ABOUTME: App entry point for Card Stash.
-// ABOUTME: Initialises the Flutter app with Riverpod and Material theme.
+// ABOUTME: Initialises encrypted storage and SharedPreferences before launch.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const ProviderScope(child: CardStashApp()));
+import 'providers/first_launch_provider.dart';
+import 'services/storage_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final storageService = await StorageService.init();
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        storageServiceProvider.overrideWithValue(storageService),
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const CardStashApp(),
+    ),
+  );
 }
 
 class CardStashApp extends StatelessWidget {
