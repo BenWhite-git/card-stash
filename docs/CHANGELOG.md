@@ -43,6 +43,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Router updated to show onboarding on first launch, then navigate to home
 - Unit tests for LuhnValidator (13 tests), BinDetector (20 tests), BarcodeTypeHelper (11 tests)
 - Widget tests for AddCardScreen (12 tests), OnboardingScreen (8 tests)
+- EditCardScreen: edit card name, notes, colour, barcode type, expiry date, logo; card number displayed read-only
+- Delete card with confirmation dialog from edit screen
+- Long-press Edit action on HomeScreen wired to EditCardScreen
+- Route: /cards/:id/edit added to go_router (full-screen, outside shell)
+- Widget tests for EditCardScreen (14 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry

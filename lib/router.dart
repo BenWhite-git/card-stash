@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'screens/about_screen.dart';
 import 'screens/add_card_screen.dart';
 import 'screens/card_display_screen.dart';
+import 'screens/edit_card_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/onboarding_screen.dart';
@@ -54,6 +55,12 @@ GoRouter createRouter({bool isFirstLaunch = false}) {
         path: '/cards/:id',
         builder: (context, state) =>
             CardDisplayScreen(cardId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/cards/:id/edit',
+        builder: (context, state) =>
+            EditCardScreen(cardId: state.pathParameters['id']!),
       ),
     ],
   );

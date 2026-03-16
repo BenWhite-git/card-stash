@@ -64,7 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               label: 'Edit',
               onTap: () {
                 Navigator.pop(sheetContext);
-                // Edit screen will be wired in Phase 5.
+                context.push('/cards/${card.id}/edit');
               },
             ),
             _ActionTile(

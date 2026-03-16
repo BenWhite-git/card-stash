@@ -205,6 +205,22 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### EditCardScreen: Navigator.pop, not GoRouter Extensions
+
+**Decision:** `EditCardScreen` uses `Navigator.of(context).pop()` for dismissal rather than `context.pop()` from go_router.
+
+**Rationale:** `context.pop()` requires a `GoRouter` ancestor in the widget tree, which makes the screen impossible to test in isolation with a plain `Navigator`. Since the edit screen is always pushed onto the navigation stack (never navigated to via deep link), `Navigator.pop()` is functionally equivalent and testable without GoRouter in the test harness.
+
+---
+
+### EditCardScreen: Construct LoyaltyCard Directly, not copyWith
+
+**Decision:** The save method constructs a new `LoyaltyCard` directly rather than using `copyWith`.
+
+**Rationale:** The `copyWith` method cannot clear nullable fields (e.g. setting `expiryDate` back to `null`) because `null` means "keep the existing value". Constructing the card directly with immutable fields copied from the original and editable fields from form state cleanly handles nullable field clearing without adding sentinel values or modifying the model.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration
