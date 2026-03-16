@@ -14,6 +14,8 @@ void main() async {
 
   final storageService = await StorageService.init();
   final sharedPreferences = await SharedPreferences.getInstance();
+  final isFirstLaunch =
+      !(sharedPreferences.getBool('first_launch_completed') ?? false);
 
   runApp(
     ProviderScope(
@@ -21,13 +23,15 @@ void main() async {
         storageServiceProvider.overrideWithValue(storageService),
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
       ],
-      child: const CardStashApp(),
+      child: CardStashApp(isFirstLaunch: isFirstLaunch),
     ),
   );
 }
 
 class CardStashApp extends StatelessWidget {
-  const CardStashApp({super.key});
+  final bool isFirstLaunch;
+
+  const CardStashApp({super.key, this.isFirstLaunch = false});
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +67,7 @@ class CardStashApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      routerConfig: appRouter,
+      routerConfig: createRouter(isFirstLaunch: isFirstLaunch),
     );
   }
 }

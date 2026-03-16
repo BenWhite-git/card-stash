@@ -9,48 +9,55 @@ import 'screens/add_card_screen.dart';
 import 'screens/card_display_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/notifications_screen.dart';
+import 'screens/onboarding_screen.dart';
 
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
-final _shellNavigatorKey = GlobalKey<NavigatorState>();
+GoRouter createRouter({bool isFirstLaunch = false}) {
+  final rootNavigatorKey = GlobalKey<NavigatorState>();
+  final shellNavigatorKey = GlobalKey<NavigatorState>();
 
-final appRouter = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/cards',
-  routes: [
-    ShellRoute(
-      navigatorKey: _shellNavigatorKey,
-      builder: (context, state, child) => AppShell(child: child),
-      routes: [
-        GoRoute(
-          path: '/cards',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: HomeScreen()),
-        ),
-        GoRoute(
-          path: '/alerts',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: NotificationsScreen()),
-        ),
-        GoRoute(
-          path: '/about',
-          pageBuilder: (context, state) =>
-              const NoTransitionPage(child: AboutScreen()),
-        ),
-      ],
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: '/cards/add',
-      builder: (context, state) => const AddCardScreen(),
-    ),
-    GoRoute(
-      parentNavigatorKey: _rootNavigatorKey,
-      path: '/cards/:id',
-      builder: (context, state) =>
-          CardDisplayScreen(cardId: state.pathParameters['id']!),
-    ),
-  ],
-);
+  return GoRouter(
+    navigatorKey: rootNavigatorKey,
+    initialLocation: isFirstLaunch ? '/onboarding' : '/cards',
+    routes: [
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      ShellRoute(
+        navigatorKey: shellNavigatorKey,
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/cards',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: HomeScreen()),
+          ),
+          GoRoute(
+            path: '/alerts',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: NotificationsScreen()),
+          ),
+          GoRoute(
+            path: '/about',
+            pageBuilder: (context, state) =>
+                const NoTransitionPage(child: AboutScreen()),
+          ),
+        ],
+      ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/cards/add',
+        builder: (context, state) => const AddCardScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/cards/:id',
+        builder: (context, state) =>
+            CardDisplayScreen(cardId: state.pathParameters['id']!),
+      ),
+    ],
+  );
+}
 
 class AppShell extends StatelessWidget {
   final Widget child;

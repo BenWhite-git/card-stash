@@ -189,6 +189,22 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### Router: Factory Function, not Module-Level Instance
+
+**Decision:** The router is created via `createRouter({bool isFirstLaunch})` rather than a `final appRouter` at module level.
+
+**Rationale:** The initial route depends on whether this is the user's first launch (onboarding vs home). A factory function accepts this parameter and creates the router with the correct initial location. Additionally, `GlobalKey<NavigatorState>` instances are scoped inside the factory, avoiding key reuse between router instances in tests.
+
+---
+
+### mobile_scanner BarcodeType Conflict
+
+**Decision:** Import `card.dart` with `as model` prefix in `barcode_type_helper.dart` to resolve the name clash between our `BarcodeType` enum and `mobile_scanner`'s `BarcodeType`.
+
+**Rationale:** Both our model and mobile_scanner export a `BarcodeType` name. A prefix import on our model cleanly resolves the ambiguity without renaming either enum. In test files, `show`/`hide` directives on the imports achieve the same disambiguation.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

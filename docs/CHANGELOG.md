@@ -33,6 +33,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - NotificationsScreen placeholder for Alerts tab
 - Sunlight dark theme applied to app shell and navigation bar
 - Widget tests for ExpiryBadge (10 tests), CardTile (9 tests), HomeScreen (12 tests)
+- LuhnValidator: pure Dart Luhn algorithm for payment card number detection
+- BinDetector: BIN range matching for Visa, Mastercard, Amex, Maestro, Discover
+- BarcodeTypeHelper: maps mobile_scanner formats to BarcodeType enum (defaults to Code 128 for unknown formats)
+- ScannerService: wraps mobile_scanner, returns card number and detected barcode type
+- AddCardScreen: camera scan mode with viewfinder overlay, manual entry mode with card name, number, barcode type chips, colour picker, expiry date picker, notes field
+- Payment card rejection: real-time Luhn + BIN check on card number input with hard rejection and error message
+- OnboardingScreen: first-launch-only screen with payment card warning and "Got it" dismissal
+- Router updated to show onboarding on first launch, then navigate to home
+- Unit tests for LuhnValidator (13 tests), BinDetector (20 tests), BarcodeTypeHelper (11 tests)
+- Widget tests for AddCardScreen (12 tests), OnboardingScreen (8 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry

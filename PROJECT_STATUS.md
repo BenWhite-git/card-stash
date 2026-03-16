@@ -1,6 +1,6 @@
 # Card Stash - Project Status
 
-## Current Phase: Phase 3 Complete - Home Screen
+## Current Phase: Phase 4 Complete - Add Card Screen
 
 ## Phase Progress
 
@@ -10,12 +10,23 @@
 | 1 | Encrypted Storage Foundation | Done |
 | 2 | Card Display Screen | Done |
 | 3 | Home Screen (Card List) | Done |
-| 4 | Add Card Screen | Next |
-| 5 | Edit Card Screen | Pending |
+| 4 | Add Card Screen | Done |
+| 5 | Edit Card Screen | Next |
 | 6 | Expiry Notifications | Pending |
 | 7 | Settings, Export and Import | Pending |
 | 8 | About Screen | Pending |
 | 9 | Polish and Pre-Release | Pending |
+
+## Phase 4 Completed
+
+- LuhnValidator: pure Dart Luhn algorithm (payment card checksum detection)
+- BinDetector: BIN range matching for Visa, Mastercard, Amex, Maestro, Discover
+- BarcodeTypeHelper: maps mobile_scanner formats to BarcodeType enum
+- ScannerService: wraps mobile_scanner, extracts card number and barcode type
+- AddCardScreen: camera scan with viewfinder, manual entry with form fields, payment card rejection, colour picker, barcode type chips, expiry date picker
+- OnboardingScreen: first-launch-only with payment card warning, sets SharedPreferences flag
+- Router updated to factory function `createRouter()` with first-launch routing
+- 144 total tests, all passing, zero analyzer warnings
 
 ## Phase 3 Completed
 
@@ -26,7 +37,6 @@
 - go_router with ShellRoute for bottom nav (Cards, Alerts, About)
 - CardDisplayScreen pushed as full-screen overlay outside the nav shell
 - Sunlight dark theme on app shell and navigation bar
-- 73 total tests, all passing, zero analyzer warnings
 
 ## Phase 2 Completed
 
