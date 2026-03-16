@@ -22,6 +22,7 @@ All documentation lives in `/docs`. **Read `docs/BUILD_ORDER.md` first** — it 
 | `docs/CHANGELOG.md` | Version history |
 | `docs/mockup.html` | UI reference (open in browser) |
 | `docs/sunlight-style-guide.md` | Visual design system — follow for all UI decisions |
+| `docs/PHASE_NOTES.md` | Pre-implementation notes per phase — read before starting each phase |
 
 ---
 

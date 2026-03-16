@@ -183,6 +183,8 @@ The guiding principle: **get a card scanning and displaying correctly before bui
 
 ## Phase 6 — Expiry Notifications
 
+> **Read `docs/PHASE_NOTES.md#phase-6` before starting.**
+
 **Goal:** Scheduled local notifications for card expiry.
 
 ### Tasks
@@ -207,6 +209,8 @@ The guiding principle: **get a card scanning and displaying correctly before bui
 ---
 
 ## Phase 7 — Settings, Export and Import
+
+> **Read `docs/PHASE_NOTES.md#phase-7` before starting.**
 
 **Goal:** User can migrate to a new device. This is a v1.0 requirement.
 
@@ -257,6 +261,8 @@ The guiding principle: **get a card scanning and displaying correctly before bui
 
 ## Phase 8 — About Screen
 
+> **Read `docs/PHASE_NOTES.md#phase-8` before starting.**
+
 **Goal:** Consistent with Ben White app portfolio pattern.
 
 ### Tasks
@@ -280,6 +286,8 @@ The guiding principle: **get a card scanning and displaying correctly before bui
 ---
 
 ## Phase 9 — Polish and Pre-Release
+
+> **Read `docs/PHASE_NOTES.md#phase-9` before starting.**
 
 **Goal:** App is ready for open source publication and optional store submission.
 
