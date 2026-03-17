@@ -53,7 +53,7 @@ These are hard rules. Do not work around them, do not add exceptions, do not ask
 | Routing | `go_router` |
 | Export share sheet | `share_plus` |
 | Import file picker | `flutter_file_picker` |
-| Export crypto (KDF + AES) | `pointycastle` or `cryptography` |
+| Export crypto (KDF + AES) | `cryptography` |
 | Home screen widget bridge | `home_widget` |
 
 Do not introduce alternative packages for any of these concerns without updating this file and `ARCHITECTURE.md` with a decision log entry explaining the change.
@@ -92,6 +92,7 @@ lib/
     brightness_service.dart
     export_service.dart     # Serialise, encrypt, sign, share
     import_service.dart     # Verify, decrypt, deserialise, merge/replace
+    file_picker_service.dart # Thin wrapper for testable file picking
   utils/
     luhn_validator.dart
     bin_detector.dart

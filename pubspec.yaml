@@ -21,7 +21,7 @@ dependencies:
   go_router: ^15.1.2
   share_plus: ^10.1.4
   file_picker: ^9.2.1
-  pointycastle: ^3.9.1
+  cryptography: ^2.7.0
   uuid: ^4.5.1
   shared_preferences: ^2.5.4
   screen_brightness: ^2.1.7

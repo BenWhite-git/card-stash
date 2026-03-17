@@ -103,6 +103,29 @@ These are intentionally out of scope — see [SPEC.md](SPEC.md) for the rational
 
 ---
 
+## `.cardstash` File Association
+
+Card Stash registers the `.cardstash` file extension so users can tap an export file in their file manager to open the import flow.
+
+### iOS
+
+Configured in `ios/Runner/Info.plist`:
+
+- `UTExportedTypeDeclarations`: declares a custom UTType (`co.benwhite.cardstash.export`) for the `cardstash` extension, conforming to `public.data`.
+- `CFBundleDocumentTypes`: registers the app as the owner/editor for files matching that UTType.
+
+Test on a real device - the iOS Simulator does not fully support custom UTTypes.
+
+### Android
+
+Configured in `android/app/src/main/AndroidManifest.xml`:
+
+- Two `<intent-filter>` entries on the main activity handle `ACTION_VIEW` for both `content://` and `file://` URIs matching `*.cardstash`.
+
+Test by sending a `.cardstash` file via email/Drive and tapping it.
+
+---
+
 ## Licence
 
 By contributing, you agree that your contributions will be licenced under the MIT Licence.

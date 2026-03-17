@@ -150,7 +150,8 @@ The passphrase never leaves the device and is not stored. If the user forgets it
   "version": 1,
   "exported_at": "2026-03-14T09:41:00Z",
   "signature": "<hmac-sha256 hex>",
-  "payload": "<base64 AES-256-GCM encrypted JSON blob>"
+  "payload": "<base64 AES-256-GCM encrypted JSON blob>",
+  "salt": "<base64 Argon2id salt>"
 }
 ```
 

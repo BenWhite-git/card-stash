@@ -55,6 +55,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Timezone initialization for scheduled notification delivery at 9:00 AM local time
 - Shared StubNotificationService test helper for widget tests
 - Unit tests for notification scheduling logic (13 tests), CardProvider notification integration (7 tests)
+- CryptoUtils: Argon2id KDF with dual-key derivation, AES-256-GCM encrypt/decrypt, HMAC-SHA256 sign/verify
+- ExportManifest model for .cardstash file envelope with version, timestamp, signature, encrypted payload, and salt
+- Card serialisation: toExportJson/fromExportJson on LoyaltyCard (excludes logoPath and notificationIds)
+- PassphraseField widget: secure text input with show/hide toggle for export/import
+- ExportService: serialise all cards, encrypt with passphrase, sign with HMAC, write .cardstash file, share via OS share sheet
+- ImportService: verify HMAC first (fail-fast on wrong passphrase), decrypt, deserialise, merge or replace-all modes with card number normalisation
+- SettingsScreen: export cards, import cards, about navigation
+- ExportScreen: passphrase entry with confirmation, validation (match + 8 char min), warning about passphrase recovery, AirDrop tip on iOS
+- ImportScreen: file picker, passphrase entry, replace-all/merge mode selection with explanations, result and error display
+- Settings tab replaces About in bottom nav (About accessible from Settings)
+- Routes: /settings, /settings/export, /settings/import, /settings/about
+- Android intent-filter for .cardstash file association
+- FilePickerService wrapper for testability
+- Replaced pointycastle with cryptography package (better Argon2id/AES-GCM/HMAC support)
+- Unit tests for CryptoUtils (16 tests), ExportManifest (9 tests), card serialisation (9 tests), ExportService (4 tests), ImportService (14 tests)
+- Widget tests for PassphraseField (6 tests), SettingsScreen (5 tests), ExportScreen (9 tests), ImportScreen (9 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry
@@ -65,10 +81,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Payment card detection and rejection (Luhn + BIN)
 - Fuzzy search by card name or issuer
 - Card colour and logo customisation
+- Encrypted export/import for device migration
 
 ### Planned for v1.1.0
 - Categories / folders
-- Encrypted local backup and restore
 - Home screen widget (most used card)
 - Duplicate card number detection
 - Biometric lock (Face ID / Touch ID / fingerprint)

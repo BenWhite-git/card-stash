@@ -105,6 +105,46 @@ class LoyaltyCard extends HiveObject {
   );
   set colour(Color c) => colourValue = c.toARGB32();
 
+  /// Serialises this card for export. Excludes logoPath (local filesystem
+  /// path, meaningless on another device) and notificationIds (recreated
+  /// on import).
+  Map<String, dynamic> toExportJson() => {
+    'id': id,
+    'name': name,
+    'issuer': issuer,
+    'cardNumber': cardNumber,
+    'barcodeType': barcodeType.name,
+    'colourValue': colourValue,
+    'expiryDate': expiryDate?.toIso8601String(),
+    'usageCount': usageCount,
+    'lastUsed': lastUsed?.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    'notes': notes,
+    'isFavourite': isFavourite,
+  };
+
+  /// Deserialises a card from export JSON.
+  static LoyaltyCard fromExportJson(Map<String, dynamic> json) {
+    return LoyaltyCard(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      issuer: json['issuer'] as String?,
+      cardNumber: json['cardNumber'] as String,
+      barcodeType: BarcodeType.values.byName(json['barcodeType'] as String),
+      colourValue: json['colourValue'] as int,
+      expiryDate: json['expiryDate'] != null
+          ? DateTime.parse(json['expiryDate'] as String)
+          : null,
+      usageCount: json['usageCount'] as int,
+      lastUsed: json['lastUsed'] != null
+          ? DateTime.parse(json['lastUsed'] as String)
+          : null,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      notes: json['notes'] as String?,
+      isFavourite: json['isFavourite'] as bool,
+    );
+  }
+
   LoyaltyCard copyWith({
     String? id,
     String? name,

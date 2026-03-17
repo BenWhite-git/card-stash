@@ -1,5 +1,5 @@
 // ABOUTME: App router configuration using go_router.
-// ABOUTME: Shell route with bottom nav bar for Cards, Alerts, and About tabs.
+// ABOUTME: Shell route with bottom nav bar for Cards, Alerts, and Settings tabs.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,9 +8,12 @@ import 'screens/about_screen.dart';
 import 'screens/add_card_screen.dart';
 import 'screens/card_display_screen.dart';
 import 'screens/edit_card_screen.dart';
+import 'screens/export_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/import_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/settings_screen.dart';
 
 GoRouter createRouter({bool isFirstLaunch = false}) {
   final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -39,9 +42,9 @@ GoRouter createRouter({bool isFirstLaunch = false}) {
                 const NoTransitionPage(child: NotificationsScreen()),
           ),
           GoRoute(
-            path: '/about',
+            path: '/settings',
             pageBuilder: (context, state) =>
-                const NoTransitionPage(child: AboutScreen()),
+                const NoTransitionPage(child: SettingsScreen()),
           ),
         ],
       ),
@@ -62,6 +65,21 @@ GoRouter createRouter({bool isFirstLaunch = false}) {
         builder: (context, state) =>
             EditCardScreen(cardId: state.pathParameters['id']!),
       ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/settings/export',
+        builder: (context, state) => const ExportScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/settings/import',
+        builder: (context, state) => const ImportScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: rootNavigatorKey,
+        path: '/settings/about',
+        builder: (context, state) => const AboutScreen(),
+      ),
     ],
   );
 }
@@ -74,7 +92,7 @@ class AppShell extends StatelessWidget {
   int _selectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/alerts')) return 1;
-    if (location.startsWith('/about')) return 2;
+    if (location.startsWith('/settings')) return 2;
     return 0;
   }
 
@@ -93,7 +111,7 @@ class AppShell extends StatelessWidget {
             case 1:
               context.go('/alerts');
             case 2:
-              context.go('/about');
+              context.go('/settings');
           }
         },
         destinations: const [
@@ -108,9 +126,9 @@ class AppShell extends StatelessWidget {
             label: 'Alerts',
           ),
           NavigationDestination(
-            icon: Icon(Icons.info_outline),
-            selectedIcon: Icon(Icons.info),
-            label: 'About',
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),

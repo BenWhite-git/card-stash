@@ -91,7 +91,7 @@ Detection is implemented in pure Dart with no package dependency — the logic i
 
 If a user loses their device, their cards are gone. This is the honest consequence of local-only storage, communicated clearly in onboarding.
 
-**Future option:** An encrypted local backup/restore feature (export to a file, import from a file) is planned for v1.1 and does not require a backend.
+**Mitigation:** An encrypted local backup/restore feature (export to a file, import from a file) is implemented in v1.0 and does not require a backend.
 
 ---
 
@@ -236,6 +236,40 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 **Decision:** Notification IDs are generated deterministically from `cardId.hashCode + index`, not randomly.
 
 **Rationale:** Deterministic IDs mean the same card always produces the same notification IDs, making cancellation reliable even if stored IDs are lost. For a personal app with a handful of cards, collision risk from hashCode is negligible. IDs are also stored in `notificationIds` on the card model as a belt-and-suspenders measure.
+
+---
+
+### Crypto Package: cryptography, not pointycastle
+
+**Decision:** Use the `cryptography` package for export/import encryption instead of `pointycastle`.
+
+**Rationale:** `pointycastle` was added speculatively in Phase 0 but its Argon2id support is undocumented and its AES-GCM API requires significantly more boilerplate. The `cryptography` package provides first-class `Argon2id`, `AesGcm.with256bits()`, and `Hmac.sha256()` classes with clean async APIs. It is pure Dart on non-web platforms and actively maintained.
+
+**What was rejected:** Keeping `pointycastle` and working around sparse documentation. Also considered using both packages (pointycastle for AES-GCM, cryptography for Argon2id) but mixing packages for the same concern increases surface area.
+
+---
+
+### Export Encryption: Dual-Key Derivation
+
+**Decision:** Derive two separate 256-bit keys from a single passphrase using Argon2id: one for AES-256-GCM encryption, one for HMAC-SHA256 signing.
+
+**Rationale:** Using the same key for both encryption and signing is a cryptographic anti-pattern. Argon2id produces 64 bytes in a single derivation; splitting into two 32-byte keys (bytes 0-31 for AES, 32-63 for HMAC) avoids key reuse with no additional KDF cost. The 16-byte random salt is stored in the export manifest (it is not secret).
+
+---
+
+### Export Manifest: Salt Storage
+
+**Decision:** Add a `salt` field to the `.cardstash` file format, deviating from the original spec which omitted it.
+
+**Rationale:** Without the salt, the import side cannot re-derive the same Argon2id keys from the passphrase. The salt is not secret - it prevents precomputed attacks on the passphrase. Storing it alongside the encrypted payload is standard practice for password-based encryption.
+
+---
+
+### Bottom Nav: Settings Replaces About
+
+**Decision:** The bottom navigation bar shows Cards, Alerts, Settings instead of Cards, Alerts, About. The About screen is accessed from within Settings.
+
+**Rationale:** Phase 7 adds Export and Import functionality that needs a natural home. Settings is the conventional location for these actions. About is a leaf screen with no sub-navigation, while Settings groups export/import/about into a cohesive section.
 
 ---
 

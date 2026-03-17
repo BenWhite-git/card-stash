@@ -77,6 +77,37 @@ If you discover a bypass or systematic failure in payment card detection, please
 
 ---
 
+## Export/Import Encryption
+
+The `.cardstash` export file uses a separate encryption scheme from the at-rest Hive encryption. The device key cannot leave the secure enclave, so exports are encrypted with a user-provided passphrase.
+
+### Key Derivation
+
+A single passphrase is used to derive two 256-bit keys via **Argon2id** (RFC 9106):
+
+- **Encryption key** (bytes 0-31): used for AES-256-GCM payload encryption
+- **HMAC key** (bytes 32-63): used for HMAC-SHA256 signature
+
+Argon2id parameters: 64 MiB memory, 2 parallelism lanes, 3 iterations. These are tuned to complete in under 1 second on a mid-range device. A random 16-byte salt is generated per export and stored in the manifest (not secret).
+
+### Encryption
+
+The card data payload is encrypted with **AES-256-GCM**, which provides both confidentiality and integrity. The 12-byte nonce is generated randomly for each export.
+
+### Signature
+
+An **HMAC-SHA256** signature covers the concatenation of `version + exported_at + payload`. On import, the HMAC is verified **before** attempting decryption. A wrong passphrase fails at the signature check, not mid-decryption.
+
+### Passphrase Handling
+
+The passphrase is never stored on the device. If the user forgets it, the export file is permanently unrecoverable. This is communicated in the export UI.
+
+### Dual-Key Rationale
+
+Using the same key for both encryption (AES-GCM) and signing (HMAC) is a cryptographic anti-pattern. Deriving two separate keys from a single Argon2id output avoids this with no additional computational cost.
+
+---
+
 ## No Network Access
 
 Card Stash makes no network requests. There are no servers, no APIs, no analytics SDKs, and no third-party services. All functionality is on-device.
@@ -95,6 +126,7 @@ Card Stash relies on the following packages with security implications:
 | `flutter_secure_storage` | Key storage | Wraps iOS Keychain and Android Keystore |
 | `mobile_scanner` | Camera / barcode scan | Camera permission only; no network access |
 | `flutter_local_notifications` | Expiry notifications | Local only; no push infrastructure |
+| `cryptography` | Export encryption | Argon2id KDF, AES-256-GCM, HMAC-SHA256; pure Dart |
 
 Dependencies should be kept up to date. Run `flutter pub outdated` regularly and prioritise security-related updates.
 
