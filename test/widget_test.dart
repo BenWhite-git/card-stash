@@ -6,10 +6,13 @@ import 'dart:io';
 import 'package:card_stash/hive_registrar.g.dart';
 import 'package:card_stash/main.dart';
 import 'package:card_stash/models/card.dart';
+import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
+
+import 'helpers/stub_notification_service.dart';
 
 void main() {
   late Box<LoyaltyCard> box;
@@ -26,6 +29,9 @@ void main() {
       ProviderScope(
         overrides: [
           storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
+          notificationServiceProvider.overrideWithValue(
+            StubNotificationService(),
+          ),
         ],
         child: const CardStashApp(),
       ),

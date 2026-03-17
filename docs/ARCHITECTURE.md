@@ -221,6 +221,24 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### Notification Scheduling: Pure Logic Separated from Platform Calls
+
+**Decision:** `NotificationService.computeSchedule` is a static method that computes dates and messages without touching platform channels. The platform-specific scheduling calls are in instance methods that consume this output.
+
+**Rationale:** Flutter's `testWidgets` runs in FakeAsync, and `flutter_local_notifications` uses platform channels that deadlock under FakeAsync. Separating the date calculation into a pure static method allows unit testing the scheduling logic (edge cases around dates, message templates) without any platform dependency. The platform integration is tested via a `StubNotificationService` that records calls.
+
+**CardProvider re-schedule prevention:** When notification IDs are stored back on the card after scheduling, a private `_persistNotificationIds` method writes directly to the Hive box, bypassing the public `updateCard` method. This prevents infinite rescheduling loops where updateCard triggers schedule which triggers updateCard.
+
+---
+
+### Notification IDs: Deterministic from Card ID
+
+**Decision:** Notification IDs are generated deterministically from `cardId.hashCode + index`, not randomly.
+
+**Rationale:** Deterministic IDs mean the same card always produces the same notification IDs, making cancellation reliable even if stored IDs are lost. For a personal app with a handful of cards, collision risk from hashCode is negligible. IDs are also stored in `notificationIds` on the card model as a belt-and-suspenders measure.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

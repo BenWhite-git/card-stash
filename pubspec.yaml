@@ -26,6 +26,7 @@ dependencies:
   shared_preferences: ^2.5.4
   screen_brightness: ^2.1.7
   barcode: ^2.2.9
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

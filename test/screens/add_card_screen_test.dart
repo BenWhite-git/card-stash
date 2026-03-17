@@ -5,11 +5,14 @@ import 'dart:io';
 
 import 'package:card_stash/models/card.dart';
 import 'package:card_stash/screens/add_card_screen.dart';
+import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
+
+import '../helpers/stub_notification_service.dart';
 
 import 'package:card_stash/hive_registrar.g.dart';
 
@@ -19,7 +22,10 @@ var _boxCounter = 0;
 Widget _buildTestApp(Box<LoyaltyCard> box) {
   final storageService = StorageService.fromBox(box);
   return ProviderScope(
-    overrides: [storageServiceProvider.overrideWithValue(storageService)],
+    overrides: [
+      storageServiceProvider.overrideWithValue(storageService),
+      notificationServiceProvider.overrideWithValue(StubNotificationService()),
+    ],
     child: MaterialApp(
       home: Navigator(
         onGenerateRoute: (settings) => MaterialPageRoute(

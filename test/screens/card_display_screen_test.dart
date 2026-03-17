@@ -6,12 +6,15 @@ import 'dart:io';
 import 'package:card_stash/models/card.dart';
 import 'package:card_stash/screens/card_display_screen.dart';
 import 'package:card_stash/services/brightness_service.dart';
+import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
 import 'package:card_stash/widgets/barcode_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
+
+import '../helpers/stub_notification_service.dart';
 
 import 'package:card_stash/hive_registrar.g.dart';
 
@@ -104,6 +107,9 @@ void main() {
       ProviderScope(
         overrides: [
           storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
+          notificationServiceProvider.overrideWithValue(
+            StubNotificationService(),
+          ),
           brightnessServiceProvider.overrideWithValue(
             BrightnessService(brightnessControl: brightness),
           ),
@@ -210,6 +216,9 @@ void main() {
             storageServiceProvider.overrideWithValue(
               StorageService.fromBox(box),
             ),
+            notificationServiceProvider.overrideWithValue(
+              StubNotificationService(),
+            ),
             brightnessServiceProvider.overrideWithValue(
               BrightnessService(brightnessControl: fakeBrightness),
             ),
@@ -255,6 +264,9 @@ void main() {
             storageServiceProvider.overrideWithValue(
               StorageService.fromBox(box),
             ),
+            notificationServiceProvider.overrideWithValue(
+              StubNotificationService(),
+            ),
             brightnessServiceProvider.overrideWithValue(
               BrightnessService(brightnessControl: fakeBrightness),
             ),
@@ -297,6 +309,9 @@ void main() {
           overrides: [
             storageServiceProvider.overrideWithValue(
               StorageService.fromBox(box),
+            ),
+            notificationServiceProvider.overrideWithValue(
+              StubNotificationService(),
             ),
             brightnessServiceProvider.overrideWithValue(
               BrightnessService(brightnessControl: fakeBrightness),

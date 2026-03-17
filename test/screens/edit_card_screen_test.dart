@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:card_stash/models/card.dart';
 import 'package:card_stash/screens/edit_card_screen.dart';
+import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 
 import 'package:card_stash/hive_registrar.g.dart';
+
+import '../helpers/stub_notification_service.dart';
 
 late Directory _tempDir;
 var _boxCounter = 0;
@@ -87,6 +90,9 @@ void main() {
       ProviderScope(
         overrides: [
           storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
+          notificationServiceProvider.overrideWithValue(
+            StubNotificationService(),
+          ),
         ],
         child: MaterialApp(
           home: Navigator(
@@ -252,6 +258,9 @@ void main() {
           overrides: [
             storageServiceProvider.overrideWithValue(
               StorageService.fromBox(box),
+            ),
+            notificationServiceProvider.overrideWithValue(
+              StubNotificationService(),
             ),
           ],
           child: MaterialApp(

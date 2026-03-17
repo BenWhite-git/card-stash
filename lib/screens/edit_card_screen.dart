@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../providers/notification_provider.dart';
 
 const _cardColours = <Color>[
   Color(0xFF3B82F6), // Blue
@@ -38,6 +39,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   Color _selectedColour = _cardColours.first;
   DateTime? _expiryDate;
   String? _logoPath;
+  bool _notificationsPermitted = true;
 
   bool _initialised = false;
 
@@ -60,6 +62,16 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
     _selectedColour = card.colour;
     _expiryDate = card.expiryDate;
     _logoPath = card.logoPath;
+    _checkNotificationPermission();
+  }
+
+  Future<void> _checkNotificationPermission() async {
+    final permitted = await ref
+        .read(notificationServiceProvider)
+        .areNotificationsEnabled();
+    if (mounted && permitted != _notificationsPermitted) {
+      setState(() => _notificationsPermitted = permitted);
+    }
   }
 
   @override
@@ -92,7 +104,6 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
       notificationIds: original.notificationIds,
     );
 
-    // TODO: Phase 6 - reschedule notifications if expiryDate changed.
     await ref.read(cardListProvider.notifier).updateCard(updated);
     if (mounted) Navigator.of(context).pop();
   }
@@ -134,7 +145,6 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   }
 
   Future<void> _deleteCard(LoyaltyCard card) async {
-    // TODO: Phase 6 - cancel notifications for this card.
     await ref.read(cardListProvider.notifier).deleteCard(card.id);
     if (mounted) Navigator.of(context).pop();
   }
@@ -265,6 +275,14 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
             _buildLabel('Expiry date (optional)'),
             const SizedBox(height: 4),
             _buildExpiryPicker(),
+            if (_expiryDate != null && !_notificationsPermitted)
+              const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: Text(
+                  'Expiry reminders require notification permission in Settings.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFFF59E0B)),
+                ),
+              ),
             const SizedBox(height: 20),
 
             _buildLabel('Notes (optional)'),

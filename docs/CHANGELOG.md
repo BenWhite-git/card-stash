@@ -48,6 +48,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Long-press Edit action on HomeScreen wired to EditCardScreen
 - Route: /cards/:id/edit added to go_router (full-screen, outside shell)
 - Widget tests for EditCardScreen (14 tests)
+- NotificationService: expiry notification scheduling at 30 days, 7 days, and expiry day with correct edge case handling (past dates, near-expiry cards)
+- NotificationProvider: Riverpod provider wrapping NotificationService for dependency injection
+- CardProvider integration: addCard schedules notifications and stores IDs, updateCard cancels and reschedules, deleteCard cancels
+- EditCardScreen: notification permission check with informational note when iOS notifications are denied
+- Timezone initialization for scheduled notification delivery at 9:00 AM local time
+- Shared StubNotificationService test helper for widget tests
+- Unit tests for notification scheduling logic (13 tests), CardProvider notification integration (7 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry
