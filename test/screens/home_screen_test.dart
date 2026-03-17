@@ -100,9 +100,13 @@ void main() {
       );
     });
 
-    testWidgets('FAB is visible', (tester) async {
+    testWidgets('FAB is visible with tooltip', (tester) async {
       await pumpHomeScreen(tester);
       expect(find.byType(FloatingActionButton), findsOneWidget);
+      final fab = tester.widget<FloatingActionButton>(
+        find.byType(FloatingActionButton),
+      );
+      expect(fab.tooltip, 'Add card');
     });
 
     testWidgets('displays card names', (tester) async {
@@ -208,7 +212,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(find.text('Edit'), findsOneWidget);
-      expect(find.text('Share'), findsOneWidget);
       expect(find.text('Add to favourites'), findsOneWidget);
       expect(find.text('Delete'), findsOneWidget);
     });

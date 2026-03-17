@@ -15,6 +15,8 @@ Built with Flutter. No accounts. No analytics. No network calls. Your cards stay
 - **Rename and annotate** — label a card "Susie's Waitrose" and add notes
 - **Optional expiry tracking** — notifications at 30 days, 7 days, and on expiry day
 - **Encrypted at rest** — AES-256 via Hive CE, key stored in device secure enclave
+- **Encrypted export/import** — migrate cards between devices with passphrase-based AES-256-GCM encryption
+- **Expiry alerts tab** — see all cards with expiry dates sorted by soonest first
 - **Payment card rejection** — detects and blocks storage of credit and debit cards
 
 ---

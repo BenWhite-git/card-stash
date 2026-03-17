@@ -43,7 +43,7 @@ class NotificationService {
       android: androidSettings,
       iOS: iosSettings,
     );
-    await _plugin.initialize(settings);
+    await _plugin.initialize(settings: settings);
   }
 
   /// Requests notification permission on iOS. Returns true if granted.
@@ -194,11 +194,11 @@ class NotificationService {
       );
 
       await _plugin.zonedSchedule(
-        id,
-        notification.title,
-        notification.body,
-        scheduledDate,
-        const NotificationDetails(
+        id: id,
+        title: notification.title,
+        body: notification.body,
+        scheduledDate: scheduledDate,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             _channelId,
             _channelName,
@@ -209,8 +209,6 @@ class NotificationService {
           iOS: DarwinNotificationDetails(),
         ),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
 
@@ -222,7 +220,7 @@ class NotificationService {
     final ids = card.notificationIds;
     if (ids == null) return;
     for (final id in ids) {
-      await _plugin.cancel(id);
+      await _plugin.cancel(id: id);
     }
   }
 

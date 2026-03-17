@@ -7,7 +7,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 
 import '../models/card.dart';
 import '../models/export_manifest.dart';
@@ -75,8 +75,18 @@ class ExportService {
     return file;
   }
 
+  /// Deletes a temp export file and its parent directory.
+  Future<void> cleanupExportFile(File file) async {
+    final dir = file.parent;
+    if (await dir.exists()) {
+      await dir.delete(recursive: true);
+    }
+  }
+
   /// Shares a .cardstash file via the OS share sheet.
   Future<void> shareExportFile(File file) async {
-    await Share.shareXFiles([XFile(file.path)], subject: 'Card Stash Backup');
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(file.path)], subject: 'Card Stash Backup'),
+    );
   }
 }

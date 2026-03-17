@@ -31,4 +31,9 @@ class StubExportService implements ExportService {
   Future<void> shareExportFile(File file) async {
     calls.add('shareExportFile:${file.path}');
   }
+
+  @override
+  Future<void> cleanupExportFile(File file) async {
+    calls.add('cleanupExportFile:${file.path}');
+  }
 }

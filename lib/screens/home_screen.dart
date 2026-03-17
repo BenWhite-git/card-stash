@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../widgets/card_form_fields.dart';
 import '../widgets/card_tile.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -68,14 +69,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               },
             ),
             _ActionTile(
-              icon: Icons.share_outlined,
-              label: 'Share',
-              onTap: () {
-                Navigator.pop(sheetContext);
-                // Share will be wired in Phase 7.
-              },
-            ),
-            _ActionTile(
               icon: card.isFavourite
                   ? Icons.star_rounded
                   : Icons.star_outline_rounded,
@@ -108,40 +101,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     ref.read(cardListProvider.notifier).updateCard(updated);
   }
 
-  void _confirmDelete(LoyaltyCard card) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Text(
-          'Delete card?',
-          style: TextStyle(color: Color(0xFFF8FAFC)),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${card.name}"? This cannot be undone.',
-          style: const TextStyle(color: Color(0xFFCBD5E1)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF94A3B8)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              ref.read(cardListProvider.notifier).deleteCard(card.id);
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Color(0xFFEF4444)),
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> _confirmDelete(LoyaltyCard card) async {
+    final confirmed = await confirmDeleteDialog(context, card.name);
+    if (confirmed && mounted) {
+      ref.read(cardListProvider.notifier).deleteCard(card.id);
+    }
   }
 
   @override
@@ -222,6 +186,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/cards/add'),
+        tooltip: 'Add card',
         backgroundColor: const Color(0xFFF59E0B),
         child: const Icon(Icons.add, color: Color(0xFF0F172A)),
       ),
@@ -327,7 +292,7 @@ class _SectionHeader extends StatelessWidget {
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
-        color: Color(0xFF94A3B8),
+        color: Color(0xFFA1B5CC),
       ),
     );
   }

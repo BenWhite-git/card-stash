@@ -142,6 +142,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                         color: Color(0xFF94A3B8),
                         size: 18,
                       ),
+                      tooltip: 'Remove file',
                       onPressed: () => setState(() {
                         _filePath = null;
                         _result = null;

@@ -8,19 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/card.dart';
 import '../providers/card_provider.dart';
 import '../providers/notification_provider.dart';
-
-const _cardColours = <Color>[
-  Color(0xFF3B82F6), // Blue
-  Color(0xFF10B981), // Emerald
-  Color(0xFFF59E0B), // Amber
-  Color(0xFFEF4444), // Red
-  Color(0xFF8B5CF6), // Violet
-  Color(0xFFEC4899), // Pink
-  Color(0xFF06B6D4), // Cyan
-  Color(0xFFF97316), // Orange
-  Color(0xFF6366F1), // Indigo
-  Color(0xFF14B8A6), // Teal
-];
+import '../widgets/card_form_fields.dart';
 
 class EditCardScreen extends ConsumerStatefulWidget {
   final String cardId;
@@ -36,7 +24,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   final _notesController = TextEditingController();
 
   BarcodeType _selectedBarcodeType = BarcodeType.code128;
-  Color _selectedColour = _cardColours.first;
+  Color _selectedColour = cardColours.first;
   DateTime? _expiryDate;
   String? _logoPath;
   bool _notificationsPermitted = true;
@@ -108,45 +96,12 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
-  void _confirmDelete(LoyaltyCard card) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        title: const Text(
-          'Delete card?',
-          style: TextStyle(color: Color(0xFFF8FAFC)),
-        ),
-        content: Text(
-          'Are you sure you want to delete "${card.name}"? This cannot be undone.',
-          style: const TextStyle(color: Color(0xFFCBD5E1)),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFF94A3B8)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              _deleteCard(card);
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Color(0xFFEF4444)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteCard(LoyaltyCard card) async {
-    await ref.read(cardListProvider.notifier).deleteCard(card.id);
-    if (mounted) Navigator.of(context).pop();
+  Future<void> _handleDelete(LoyaltyCard card) async {
+    final confirmed = await confirmDeleteDialog(context, card.name);
+    if (confirmed && mounted) {
+      await ref.read(cardListProvider.notifier).deleteCard(card.id);
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   Future<void> _pickExpiryDate() async {
@@ -231,16 +186,17 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLabel('Card name'),
+            const CardFormLabel(text: 'Card name'),
             const SizedBox(height: 4),
-            _buildTextField(
+            CardTextField(
               controller: _nameController,
               hint: 'e.g. Tesco Clubcard',
               autofocus: true,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 20),
 
-            _buildLabel('Card number'),
+            const CardFormLabel(text: 'Card number'),
             const SizedBox(height: 4),
             Container(
               width: double.infinity,
@@ -257,24 +213,34 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
             ),
             const SizedBox(height: 20),
 
-            _buildLabel('Barcode type'),
+            const CardFormLabel(text: 'Barcode type'),
             const SizedBox(height: 8),
-            _buildBarcodeTypeChips(),
+            BarcodeTypeChips(
+              selected: _selectedBarcodeType,
+              onSelected: (type) => setState(() => _selectedBarcodeType = type),
+            ),
             const SizedBox(height: 20),
 
-            _buildLabel('Colour'),
+            const CardFormLabel(text: 'Colour'),
             const SizedBox(height: 8),
-            _buildColourPicker(),
+            ColourPicker(
+              selected: _selectedColour,
+              onSelected: (colour) => setState(() => _selectedColour = colour),
+            ),
             const SizedBox(height: 20),
 
-            _buildLabel('Logo (optional)'),
+            const CardFormLabel(text: 'Logo (optional)'),
             const SizedBox(height: 8),
             _buildLogoPicker(),
             const SizedBox(height: 20),
 
-            _buildLabel('Expiry date (optional)'),
+            const CardFormLabel(text: 'Expiry date (optional)'),
             const SizedBox(height: 4),
-            _buildExpiryPicker(),
+            ExpiryPicker(
+              expiryDate: _expiryDate,
+              onTap: _pickExpiryDate,
+              onClear: () => setState(() => _expiryDate = null),
+            ),
             if (_expiryDate != null && !_notificationsPermitted)
               const Padding(
                 padding: EdgeInsets.only(top: 6),
@@ -285,12 +251,13 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
               ),
             const SizedBox(height: 20),
 
-            _buildLabel('Notes (optional)'),
+            const CardFormLabel(text: 'Notes (optional)'),
             const SizedBox(height: 4),
-            _buildTextField(
+            CardTextField(
               controller: _notesController,
               hint: "e.g. Partner's card",
               maxLines: 3,
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 32),
 
@@ -322,7 +289,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-                onPressed: () => _confirmDelete(card),
+                onPressed: () => _handleDelete(card),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0xFFEF4444)),
                   foregroundColor: const Color(0xFFEF4444),
@@ -345,219 +312,56 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFFCBD5E1),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    bool autofocus = false,
-    int maxLines = 1,
-  }) {
-    return TextField(
-      controller: controller,
-      autofocus: autofocus,
-      maxLines: maxLines,
-      onChanged: (_) => setState(() {}),
-      style: const TextStyle(fontSize: 16, color: Color(0xFFF8FAFC)),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-        filled: true,
-        fillColor: const Color(0xFF1E293B),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFF59E0B), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBarcodeTypeChips() {
-    final types = BarcodeType.values;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: types.map((type) {
-        final selected = type == _selectedBarcodeType;
-        return ChoiceChip(
-          label: Text(_barcodeTypeLabel(type)),
-          selected: selected,
-          onSelected: (_) => setState(() => _selectedBarcodeType = type),
-          selectedColor: const Color(0xFFF59E0B).withValues(alpha: 0.2),
-          backgroundColor: const Color(0xFF1E293B),
-          side: BorderSide(
-            color: selected ? const Color(0xFFF59E0B) : const Color(0xFF334155),
-          ),
-          labelStyle: TextStyle(
-            fontSize: 13,
-            color: selected ? const Color(0xFFF59E0B) : const Color(0xFFCBD5E1),
-          ),
-          showCheckmark: false,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildColourPicker() {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: _cardColours.map((colour) {
-        final selected = colour.toARGB32() == _selectedColour.toARGB32();
-        return GestureDetector(
-          onTap: () => setState(() => _selectedColour = colour),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: colour,
-              shape: BoxShape.circle,
-              border: selected
-                  ? Border.all(color: const Color(0xFFF8FAFC), width: 3)
-                  : null,
-            ),
-            child: selected
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
-                : null,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
   Widget _buildLogoPicker() {
-    return GestureDetector(
-      onTap: _pickLogo,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF334155)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                _logoPath != null ? 'Logo selected' : 'No logo set',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _logoPath != null
-                      ? const Color(0xFFF8FAFC)
-                      : const Color(0xFF94A3B8),
+    return Semantics(
+      label: 'Choose logo image',
+      button: true,
+      child: GestureDetector(
+        onTap: _pickLogo,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E293B),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFF334155)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  _logoPath != null ? 'Logo selected' : 'No logo set',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: _logoPath != null
+                        ? const Color(0xFFF8FAFC)
+                        : const Color(0xFF94A3B8),
+                  ),
                 ),
               ),
-            ),
-            if (_logoPath != null)
-              GestureDetector(
-                onTap: () => setState(() => _logoPath = null),
-                child: const Icon(
-                  Icons.close,
+              if (_logoPath != null)
+                Semantics(
+                  label: 'Remove logo',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _logoPath = null),
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: Color(0xFF94A3B8),
+                    ),
+                  ),
+                )
+              else
+                const Icon(
+                  Icons.image_outlined,
                   size: 18,
                   color: Color(0xFF94A3B8),
                 ),
-              )
-            else
-              const Icon(
-                Icons.image_outlined,
-                size: 18,
-                color: Color(0xFF94A3B8),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
-  }
-
-  Widget _buildExpiryPicker() {
-    return GestureDetector(
-      onTap: _pickExpiryDate,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF334155)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                _expiryDate != null
-                    ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
-                    : 'No expiry date set',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _expiryDate != null
-                      ? const Color(0xFFF8FAFC)
-                      : const Color(0xFF94A3B8),
-                ),
-              ),
-            ),
-            if (_expiryDate != null)
-              GestureDetector(
-                onTap: () => setState(() => _expiryDate = null),
-                child: const Icon(
-                  Icons.close,
-                  size: 18,
-                  color: Color(0xFF94A3B8),
-                ),
-              )
-            else
-              const Icon(
-                Icons.calendar_today_outlined,
-                size: 18,
-                color: Color(0xFF94A3B8),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-String _barcodeTypeLabel(BarcodeType type) {
-  switch (type) {
-    case BarcodeType.qrCode:
-      return 'QR Code';
-    case BarcodeType.code128:
-      return 'Code 128';
-    case BarcodeType.code39:
-      return 'Code 39';
-    case BarcodeType.ean13:
-      return 'EAN-13';
-    case BarcodeType.ean8:
-      return 'EAN-8';
-    case BarcodeType.dataMatrix:
-      return 'Data Matrix';
-    case BarcodeType.pdf417:
-      return 'PDF417';
-    case BarcodeType.aztec:
-      return 'Aztec';
-    case BarcodeType.displayOnly:
-      return 'Display Only';
   }
 }

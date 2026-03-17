@@ -32,9 +32,12 @@ class StorageService {
 
   static Future<StorageService> init({
     FlutterSecureStorage? secureStorage,
+    bool skipHiveInit = false,
   }) async {
-    await Hive.initFlutter();
-    Hive.registerAdapters();
+    if (!skipHiveInit) {
+      await Hive.initFlutter();
+      Hive.registerAdapters();
+    }
 
     final key = await _getOrCreateKey(
       secureStorage ?? const FlutterSecureStorage(),
@@ -55,7 +58,13 @@ class StorageService {
     final existingKey = await secureStorage.read(key: _encryptionKeyName);
 
     if (existingKey != null) {
-      return base64Url.decode(existingKey);
+      final decoded = base64Url.decode(existingKey);
+      if (decoded.length != 32) {
+        throw StateError(
+          'Encryption key is corrupted. Cannot open card database.',
+        );
+      }
+      return decoded;
     }
 
     final key = Hive.generateSecureKey();

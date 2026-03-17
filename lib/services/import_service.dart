@@ -215,6 +215,9 @@ class ImportService {
   }
 
   static Uint8List _hexToBytes(String hex) {
+    if (hex.length % 2 != 0) {
+      throw const ImportFormatException('Invalid signature format.');
+    }
     final bytes = <int>[];
     for (var i = 0; i < hex.length; i += 2) {
       bytes.add(int.parse(hex.substring(i, i + 2), radix: 16));

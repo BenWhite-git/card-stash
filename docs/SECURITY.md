@@ -132,6 +132,24 @@ Dependencies should be kept up to date. Run `flutter pub outdated` regularly and
 
 ---
 
+## Security Fixes (v1.0.0)
+
+The following issues were identified and fixed during the pre-release audit:
+
+### Hex signature validation
+
+`ImportService._hexToBytes` did not validate that the hex string had even length. An odd-length string would silently truncate the final nibble, potentially masking a corrupted or tampered signature. Fixed by rejecting odd-length hex with `ImportFormatException` before parsing.
+
+### Encryption key length validation
+
+`StorageService._getOrCreateKey` did not validate that a key read from secure storage was the expected 32 bytes. A corrupted key (e.g. from a partial write or storage fault) would be passed to `HiveAesCipher`, resulting in an opaque crypto error. Fixed by checking `decoded.length != 32` and throwing a descriptive `StateError`.
+
+### Export temp file cleanup
+
+`ExportService.buildExportFile` created a temp directory and file but never cleaned them up. The encrypted export file would persist in the system temp directory indefinitely. Fixed by adding `cleanupExportFile()` and calling it from the export screen after the share sheet completes.
+
+---
+
 ## Reporting a Vulnerability
 
 This is an open source side project. There is no formal security disclosure programme.

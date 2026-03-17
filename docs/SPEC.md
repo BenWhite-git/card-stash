@@ -1,7 +1,7 @@
 # Card Stash — Product Specification
 
-**Version:** 0.2  
-**Status:** Draft  
+**Version:** 1.0
+**Status:** Released
 **Last updated:** March 2026  
 
 

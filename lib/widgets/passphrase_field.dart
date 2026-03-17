@@ -70,6 +70,7 @@ class _PassphraseFieldState extends State<PassphraseField> {
                 : Icons.visibility_off_outlined,
             color: const Color(0xFF94A3B8),
           ),
+          tooltip: _obscured ? 'Show passphrase' : 'Hide passphrase',
           onPressed: () => setState(() => _obscured = !_obscured),
         ),
       ),

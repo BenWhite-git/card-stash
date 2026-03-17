@@ -71,17 +71,21 @@ lib/
   providers/
     card_provider.dart      # Riverpod providers for card CRUD
     notification_provider.dart
+    first_launch_provider.dart
   screens/
     home_screen.dart
     add_card_screen.dart
     card_display_screen.dart
     edit_card_screen.dart
+    notifications_screen.dart  # Alerts tab with expiry list
     onboarding_screen.dart
     settings_screen.dart
     export_screen.dart
+    import_screen.dart
     about_screen.dart       # App info, Ko-fi, licences, attribution
   widgets/
     card_tile.dart
+    card_form_fields.dart   # Shared form widgets for add/edit screens
     barcode_view.dart
     expiry_badge.dart
     passphrase_field.dart

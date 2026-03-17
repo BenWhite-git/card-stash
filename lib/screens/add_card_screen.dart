@@ -11,23 +11,11 @@ import '../providers/card_provider.dart';
 import '../services/scanner_service.dart';
 import '../utils/bin_detector.dart';
 import '../utils/luhn_validator.dart';
+import '../widgets/card_form_fields.dart';
 
 const _paymentCardMessage =
     "This looks like a payment card. For your security, Card Stash doesn't "
     'store credit or debit cards. Use Apple Pay or Google Wallet instead.';
-
-const _cardColours = <Color>[
-  Color(0xFF3B82F6), // Blue
-  Color(0xFF10B981), // Emerald
-  Color(0xFFF59E0B), // Amber
-  Color(0xFFEF4444), // Red
-  Color(0xFF8B5CF6), // Violet
-  Color(0xFFEC4899), // Pink
-  Color(0xFF06B6D4), // Cyan
-  Color(0xFFF97316), // Orange
-  Color(0xFF6366F1), // Indigo
-  Color(0xFF14B8A6), // Teal
-];
 
 class AddCardScreen extends ConsumerStatefulWidget {
   final bool initialScanMode;
@@ -47,7 +35,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   final _notesController = TextEditingController();
 
   BarcodeType _selectedBarcodeType = BarcodeType.code128;
-  Color _selectedColour = _cardColours.first;
+  Color _selectedColour = cardColours.first;
   DateTime? _expiryDate;
   String? _paymentCardError;
 
@@ -276,22 +264,26 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildLabel('Card name'),
+          const CardFormLabel(text: 'Card name'),
           const SizedBox(height: 4),
-          _buildTextField(
+          CardTextField(
             controller: _nameController,
             hint: 'e.g. Tesco Clubcard',
             autofocus: true,
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 20),
 
-          _buildLabel('Card number'),
+          const CardFormLabel(text: 'Card number'),
           const SizedBox(height: 4),
-          _buildTextField(
+          CardTextField(
             controller: _cardNumberController,
             hint: 'Enter or scan the card number',
             keyboardType: TextInputType.text,
-            onChanged: (value) => _checkPaymentCard(value),
+            onChanged: (value) {
+              setState(() {});
+              _checkPaymentCard(value);
+            },
           ),
           if (_isPaymentCard) ...[
             const SizedBox(height: 8),
@@ -327,27 +319,38 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
           ],
           const SizedBox(height: 20),
 
-          _buildLabel('Barcode type'),
+          const CardFormLabel(text: 'Barcode type'),
           const SizedBox(height: 8),
-          _buildBarcodeTypeChips(),
+          BarcodeTypeChips(
+            selected: _selectedBarcodeType,
+            onSelected: (type) => setState(() => _selectedBarcodeType = type),
+          ),
           const SizedBox(height: 20),
 
-          _buildLabel('Colour'),
+          const CardFormLabel(text: 'Colour'),
           const SizedBox(height: 8),
-          _buildColourPicker(),
+          ColourPicker(
+            selected: _selectedColour,
+            onSelected: (colour) => setState(() => _selectedColour = colour),
+          ),
           const SizedBox(height: 20),
 
-          _buildLabel('Expiry date (optional)'),
+          const CardFormLabel(text: 'Expiry date (optional)'),
           const SizedBox(height: 4),
-          _buildExpiryPicker(),
+          ExpiryPicker(
+            expiryDate: _expiryDate,
+            onTap: _pickExpiryDate,
+            onClear: () => setState(() => _expiryDate = null),
+          ),
           const SizedBox(height: 20),
 
-          _buildLabel('Notes (optional)'),
+          const CardFormLabel(text: 'Notes (optional)'),
           const SizedBox(height: 4),
-          _buildTextField(
+          CardTextField(
             controller: _notesController,
             hint: "e.g. Partner's card",
             maxLines: 3,
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 32),
 
@@ -380,160 +383,6 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFFCBD5E1),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType? keyboardType,
-    bool autofocus = false,
-    int maxLines = 1,
-    void Function(String)? onChanged,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      autofocus: autofocus,
-      maxLines: maxLines,
-      onChanged: (value) {
-        setState(() {});
-        onChanged?.call(value);
-      },
-      style: const TextStyle(fontSize: 16, color: Color(0xFFF8FAFC)),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-        filled: true,
-        fillColor: const Color(0xFF1E293B),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFF59E0B), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBarcodeTypeChips() {
-    final types = BarcodeType.values;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: types.map((type) {
-        final selected = type == _selectedBarcodeType;
-        return ChoiceChip(
-          label: Text(_barcodeTypeLabel(type)),
-          selected: selected,
-          onSelected: (_) => setState(() => _selectedBarcodeType = type),
-          selectedColor: const Color(0xFFF59E0B).withValues(alpha: 0.2),
-          backgroundColor: const Color(0xFF1E293B),
-          side: BorderSide(
-            color: selected ? const Color(0xFFF59E0B) : const Color(0xFF334155),
-          ),
-          labelStyle: TextStyle(
-            fontSize: 13,
-            color: selected ? const Color(0xFFF59E0B) : const Color(0xFFCBD5E1),
-          ),
-          showCheckmark: false,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildColourPicker() {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: _cardColours.map((colour) {
-        final selected = colour.toARGB32() == _selectedColour.toARGB32();
-        return GestureDetector(
-          onTap: () => setState(() => _selectedColour = colour),
-          child: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: colour,
-              shape: BoxShape.circle,
-              border: selected
-                  ? Border.all(color: const Color(0xFFF8FAFC), width: 3)
-                  : null,
-            ),
-            child: selected
-                ? const Icon(Icons.check, color: Colors.white, size: 18)
-                : null,
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildExpiryPicker() {
-    return GestureDetector(
-      onTap: _pickExpiryDate,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFF334155)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                _expiryDate != null
-                    ? '${_expiryDate!.day}/${_expiryDate!.month}/${_expiryDate!.year}'
-                    : 'No expiry date set',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: _expiryDate != null
-                      ? const Color(0xFFF8FAFC)
-                      : const Color(0xFF94A3B8),
-                ),
-              ),
-            ),
-            if (_expiryDate != null)
-              GestureDetector(
-                onTap: () => setState(() => _expiryDate = null),
-                child: const Icon(
-                  Icons.close,
-                  size: 18,
-                  color: Color(0xFF94A3B8),
-                ),
-              )
-            else
-              const Icon(
-                Icons.calendar_today_outlined,
-                size: 18,
-                color: Color(0xFF94A3B8),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   String _cameraErrorMessage(MobileScannerException error) {
     switch (error.errorCode) {
       case MobileScannerErrorCode.permissionDenied:
@@ -543,28 +392,5 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
         return 'Could not access the camera. '
             'You can enter the card details manually instead.';
     }
-  }
-}
-
-String _barcodeTypeLabel(BarcodeType type) {
-  switch (type) {
-    case BarcodeType.qrCode:
-      return 'QR Code';
-    case BarcodeType.code128:
-      return 'Code 128';
-    case BarcodeType.code39:
-      return 'Code 39';
-    case BarcodeType.ean13:
-      return 'EAN-13';
-    case BarcodeType.ean8:
-      return 'EAN-8';
-    case BarcodeType.dataMatrix:
-      return 'Data Matrix';
-    case BarcodeType.pdf417:
-      return 'PDF417';
-    case BarcodeType.aztec:
-      return 'Aztec';
-    case BarcodeType.displayOnly:
-      return 'Display Only';
   }
 }

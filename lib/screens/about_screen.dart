@@ -18,7 +18,7 @@ class _AboutScreenState extends State<AboutScreen> {
   static const _cardBorder = Color(0xFFE7E5E4);
   static const _textPrimary = Color(0xFF1C1917);
   static const _textSecondary = Color(0xFF44403C);
-  static const _textMuted = Color(0xFF78716C);
+  static const _textMuted = Color(0xFF6D6560);
   static const _accent = Color(0xFFD97706);
   static const _accentFill = Color(0xFFF59E0B);
   static const _divider = Color(0xFFD6D3D1);
@@ -57,6 +57,7 @@ class _AboutScreenState extends State<AboutScreen> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
+            tooltip: 'Go back',
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),

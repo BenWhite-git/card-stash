@@ -297,6 +297,42 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### Riverpod 3 Upgrade
+
+**Decision:** Upgrade from `flutter_riverpod` 2.x to 3.x.
+
+**Rationale:** The codebase already uses `Notifier`/`NotifierProvider` (the Riverpod 3 pattern), with no `StateNotifier` usage. The upgrade required no code changes to providers or consumers - only a pubspec.yaml version bump. Staying on 2.x would mean missing out on bug fixes and eventually hitting a maintenance cliff.
+
+---
+
+### Dependency Updates (v1.0.0)
+
+**Decision:** Update all dependencies to latest stable before release. `flutter_local_notifications` 18 to 21, `flutter_secure_storage` 9 to 10, `go_router` 15 to 17, `share_plus` 10 to 12, `file_picker` 9 to 10, `package_info_plus` 8 to 9, `timezone` 0.10 to 0.11.
+
+**Breaking changes handled:**
+- `flutter_local_notifications` v21: `initialize`, `zonedSchedule`, and `cancel` switched from positional to named parameters; `uiLocalNotificationDateInterpretation` parameter removed.
+- `share_plus` v12: `Share.shareXFiles` replaced by `SharePlus.instance.share(ShareParams(...))`.
+- `flutter_secure_storage` v10: `IOSOptions`/`MacOsOptions` replaced by `AppleOptions`.
+- `cupertino_icons` removed (zero imports in lib/).
+
+---
+
+### Code Deduplication: Shared Form Widgets
+
+**Decision:** Extract duplicated form widgets from `add_card_screen.dart` and `edit_card_screen.dart` into `card_form_fields.dart`.
+
+**Rationale:** Both screens had identical implementations of text fields, barcode type chips, colour picker, expiry picker, label widget, and barcode type label function. Extracting these into reusable widgets reduces duplication by approximately 200 lines and ensures visual consistency between add and edit flows. The `confirmDeleteDialog` helper was also extracted since it was duplicated between edit screen and home screen.
+
+---
+
+### Alerts Tab: Expiry List
+
+**Decision:** Replace the Alerts tab placeholder with a sorted expiry list that reads from existing card data.
+
+**Rationale:** A card wallet needs a way to see which cards are expiring soon without scrolling through the full list. The Alerts tab reads from `cardListProvider` (no new storage or state), filters to cards with expiry dates, and sorts soonest first. Each row shows the card name, formatted expiry date, and an `ExpiryBadge`.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

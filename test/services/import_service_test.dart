@@ -327,6 +327,26 @@ void main() {
           throwsA(isA<ImportFormatException>()),
         );
       });
+
+      test('odd-length hex signature throws ImportFormatException', () async {
+        await exportBox.put('c1', makeCard());
+        final filePath = await exportFile('test-pass');
+
+        // Tamper signature to be odd-length hex.
+        final file = File(filePath);
+        final json =
+            jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        json['signature'] = 'abc'; // 3 chars - odd length
+        await file.writeAsString(jsonEncode(json));
+
+        final service = ImportService(importBox, stubNotifications);
+
+        expect(
+          () =>
+              service.importCards(filePath, 'test-pass', ImportMode.replaceAll),
+          throwsA(isA<ImportFormatException>()),
+        );
+      });
     });
 
     group('round-trip', () {

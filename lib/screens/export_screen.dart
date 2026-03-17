@@ -53,6 +53,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final service = ref.read(exportServiceProvider);
       final file = await service.buildExportFile(_passphrase);
       await service.shareExportFile(file);
+      await service.cleanupExportFile(file);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

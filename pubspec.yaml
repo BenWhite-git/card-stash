@@ -1,7 +1,7 @@
 name: card_stash
 description: A private, encrypted wallet for your loyalty and membership cards.
 publish_to: 'none'
-version: 0.1.0-dev+1
+version: 1.0.0
 
 environment:
   sdk: ^3.11.1
@@ -9,25 +9,24 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
   hive_ce: ^2.7.0
   hive_ce_flutter: ^2.3.4
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: ^10.0.0
   mobile_scanner: ^7.0.0
   barcode_widget: ^2.0.4
-  flutter_local_notifications: ^18.0.1
-  flutter_riverpod: ^2.6.1
+  flutter_local_notifications: ^21.0.0
+  flutter_riverpod: ^3.3.1
   image_picker: ^1.1.2
-  go_router: ^15.1.2
-  share_plus: ^10.1.4
-  file_picker: ^9.2.1
+  go_router: ^17.1.0
+  share_plus: ^12.0.1
+  file_picker: ^10.3.10
   cryptography: ^2.7.0
   uuid: ^4.5.1
   shared_preferences: ^2.5.4
   screen_brightness: ^2.1.7
   barcode: ^2.2.9
-  timezone: ^0.10.1
-  package_info_plus: ^8.3.0
+  timezone: ^0.11.0
+  package_info_plus: ^9.0.0
   url_launcher: ^6.3.1
 
 dev_dependencies:
@@ -35,7 +34,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   hive_ce_generator: ^1.8.0
-  build_runner: ^2.4.14
+  build_runner: ^2.13.0
   flutter_launcher_icons: ^0.14.3
 
 flutter:

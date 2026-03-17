@@ -118,6 +118,20 @@ void main() {
       await file.delete();
     });
 
+    test('cleanupExportFile deletes the temp file and directory', () async {
+      await box.put('card-1', makeCard());
+      final service = ExportService(box);
+
+      final file = await service.buildExportFile('cleanup-test');
+      expect(file.existsSync(), isTrue);
+      final dir = file.parent;
+      expect(dir.existsSync(), isTrue);
+
+      await service.cleanupExportFile(file);
+      expect(file.existsSync(), isFalse);
+      expect(dir.existsSync(), isFalse);
+    });
+
     test(
       'buildExportFile produces different output for different passphrases',
       () async {
