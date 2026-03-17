@@ -273,6 +273,30 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### About Screen: Light Theme via Theme Widget Override
+
+**Decision:** The About screen uses a `Theme(data: lightTheme)` wrapper around its `Scaffold` rather than a separate `MaterialApp` or global theme switch.
+
+**Rationale:** A separate `MaterialApp` would break navigation context (no `Navigator.pop()` back to Settings). A global theme switch would affect the entire app. Wrapping just the About screen's subtree in a `Theme` widget overrides the inherited dark theme locally while preserving the navigation stack and all ancestor context.
+
+---
+
+### App Icon: flutter_launcher_icons
+
+**Decision:** Use `flutter_launcher_icons` as a dev dependency to generate platform launcher icons from a single 1024x1024 source.
+
+**Rationale:** Manually creating and placing icons at every required resolution for both iOS and Android is tedious and error-prone. The package generates all required sizes, adaptive icon XML for Android, and strips alpha channels for iOS App Store compliance. It runs once as a build step and has no runtime cost.
+
+---
+
+### About Screen: package_info_plus and url_launcher
+
+**Decision:** Use `package_info_plus` to read the app version at runtime and `url_launcher` to open external URLs (Ko-fi, Privacy Policy, GitHub).
+
+**Rationale:** The CLAUDE.md spec requires the version number to be pulled dynamically, never hardcoded. `package_info_plus` reads from the platform's app manifest. `url_launcher` is the standard Flutter package for opening URLs in the system browser. Both are maintained by the Flutter community team and have no viable alternatives.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

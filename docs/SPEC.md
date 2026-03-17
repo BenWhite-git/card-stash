@@ -272,7 +272,7 @@ Consistent with Ben White's app portfolio pattern. Accessible from Settings.
 | Ko-fi link | `https://ko-fi.com/benwhitelabs` — "Support on Ko-fi" |
 | Privacy policy | Links to hosted privacy policy page |
 | Open source licences | Flutter OSS licence screen |
-| GitHub | `https://github.com/benwhite/card-stash` |
+| GitHub | `https://github.com/BenWhite-git/card-stash` |
 | Attribution | "Designed and built by Ben White" / "Cheshire, England" |
 | Licence | "MIT Licence — free to use, share, and modify" |
 | Copyright | "© 2026 Ben White" |

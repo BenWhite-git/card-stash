@@ -71,6 +71,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Replaced pointycastle with cryptography package (better Argon2id/AES-GCM/HMAC support)
 - Unit tests for CryptoUtils (16 tests), ExportManifest (9 tests), card serialisation (9 tests), ExportService (4 tests), ImportService (14 tests)
 - Widget tests for PassphraseField (6 tests), SettingsScreen (5 tests), ExportScreen (9 tests), ImportScreen (9 tests)
+- AboutScreen: app info, version (via package_info_plus), description, Ko-fi support link, legal rows (Privacy Policy, Open Source Licences, GitHub), MIT licence footer, copyright
+- Always-light Sunlight theme on About screen using Theme widget override
+- Custom app icon: cropped from source, generated launcher icons for iOS and Android via flutter_launcher_icons
+- Widget tests for AboutScreen (13 tests)
 
 ### Planned for v1.0.0
 - Add card via camera scan or manual entry

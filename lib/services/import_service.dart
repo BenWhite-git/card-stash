@@ -108,11 +108,7 @@ class ImportService {
     if (payloadBytes.length < nonceLength + macLength) {
       throw const ImportFormatException('Payload too short.');
     }
-    final nonce = Uint8List.sublistView(
-      payloadBytes,
-      0,
-      nonceLength,
-    );
+    final nonce = Uint8List.sublistView(payloadBytes, 0, nonceLength);
     final mac = Uint8List.sublistView(
       payloadBytes,
       nonceLength,
