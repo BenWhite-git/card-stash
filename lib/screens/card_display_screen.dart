@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
@@ -77,14 +78,32 @@ class _CardDisplayScreenState extends ConsumerState<CardDisplayScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               children: [
-                Text(
-                  card.name,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
+                Row(
+                  children: [
+                    const SizedBox(width: 40),
+                    Expanded(
+                      child: Text(
+                        card.name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        color: Colors.black54,
+                      ),
+                      tooltip: 'Edit card',
+                      onPressed: () {
+                        _dismiss();
+                        context.push('/cards/${card.id}/edit');
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 if (card.issuer != null && card.issuer!.isNotEmpty)
