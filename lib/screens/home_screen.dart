@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../theme.dart';
 import '../widgets/card_form_fields.dart';
 import '../widgets/card_tile.dart';
 
@@ -17,22 +18,22 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
+const _sortModeLabels = {
+  CardSortMode.mostUsed: 'Most used',
+  CardSortMode.alphabetical: 'A-Z',
+  CardSortMode.recentlyUsed: 'Recently used',
+  CardSortMode.dateAdded: 'Newest first',
+};
+
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _searchQuery = '';
 
-  List<LoyaltyCard> _filteredCards(List<LoyaltyCard> cards) {
-    if (_searchQuery.isEmpty) return cards;
-    final query = _searchQuery.toLowerCase();
-    return cards.where((card) {
-      return card.name.toLowerCase().contains(query) ||
-          (card.issuer?.toLowerCase().contains(query) ?? false);
-    }).toList();
-  }
-
-  void _showCardActions(BuildContext context, LoyaltyCard card) {
+  void _showSortOptions() {
+    final currentSort = ref.read(cardSortModeProvider);
+    final colors = context.colors;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -45,21 +46,90 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFF94A3B8),
+                color: colors.textMuted,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Sort by',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: colors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Divider(color: colors.border),
+            for (final mode in CardSortMode.values)
+              ListTile(
+                leading: Icon(
+                  mode == currentSort
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: mode == currentSort ? colors.accent : colors.textMuted,
+                ),
+                title: Text(
+                  _sortModeLabels[mode]!,
+                  style: TextStyle(
+                    color: mode == currentSort
+                        ? colors.accent
+                        : colors.textPrimary,
+                  ),
+                ),
+                onTap: () {
+                  ref.read(cardSortModeProvider.notifier).setMode(mode);
+                  Navigator.pop(sheetContext);
+                },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<LoyaltyCard> _filteredCards(List<LoyaltyCard> cards) {
+    if (_searchQuery.isEmpty) return cards;
+    final query = _searchQuery.toLowerCase();
+    return cards.where((card) {
+      return card.name.toLowerCase().contains(query) ||
+          (card.issuer?.toLowerCase().contains(query) ?? false);
+    }).toList();
+  }
+
+  void _showCardActions(BuildContext context, LoyaltyCard card) {
+    final colors = context.colors;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: colors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colors.textMuted,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               card.name,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFF8FAFC),
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Divider(color: Color(0xFF334155)),
+            Divider(color: colors.border),
             _ActionTile(
               icon: Icons.edit_outlined,
               label: 'Edit',
@@ -114,6 +184,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final filtered = _filteredCards(cards);
     final favourites = filtered.where((c) => c.isFavourite).toList();
     final others = filtered.where((c) => !c.isFavourite).toList();
+    final colors = context.colors;
 
     return Scaffold(
       body: SafeArea(
@@ -125,45 +196,46 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Card Stash',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFF8FAFC),
-                      height: 1.25,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Card Stash',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                          height: 1.25,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.sort, color: colors.textMuted),
+                        tooltip: 'Sort cards',
+                        onPressed: _showSortOptions,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     onChanged: (value) => setState(() => _searchQuery = value),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Color(0xFFF8FAFC),
-                    ),
+                    style: TextStyle(fontSize: 16, color: colors.textPrimary),
                     decoration: InputDecoration(
                       hintText: 'Search cards...',
-                      hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: Color(0xFF94A3B8),
-                      ),
+                      hintStyle: TextStyle(color: colors.textMuted),
+                      prefixIcon: Icon(Icons.search, color: colors.textMuted),
                       filled: true,
-                      fillColor: const Color(0xFF1E293B),
+                      fillColor: colors.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF334155)),
+                        borderSide: BorderSide(color: colors.border),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Color(0xFF334155)),
+                        borderSide: BorderSide(color: colors.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(
-                          color: Color(0xFFF59E0B),
-                          width: 2,
-                        ),
+                        borderSide: BorderSide(color: colors.accent, width: 2),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -187,13 +259,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/cards/add'),
         tooltip: 'Add card',
-        backgroundColor: const Color(0xFFF59E0B),
-        child: const Icon(Icons.add, color: Color(0xFF0F172A)),
+        backgroundColor: colors.accent,
+        child: Icon(Icons.add, color: colors.background),
       ),
     );
   }
 
   Widget _buildEmptyState() {
+    final colors = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -203,22 +276,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Icon(
               Icons.credit_card_outlined,
               size: 64,
-              color: const Color(0xFF94A3B8).withValues(alpha: 0.5),
+              color: colors.textMuted.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'No cards yet',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFF8FAFC),
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Tap the + button to add your first loyalty card.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+              style: TextStyle(fontSize: 16, color: colors.textMuted),
             ),
           ],
         ),
@@ -230,7 +303,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Center(
       child: Text(
         'No cards match "$_searchQuery"',
-        style: const TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+        style: TextStyle(fontSize: 16, color: context.colors.textMuted),
       ),
     );
   }
@@ -261,7 +334,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(height: 16),
         ],
         if (others.isNotEmpty) ...[
-          _SectionHeader(label: 'MOST USED'),
+          _SectionHeader(
+            label: _sortModeLabels[ref.watch(cardSortModeProvider)]!
+                .toUpperCase(),
+          ),
           const SizedBox(height: 8),
           for (final card in others) ...[
             CardTile(
@@ -288,11 +364,11 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
-        color: Color(0xFFA1B5CC),
+        color: context.colors.textMuted,
       ),
     );
   }
@@ -313,9 +389,8 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colour = isDestructive
-        ? const Color(0xFFEF4444)
-        : const Color(0xFFF8FAFC);
+    final colours = context.colors;
+    final colour = isDestructive ? colours.error : colours.textPrimary;
     return ListTile(
       leading: Icon(icon, color: colour),
       title: Text(label, style: TextStyle(color: colour)),

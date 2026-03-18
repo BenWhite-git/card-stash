@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../models/card.dart';
 import '../providers/card_provider.dart';
 import '../providers/notification_provider.dart';
+import '../theme.dart';
 import '../widgets/card_form_fields.dart';
 
 class EditCardScreen extends ConsumerStatefulWidget {
@@ -106,6 +107,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
 
   Future<void> _pickExpiryDate() async {
     final now = DateTime.now();
+    final colors = context.colors;
     final picked = await showDatePicker(
       context: context,
       initialDate: _expiryDate ?? now.add(const Duration(days: 365)),
@@ -115,8 +117,8 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: const Color(0xFFF59E0B),
-              onPrimary: const Color(0xFF0F172A),
+              primary: colors.accent,
+              onPrimary: colors.background,
             ),
           ),
           child: child!,
@@ -142,25 +144,26 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final card = _findCard();
     if (card == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Edit Card',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Color(0xFFF8FAFC),
+              color: colors.textPrimary,
             ),
           ),
-          backgroundColor: const Color(0xFF0F172A),
-          iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
+          backgroundColor: colors.background,
+          iconTheme: IconThemeData(color: colors.textPrimary),
         ),
-        body: const Center(
+        body: Center(
           child: Text(
             'Card not found.',
-            style: TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+            style: TextStyle(fontSize: 16, color: colors.textMuted),
           ),
         ),
       );
@@ -170,16 +173,16 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Edit Card',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Color(0xFFF8FAFC),
+            color: colors.textPrimary,
           ),
         ),
-        backgroundColor: const Color(0xFF0F172A),
-        iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
+        backgroundColor: colors.background,
+        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -203,13 +206,13 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B),
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFF334155)),
+                border: Border.all(color: colors.border),
               ),
               child: Text(
                 card.cardNumber,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+                style: TextStyle(fontSize: 16, color: colors.textMuted),
               ),
             ),
             const SizedBox(height: 20),
@@ -243,11 +246,11 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
               onClear: () => setState(() => _expiryDate = null),
             ),
             if (_expiryDate != null && !_notificationsPermitted)
-              const Padding(
-                padding: EdgeInsets.only(top: 6),
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   'Expiry reminders require notification permission in Settings.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFFF59E0B)),
+                  style: TextStyle(fontSize: 12, color: colors.accent),
                 ),
               ),
             const SizedBox(height: 20),
@@ -267,12 +270,12 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
               child: ElevatedButton(
                 onPressed: _canSave ? () => _saveCard(card) : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF59E0B),
-                  disabledBackgroundColor: const Color(
-                    0xFF94A3B8,
-                  ).withValues(alpha: 0.2),
-                  foregroundColor: const Color(0xFF0F172A),
-                  disabledForegroundColor: const Color(0xFF94A3B8),
+                  backgroundColor: colors.accent,
+                  disabledBackgroundColor: colors.textMuted.withValues(
+                    alpha: 0.2,
+                  ),
+                  foregroundColor: colors.background,
+                  disabledForegroundColor: colors.textMuted,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -292,8 +295,8 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
               child: OutlinedButton(
                 onPressed: () => _handleDelete(card),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFFEF4444)),
-                  foregroundColor: const Color(0xFFEF4444),
+                  side: BorderSide(color: colors.error),
+                  foregroundColor: colors.error,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -314,6 +317,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   }
 
   Widget _buildLogoPicker() {
+    final colors = context.colors;
     return Semantics(
       label: 'Choose logo image',
       button: true,
@@ -323,9 +327,9 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF334155)),
+            border: Border.all(color: colors.border),
           ),
           child: Row(
             children: [
@@ -335,8 +339,8 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     color: _logoPath != null
-                        ? const Color(0xFFF8FAFC)
-                        : const Color(0xFF94A3B8),
+                        ? colors.textPrimary
+                        : colors.textMuted,
                   ),
                 ),
               ),
@@ -346,19 +350,11 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
                   button: true,
                   child: GestureDetector(
                     onTap: () => setState(() => _logoPath = null),
-                    child: const Icon(
-                      Icons.close,
-                      size: 18,
-                      color: Color(0xFF94A3B8),
-                    ),
+                    child: Icon(Icons.close, size: 18, color: colors.textMuted),
                   ),
                 )
               else
-                const Icon(
-                  Icons.image_outlined,
-                  size: 18,
-                  color: Color(0xFF94A3B8),
-                ),
+                Icon(Icons.image_outlined, size: 18, color: colors.textMuted),
             ],
           ),
         ),

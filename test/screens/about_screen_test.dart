@@ -1,7 +1,8 @@
 // ABOUTME: Widget tests for AboutScreen content, layout, and navigation.
-// ABOUTME: Tests version display, legal rows, copyright, and light theme.
+// ABOUTME: Tests version display, legal rows, copyright, and dark theme.
 
 import 'package:card_stash/screens/about_screen.dart';
+import 'package:card_stash/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -18,7 +19,7 @@ void main() {
   });
 
   Widget buildSubject() {
-    return const MaterialApp(home: AboutScreen());
+    return MaterialApp(theme: buildDarkTheme(), home: const AboutScreen());
   }
 
   group('AboutScreen', () {
@@ -109,12 +110,13 @@ void main() {
       expect(find.byIcon(Icons.chevron_right), findsNWidgets(3));
     });
 
-    testWidgets('scaffold background is warm ivory', (tester) async {
+    testWidgets('scaffold uses dark theme background', (tester) async {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).last);
-      expect(scaffold.backgroundColor, const Color(0xFFFFFBF7));
+      final context = tester.element(find.byType(Scaffold).last);
+      final themeBackground = Theme.of(context).scaffoldBackgroundColor;
+      expect(themeBackground, const Color(0xFF0F172A));
     });
 
     testWidgets('tapping Open Source Licences shows LicensePage', (

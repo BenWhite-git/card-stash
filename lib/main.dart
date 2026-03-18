@@ -12,6 +12,7 @@ import 'providers/notification_provider.dart';
 import 'router.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
+import 'theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,45 +40,19 @@ void main() async {
   );
 }
 
-class CardStashApp extends StatelessWidget {
+class CardStashApp extends ConsumerWidget {
   final bool isFirstLaunch;
 
   const CardStashApp({super.key, this.isFirstLaunch = false});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp.router(
       title: 'Card Stash',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFF59E0B),
-          brightness: Brightness.dark,
-          surface: const Color(0xFF0F172A),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: const Color(0xFF1E293B),
-          indicatorColor: const Color(0xFFF59E0B).withValues(alpha: 0.15),
-          labelTextStyle: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFF59E0B),
-              );
-            }
-            return const TextStyle(fontSize: 12, color: Color(0xFF94A3B8));
-          }),
-          iconTheme: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: Color(0xFFF59E0B));
-            }
-            return const IconThemeData(color: Color(0xFF94A3B8));
-          }),
-        ),
-        useMaterial3: true,
-      ),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: themeMode,
       routerConfig: createRouter(isFirstLaunch: isFirstLaunch),
     );
   }

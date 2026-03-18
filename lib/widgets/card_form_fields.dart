@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/card.dart';
+import '../theme.dart';
 
 /// Colour palette for card backgrounds with accessibility labels.
 const cardColours = <Color>[
@@ -78,10 +79,10 @@ class CardFormLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
-        color: Color(0xFFCBD5E1),
+        color: context.colors.textSecondary,
       ),
     );
   }
@@ -110,6 +111,7 @@ class CardTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
@@ -117,23 +119,23 @@ class CardTextField extends StatelessWidget {
       autofocus: autofocus,
       maxLines: maxLines,
       onChanged: onChanged,
-      style: const TextStyle(fontSize: 16, color: Color(0xFFF8FAFC)),
+      style: TextStyle(fontSize: 16, color: colors.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+        hintStyle: TextStyle(color: colors.textMuted),
         filled: true,
-        fillColor: const Color(0xFF1E293B),
+        fillColor: colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFF59E0B), width: 2),
+          borderSide: BorderSide(color: colors.accent, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
@@ -157,6 +159,7 @@ class BarcodeTypeChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -166,18 +169,12 @@ class BarcodeTypeChips extends StatelessWidget {
           label: Text(barcodeTypeLabel(type)),
           selected: isSelected,
           onSelected: (_) => onSelected(type),
-          selectedColor: const Color(0xFFF59E0B).withValues(alpha: 0.2),
-          backgroundColor: const Color(0xFF1E293B),
-          side: BorderSide(
-            color: isSelected
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF334155),
-          ),
+          selectedColor: colors.accent.withValues(alpha: 0.2),
+          backgroundColor: colors.surface,
+          side: BorderSide(color: isSelected ? colors.accent : colors.border),
           labelStyle: TextStyle(
             fontSize: 13,
-            color: isSelected
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFFCBD5E1),
+            color: isSelected ? colors.accent : colors.textSecondary,
           ),
           showCheckmark: false,
         );
@@ -210,6 +207,7 @@ class ColourPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Wrap(
       spacing: 10,
       runSpacing: 10,
@@ -230,7 +228,7 @@ class ColourPicker extends StatelessWidget {
                   color: colour,
                   shape: BoxShape.circle,
                   border: isSelected
-                      ? Border.all(color: const Color(0xFFF8FAFC), width: 3)
+                      ? Border.all(color: colors.textPrimary, width: 3)
                       : null,
                 ),
                 child: isSelected
@@ -252,9 +250,7 @@ class ColourPicker extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _isCustomColour
-                      ? const Color(0xFFF8FAFC)
-                      : const Color(0xFF334155),
+                  color: _isCustomColour ? colors.textPrimary : colors.border,
                   width: _isCustomColour ? 3 : 1,
                 ),
                 gradient: const SweepGradient(
@@ -302,12 +298,10 @@ class _HsvColourPickerDialogState extends State<_HsvColourPickerDialog> {
   @override
   Widget build(BuildContext context) {
     final colour = _hsv.toColor();
+    final colors = context.colors;
     return AlertDialog(
-      backgroundColor: const Color(0xFF1E293B),
-      title: const Text(
-        'Pick a colour',
-        style: TextStyle(color: Color(0xFFF8FAFC)),
-      ),
+      backgroundColor: colors.surface,
+      title: Text('Pick a colour', style: TextStyle(color: colors.textPrimary)),
       content: SizedBox(
         width: 280,
         child: Column(
@@ -406,17 +400,11 @@ class _HsvColourPickerDialogState extends State<_HsvColourPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: Color(0xFF94A3B8)),
-          ),
+          child: Text('Cancel', style: TextStyle(color: colors.textMuted)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, colour),
-          child: const Text(
-            'Select',
-            style: TextStyle(color: Color(0xFFF59E0B)),
-          ),
+          child: Text('Select', style: TextStyle(color: colors.accent)),
         ),
       ],
     );
@@ -487,6 +475,7 @@ class ExpiryPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Semantics(
       label: 'Pick expiry date',
       button: true,
@@ -496,9 +485,9 @@ class ExpiryPicker extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B),
+            color: colors.surface,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF334155)),
+            border: Border.all(color: colors.border),
           ),
           child: Row(
             children: [
@@ -510,8 +499,8 @@ class ExpiryPicker extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     color: expiryDate != null
-                        ? const Color(0xFFF8FAFC)
-                        : const Color(0xFF94A3B8),
+                        ? colors.textPrimary
+                        : colors.textMuted,
                   ),
                 ),
               ),
@@ -521,18 +510,14 @@ class ExpiryPicker extends StatelessWidget {
                   button: true,
                   child: GestureDetector(
                     onTap: onClear,
-                    child: const Icon(
-                      Icons.close,
-                      size: 18,
-                      color: Color(0xFF94A3B8),
-                    ),
+                    child: Icon(Icons.close, size: 18, color: colors.textMuted),
                   ),
                 )
               else
-                const Icon(
+                Icon(
                   Icons.calendar_today_outlined,
                   size: 18,
-                  color: Color(0xFF94A3B8),
+                  color: colors.textMuted,
                 ),
             ],
           ),
@@ -544,32 +529,24 @@ class ExpiryPicker extends StatelessWidget {
 
 /// Shows a confirmation dialog for deleting a card.
 Future<bool> confirmDeleteDialog(BuildContext context, String cardName) async {
+  final colors = context.colors;
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      backgroundColor: const Color(0xFF1E293B),
-      title: const Text(
-        'Delete card?',
-        style: TextStyle(color: Color(0xFFF8FAFC)),
-      ),
+      backgroundColor: colors.surface,
+      title: Text('Delete card?', style: TextStyle(color: colors.textPrimary)),
       content: Text(
         'Are you sure you want to delete "$cardName"? This cannot be undone.',
-        style: const TextStyle(color: Color(0xFFCBD5E1)),
+        style: TextStyle(color: colors.textSecondary),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, false),
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: Color(0xFF94A3B8)),
-          ),
+          child: Text('Cancel', style: TextStyle(color: colors.textMuted)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text(
-            'Delete',
-            style: TextStyle(color: Color(0xFFEF4444)),
-          ),
+          child: Text('Delete', style: TextStyle(color: colors.error)),
         ),
       ],
     ),

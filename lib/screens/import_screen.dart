@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/file_picker_service.dart';
 import '../services/import_service.dart';
+import '../theme.dart';
 import '../widgets/passphrase_field.dart';
 
 class ImportScreen extends ConsumerStatefulWidget {
@@ -73,14 +74,15 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Import cards',
-          style: TextStyle(color: Color(0xFFF8FAFC)),
+          style: TextStyle(color: colors.textPrimary),
         ),
-        backgroundColor: const Color(0xFF0F172A),
-        iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
+        backgroundColor: colors.background,
+        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -96,8 +98,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                   icon: const Icon(Icons.folder_open_outlined),
                   label: const Text('Select file'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFF59E0B),
-                    side: const BorderSide(color: Color(0xFFF59E0B)),
+                    foregroundColor: colors.accent,
+                    side: BorderSide(color: colors.accent),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -114,32 +116,32 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1E293B),
+                  color: colors.surface,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF334155)),
+                  border: Border.all(color: colors.border),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.description_outlined,
-                      color: Color(0xFFF59E0B),
+                      color: colors.accent,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _filePath!.split('/').last,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFFF8FAFC),
+                          color: colors.textPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close,
-                        color: Color(0xFF94A3B8),
+                        color: colors.textMuted,
                         size: 18,
                       ),
                       tooltip: 'Remove file',
@@ -162,13 +164,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               ),
               const SizedBox(height: 24),
               // Import mode.
-              const Text(
+              Text(
                 'IMPORT MODE',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.2,
-                  color: Color(0xFF94A3B8),
+                  color: colors.textMuted,
                 ),
               ),
               const SizedBox(height: 8),
@@ -194,12 +196,12 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                 child: ElevatedButton(
                   onPressed: _canImport ? _import : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: const Color(0xFF0F172A),
-                    disabledBackgroundColor: const Color(
-                      0xFF94A3B8,
-                    ).withValues(alpha: 0.2),
-                    disabledForegroundColor: const Color(0xFF94A3B8),
+                    backgroundColor: colors.accent,
+                    foregroundColor: colors.background,
+                    disabledBackgroundColor: colors.textMuted.withValues(
+                      alpha: 0.2,
+                    ),
+                    disabledForegroundColor: colors.textMuted,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -210,12 +212,12 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                     ),
                   ),
                   child: _isImporting
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFF0F172A),
+                            color: colors.background,
                           ),
                         )
                       : const Text('Import'),
@@ -248,9 +250,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                     if (_result!.skippedDuplicates > 0)
                       Text(
                         '${_result!.skippedDuplicates} duplicates skipped',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFFF8FAFC),
+                          color: colors.textPrimary,
                         ),
                       ),
                   ],
@@ -263,27 +265,23 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                  color: colors.error.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFFEF4444), width: 4),
+                  border: Border(
+                    left: BorderSide(color: colors.error, width: 4),
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Color(0xFFEF4444),
-                      size: 20,
-                    ),
+                    Icon(Icons.error_outline, color: colors.error, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _error!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFFF8FAFC),
+                          color: colors.textPrimary,
                         ),
                       ),
                     ),
@@ -313,15 +311,16 @@ class _ModeOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E293B),
+          color: colors.surface,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: selected ? const Color(0xFFF59E0B) : const Color(0xFF334155),
+            color: selected ? colors.accent : colors.border,
             width: selected ? 2 : 1,
           ),
         ),
@@ -329,9 +328,7 @@ class _ModeOption extends StatelessWidget {
           children: [
             Icon(
               selected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: selected
-                  ? const Color(0xFFF59E0B)
-                  : const Color(0xFF94A3B8),
+              color: selected ? colors.accent : colors.textMuted,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -341,19 +338,16 @@ class _ModeOption extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFFF8FAFC),
+                      color: colors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     description,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF94A3B8),
-                    ),
+                    style: TextStyle(fontSize: 12, color: colors.textMuted),
                   ),
                 ],
               ),

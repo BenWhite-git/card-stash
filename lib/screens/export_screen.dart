@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/export_service.dart';
+import '../theme.dart';
 import '../widgets/passphrase_field.dart';
 
 class ExportScreen extends ConsumerStatefulWidget {
@@ -69,7 +70,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Export failed: $e'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: context.colors.error,
           ),
         );
       }
@@ -82,14 +83,15 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Export cards',
-          style: TextStyle(color: Color(0xFFF8FAFC)),
+          style: TextStyle(color: colors.textPrimary),
         ),
-        backgroundColor: const Color(0xFF0F172A),
-        iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
+        backgroundColor: colors.background,
+        iconTheme: IconThemeData(color: colors.textPrimary),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -100,28 +102,28 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                color: colors.accent.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
-                border: const Border(
-                  left: BorderSide(color: Color(0xFFF59E0B), width: 4),
+                border: Border(
+                  left: BorderSide(color: colors.accent, width: 4),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
-                    color: Color(0xFFF59E0B),
+                    color: colors.accent,
                     size: 20,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       "You'll need this passphrase to restore your cards. "
                       "There's no way to recover it if you forget it.",
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFFF8FAFC),
+                        color: colors.textPrimary,
                         height: 1.5,
                       ),
                     ),
@@ -141,21 +143,21 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                     left: BorderSide(color: Color(0xFF312E81), width: 4),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.tips_and_updates_outlined,
                       color: Color(0xFF312E81),
                       size: 20,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Tip: Use AirDrop to send the file directly to your new iPhone.',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFFF8FAFC),
+                          color: colors.textPrimary,
                           height: 1.5,
                         ),
                       ),
@@ -182,12 +184,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               child: ElevatedButton(
                 onPressed: _canExport ? _export : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF59E0B),
-                  foregroundColor: const Color(0xFF0F172A),
-                  disabledBackgroundColor: const Color(
-                    0xFF94A3B8,
-                  ).withValues(alpha: 0.2),
-                  disabledForegroundColor: const Color(0xFF94A3B8),
+                  backgroundColor: colors.accent,
+                  foregroundColor: colors.background,
+                  disabledBackgroundColor: colors.textMuted.withValues(
+                    alpha: 0.2,
+                  ),
+                  disabledForegroundColor: colors.textMuted,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -198,12 +200,12 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
                   ),
                 ),
                 child: _isExporting
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFF0F172A),
+                          color: colors.background,
                         ),
                       )
                     : const Text('Export'),

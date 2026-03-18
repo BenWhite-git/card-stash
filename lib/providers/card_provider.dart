@@ -9,6 +9,22 @@ import '../providers/notification_provider.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 
+/// Sort mode for the card list.
+enum CardSortMode { mostUsed, alphabetical, recentlyUsed, dateAdded }
+
+/// Provider for the current sort mode.
+final cardSortModeProvider =
+    NotifierProvider<CardSortModeNotifier, CardSortMode>(
+      CardSortModeNotifier.new,
+    );
+
+class CardSortModeNotifier extends Notifier<CardSortMode> {
+  @override
+  CardSortMode build() => CardSortMode.mostUsed;
+
+  void setMode(CardSortMode mode) => state = mode;
+}
+
 final cardListProvider = NotifierProvider<CardListNotifier, List<LoyaltyCard>>(
   CardListNotifier.new,
 );
@@ -20,17 +36,28 @@ class CardListNotifier extends Notifier<List<LoyaltyCard>> {
 
   @override
   List<LoyaltyCard> build() {
+    ref.watch(cardSortModeProvider);
     return _sortedCards();
   }
 
   List<LoyaltyCard> _sortedCards() {
     final cards = _box.values.toList();
+    final sortMode = ref.read(cardSortModeProvider);
     cards.sort((a, b) {
-      // Favourites pinned to top.
+      // Favourites always pinned to top.
       if (a.isFavourite && !b.isFavourite) return -1;
       if (!a.isFavourite && b.isFavourite) return 1;
-      // Then by usage count descending.
-      return b.usageCount.compareTo(a.usageCount);
+      // Then by selected sort mode.
+      return switch (sortMode) {
+        CardSortMode.mostUsed => b.usageCount.compareTo(a.usageCount),
+        CardSortMode.alphabetical => a.name.toLowerCase().compareTo(
+          b.name.toLowerCase(),
+        ),
+        CardSortMode.recentlyUsed => (b.lastUsed ?? DateTime(0)).compareTo(
+          a.lastUsed ?? DateTime(0),
+        ),
+        CardSortMode.dateAdded => b.createdAt.compareTo(a.createdAt),
+      };
     });
     return cards;
   }

@@ -45,3 +45,38 @@ Tracker for issues found during hands-on device testing.
 **Problem:** Tapping the card number field shows the full text keyboard instead of the number keyboard.
 **Fix:** N/A - design decision to keep alphanumeric keyboard. Some loyalty card numbers contain letters (e.g. "ABC123"), so a numeric keyboard would prevent valid input.
 **Status:** Closed (by design)
+
+## Item 7: About screen uses wrong theme
+
+**Screen:** About
+**Problem:** About screen uses a hardcoded light theme (cream/white cards) while the rest of the app is dark slate. Looks like a completely different app.
+**Fix:** Restyled to use `context.colors` from CardStashColors theme extension. Matches dark/light theme automatically.
+**Status:** Fixed
+
+## Item 8: Ko-fi and external links don't work
+
+**Screen:** About
+**Problem:** Ko-fi button, Privacy Policy, and GitHub links do nothing when tapped. Missing platform configuration for url_launcher.
+**Fix:** Added `<queries><intent>` for https URLs in AndroidManifest.xml. Added `LSApplicationQueriesSchemes` with "https" to iOS Info.plist.
+**Status:** Fixed
+
+## Item 9: Light/dark/system theme option
+
+**Screen:** Settings
+**Problem:** App is dark-only. Users should be able to choose light, dark, or follow system theme.
+**Fix:** Created CardStashColors theme extension with light/dark palettes. Added ThemeModeNotifier persisted to SharedPreferences. Added Appearance picker in Settings. Updated all screens to use `context.colors` instead of hardcoded hex values.
+**Status:** Fixed
+
+## Item 10: Card list sorting options
+
+**Screen:** Home
+**Problem:** Cards are sorted by usage count only. Users have no control over sort order.
+**Fix:** Added CardSortMode enum (Most used, A-Z, Recently used, Newest first). Sort button on home screen opens bottom sheet picker. Favourites always pinned to top regardless of sort mode.
+**Status:** Fixed
+
+## Item 11: Home screen widget
+
+**Screen:** N/A (native widget)
+**Problem:** Widget was planned for v1.1 but not yet started. Requires native Swift (iOS WidgetKit) and Kotlin/XML (Android AppWidget) code.
+**Fix:** Already documented in SPEC.md and BUILD_ORDER.md under v1.1 phases. Requires pre-rendered barcode PNGs via home_widget package.
+**Status:** Open (v1.1 scope)

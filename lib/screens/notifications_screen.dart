@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../theme.dart';
 import '../widgets/expiry_badge.dart';
 
 class NotificationsScreen extends ConsumerWidget {
@@ -17,19 +18,20 @@ class NotificationsScreen extends ConsumerWidget {
     final expiringCards = cards.where((c) => c.expiryDate != null).toList()
       ..sort((a, b) => a.expiryDate!.compareTo(b.expiryDate!));
 
+    final colors = context.colors;
     return Scaffold(
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
               child: Text(
                 'Alerts',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFF8FAFC),
+                  color: colors.textPrimary,
                   height: 1.25,
                 ),
               ),
@@ -46,25 +48,31 @@ class NotificationsScreen extends ConsumerWidget {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.notifications_none_outlined,
-              size: 64,
-              color: const Color(0xFF94A3B8).withValues(alpha: 0.5),
+    // No context available directly; use Builder or pass from build.
+    return Builder(
+      builder: (context) {
+        final colors = context.colors;
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.notifications_none_outlined,
+                  size: 64,
+                  color: colors.textMuted.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'No cards with expiry dates',
+                  style: TextStyle(fontSize: 16, color: colors.textMuted),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'No cards with expiry dates',
-              style: TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -72,8 +80,8 @@ class NotificationsScreen extends ConsumerWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       itemCount: cards.length,
-      separatorBuilder: (_, _) =>
-          const Divider(color: Color(0xFF334155), height: 1),
+      separatorBuilder: (context, _) =>
+          Divider(color: context.colors.border, height: 1),
       itemBuilder: (context, index) {
         final card = cards[index];
         return _ExpiryRow(card: card);
@@ -89,6 +97,7 @@ class _ExpiryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -99,19 +108,16 @@ class _ExpiryRow extends StatelessWidget {
               children: [
                 Text(
                   card.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFFF8FAFC),
+                    color: colors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(card.expiryDate!),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF94A3B8),
-                  ),
+                  style: TextStyle(fontSize: 14, color: colors.textMuted),
                 ),
               ],
             ),

@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import '../models/card.dart';
 import '../providers/card_provider.dart';
 import '../services/scanner_service.dart';
+import '../theme.dart';
 import '../utils/bin_detector.dart';
 import '../utils/luhn_validator.dart';
 import '../widgets/card_form_fields.dart';
@@ -124,6 +125,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
 
   Future<void> _pickExpiryDate() async {
     final now = DateTime.now();
+    final colors = context.colors;
     final picked = await showDatePicker(
       context: context,
       initialDate: _expiryDate ?? now.add(const Duration(days: 365)),
@@ -133,8 +135,8 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: const Color(0xFFF59E0B),
-              onPrimary: const Color(0xFF0F172A),
+              primary: colors.accent,
+              onPrimary: colors.background,
             ),
           ),
           child: child!,
@@ -178,26 +180,24 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Add Card',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
-            color: Color(0xFFF8FAFC),
+            color: colors.textPrimary,
           ),
         ),
-        backgroundColor: const Color(0xFF0F172A),
-        iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
+        backgroundColor: colors.background,
+        iconTheme: IconThemeData(color: colors.textPrimary),
         actions: [
           if (_isScanMode)
             TextButton(
               onPressed: _switchToManual,
-              child: const Text(
-                'Manual',
-                style: TextStyle(color: Color(0xFFF59E0B)),
-              ),
+              child: Text('Manual', style: TextStyle(color: colors.accent)),
             ),
         ],
       ),
@@ -207,6 +207,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
 
   Widget _buildScanMode() {
     _scannerController ??= MobileScannerController();
+    final colors = context.colors;
     return Column(
       children: [
         Expanded(
@@ -217,35 +218,36 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
                 controller: _scannerController!,
                 onDetect: _onScanDetect,
                 errorBuilder: (context, error) {
+                  final errColors = context.colors;
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(32),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.camera_alt_outlined,
                             size: 48,
-                            color: Color(0xFF94A3B8),
+                            color: errColors.textMuted,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             _cameraErrorMessage(error),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
-                              color: Color(0xFF94A3B8),
+                              color: errColors.textMuted,
                             ),
                           ),
                           const SizedBox(height: 24),
                           OutlinedButton(
                             onPressed: _switchToManual,
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFFF59E0B)),
+                              side: BorderSide(color: errColors.accent),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Enter manually',
-                              style: TextStyle(color: Color(0xFFF59E0B)),
+                              style: TextStyle(color: errColors.accent),
                             ),
                           ),
                         ],
@@ -261,7 +263,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
                   height: 180,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: const Color(0xFFF59E0B).withValues(alpha: 0.7),
+                      color: colors.accent.withValues(alpha: 0.7),
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -278,27 +280,25 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
               Text(
                 'Point your camera at the barcode on your card.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+                style: TextStyle(fontSize: 16, color: colors.textMuted),
               ),
               const SizedBox(height: 12),
               TextButton.icon(
                 onPressed: _analyzingImage ? null : _scanFromImage,
                 icon: _analyzingImage
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFFF59E0B),
+                          color: colors.accent,
                         ),
                       )
                     : const Icon(Icons.photo_library_outlined),
                 label: Text(
                   _analyzingImage ? 'Scanning...' : 'Scan from photo',
                 ),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFFF59E0B),
-                ),
+                style: TextButton.styleFrom(foregroundColor: colors.accent),
               ),
             ],
           ),
@@ -308,6 +308,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   }
 
   Widget _buildManualMode() {
+    final colors = context.colors;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -318,12 +319,12 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
             child: ElevatedButton(
               onPressed: _canSave ? _saveCard : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
-                disabledBackgroundColor: const Color(
-                  0xFF94A3B8,
-                ).withValues(alpha: 0.2),
-                foregroundColor: const Color(0xFF0F172A),
-                disabledForegroundColor: const Color(0xFF94A3B8),
+                backgroundColor: colors.accent,
+                disabledBackgroundColor: colors.textMuted.withValues(
+                  alpha: 0.2,
+                ),
+                foregroundColor: colors.background,
+                disabledForegroundColor: colors.textMuted,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -365,27 +366,22 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                color: colors.error.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
-                border: Border(
-                  left: BorderSide(color: const Color(0xFFEF4444), width: 4),
-                ),
+                border: Border(left: BorderSide(color: colors.error, width: 4)),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.warning_amber_rounded,
-                    color: Color(0xFFEF4444),
+                    color: colors.error,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _paymentCardError!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFFF8FAFC),
-                      ),
+                      style: TextStyle(fontSize: 14, color: colors.textPrimary),
                     ),
                   ),
                 ],
