@@ -9,6 +9,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 ## [Unreleased]
 
 ### Added
+- On-device OCR extracts card name and expiry date when scanning barcodes via camera
+- Take Photo button in scan mode for cards without barcodes - OCR reads the card number from the photo
+- Gallery scan now uses OCR alongside barcode detection to populate name, expiry, and card number
 - Scan barcode from saved photo (e.g. screenshot) via gallery picker in scan mode
 - Light, dark, and system theme support with Appearance picker in Settings
 - Card list sorting (most used, A-Z, recently used, newest first) via sort button on home screen

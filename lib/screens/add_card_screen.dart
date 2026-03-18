@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../services/ocr_service.dart';
 import '../services/scanner_service.dart';
 import '../theme.dart';
 import '../utils/bin_detector.dart';
@@ -53,6 +54,17 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     super.dispose();
   }
 
+  void _applyOcrResult(OcrResult ocr) {
+    setState(() {
+      if (ocr.issuerHint != null && _nameController.text.isEmpty) {
+        _nameController.text = ocr.issuerHint!;
+      }
+      if (ocr.expiryDate != null && _expiryDate == null) {
+        _expiryDate = ocr.expiryDate;
+      }
+    });
+  }
+
   void _onScanDetect(BarcodeCapture capture) {
     if (_scanned) return;
     final result = ScannerService.extractResult(capture);
@@ -66,6 +78,14 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     });
     _scannerController?.stop();
     _checkPaymentCard(result.cardNumber);
+
+    // Run OCR on the captured image to extract name and expiry.
+    final imageBytes = capture.image;
+    if (imageBytes != null) {
+      OcrService.extractCardInfoFromBytes(imageBytes).then((ocr) {
+        if (ocr != null && mounted) _applyOcrResult(ocr);
+      });
+    }
   }
 
   void _checkPaymentCard(String number) {
@@ -91,33 +111,80 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
 
     setState(() => _analyzingImage = true);
     try {
+      // Run barcode detection and OCR in parallel.
       _scannerController ??= MobileScannerController();
-      final capture = await _scannerController!.analyzeImage(image.path);
-      if (capture == null) {
+      final results = await Future.wait([
+        _scannerController!.analyzeImage(image.path),
+        OcrService.extractCardInfo(image.path),
+      ]);
+      final capture = results[0] as BarcodeCapture?;
+      final ocr = results[1] as OcrResult?;
+
+      final scanResult = capture != null
+          ? ScannerService.extractResult(capture)
+          : null;
+
+      if (scanResult != null) {
+        // Barcode found: use barcode number + type, supplement with OCR.
+        setState(() {
+          _scanned = true;
+          _isScanMode = false;
+          _cardNumberController.text = scanResult.cardNumber;
+          _selectedBarcodeType = scanResult.barcodeType;
+        });
+        _scannerController?.stop();
+        _checkPaymentCard(scanResult.cardNumber);
+        if (ocr != null && mounted) _applyOcrResult(ocr);
+      } else if (ocr?.cardNumber != null) {
+        // No barcode but OCR found a number: use as displayOnly.
+        setState(() {
+          _scanned = true;
+          _isScanMode = false;
+          _cardNumberController.text = ocr!.cardNumber!;
+          _selectedBarcodeType = BarcodeType.displayOnly;
+        });
+        _scannerController?.stop();
+        _checkPaymentCard(ocr!.cardNumber!);
+        _applyOcrResult(ocr);
+      } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No barcode found in this image.')),
+            const SnackBar(
+              content: Text('No barcode or text found in this image.'),
+            ),
           );
         }
-        return;
       }
-      final result = ScannerService.extractResult(capture);
-      if (result == null) {
+    } finally {
+      if (mounted) setState(() => _analyzingImage = false);
+    }
+  }
+
+  Future<void> _captureAndScan() async {
+    final picker = ImagePicker();
+    final photo = await picker.pickImage(source: ImageSource.camera);
+    if (photo == null) return;
+
+    setState(() => _analyzingImage = true);
+    try {
+      final ocr = await OcrService.extractCardInfo(photo.path);
+      if (ocr?.cardNumber != null) {
+        setState(() {
+          _scanned = true;
+          _isScanMode = false;
+          _cardNumberController.text = ocr!.cardNumber!;
+          _selectedBarcodeType = BarcodeType.displayOnly;
+        });
+        _scannerController?.stop();
+        _checkPaymentCard(ocr!.cardNumber!);
+        _applyOcrResult(ocr);
+      } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No barcode found in this image.')),
+            const SnackBar(content: Text('No text found in this photo.')),
           );
         }
-        return;
       }
-      setState(() {
-        _scanned = true;
-        _isScanMode = false;
-        _cardNumberController.text = result.cardNumber;
-        _selectedBarcodeType = result.barcodeType;
-      });
-      _scannerController?.stop();
-      _checkPaymentCard(result.cardNumber);
     } finally {
       if (mounted) setState(() => _analyzingImage = false);
     }
@@ -206,7 +273,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   }
 
   Widget _buildScanMode() {
-    _scannerController ??= MobileScannerController();
+    _scannerController ??= MobileScannerController(returnImage: true);
     final colors = context.colors;
     return Column(
       children: [
@@ -283,22 +350,32 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
                 style: TextStyle(fontSize: 16, color: colors.textMuted),
               ),
               const SizedBox(height: 12),
-              TextButton.icon(
-                onPressed: _analyzingImage ? null : _scanFromImage,
-                icon: _analyzingImage
-                    ? SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colors.accent,
-                        ),
-                      )
-                    : const Icon(Icons.photo_library_outlined),
-                label: Text(
-                  _analyzingImage ? 'Scanning...' : 'Scan from photo',
-                ),
-                style: TextButton.styleFrom(foregroundColor: colors.accent),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton.icon(
+                    onPressed: _analyzingImage ? null : _captureAndScan,
+                    icon: _analyzingImage
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.accent,
+                            ),
+                          )
+                        : const Icon(Icons.camera_alt_outlined),
+                    label: const Text('Take photo'),
+                    style: TextButton.styleFrom(foregroundColor: colors.accent),
+                  ),
+                  const SizedBox(width: 16),
+                  TextButton.icon(
+                    onPressed: _analyzingImage ? null : _scanFromImage,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('From gallery'),
+                    style: TextButton.styleFrom(foregroundColor: colors.accent),
+                  ),
+                ],
               ),
             ],
           ),

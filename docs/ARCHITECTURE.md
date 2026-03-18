@@ -345,6 +345,20 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
+### On-Device OCR: google_mlkit_text_recognition
+
+**Decision:** Use `google_mlkit_text_recognition` for on-device text recognition to extract card names, expiry dates, and card numbers from camera images.
+
+**Rationale:** When scanning a card, the barcode scanner detects the barcode value and type, but the user must manually type the card name and expiry. OCR fills these fields automatically. It also handles cards with no barcode at all - the user photographs the card and OCR extracts the number.
+
+`google_mlkit_text_recognition` was chosen because it runs entirely on-device (no network calls, consistent with the app's zero-network constraint), ships with minimal binary size impact (~260KB), and leverages the same ML Kit infrastructure already present via `mobile_scanner`. Alternatives considered: `tesseract_ocr` (larger binary, more complex setup, lower accuracy on mobile), building custom regex extraction from barcode raw values (only works if the barcode encodes the text, which loyalty cards rarely do).
+
+The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency, making it fully unit-testable without device or emulator.
+
+**Trade-off:** Adds a native dependency that increases build time slightly. OCR accuracy varies with image quality and card design - results are used as suggestions that the user can edit, not trusted blindly.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

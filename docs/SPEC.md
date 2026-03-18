@@ -204,7 +204,7 @@ Accepted via a single "Got it" button; not shown again.
 - Categories / folders (e.g. groceries, travel, gym)
 - Duplicate card number detection
 - Biometric lock (Face ID / Touch ID / fingerprint) via `local_auth`
-- On-device OCR via `google_mlkit_text_recognition` - extract card numbers, expiry dates, and names from photos using on-device ML (no network calls). Enhances the scan-from-image flow added in v1.0.
+- ~~On-device OCR via `google_mlkit_text_recognition`~~ -- **Implemented.** Extracts card numbers, expiry dates, and issuer names from images using on-device ML Kit. Integrated into live camera scan (auto-populates name/expiry when barcode detected), Take Photo button (for cards without barcodes), and gallery pick (parallel barcode + OCR). See `ocr_service.dart`.
 
 #### Home Screen Widget (4×2)
 
