@@ -320,6 +320,7 @@ Build in this order if/when pursued:
 | Duplicate card detection | Phase 3 (home screen) |
 | Categories / folders | Phase 3 (home screen) |
 | Home screen widget | Phase 2 (card display), Phase 1 (storage) |
+| On-device OCR (`google_mlkit_text_recognition`) | Phase 4 (add card), scan-from-image |
 
 ---
 

@@ -70,7 +70,7 @@ void main() {
       expect(find.text('Card number'), findsOneWidget);
       expect(find.text('Barcode type'), findsOneWidget);
       expect(find.text('Colour'), findsOneWidget);
-      expect(find.text('Scan'), findsOneWidget);
+      expect(find.text('Save card'), findsOneWidget);
     });
 
     testWidgets('shows payment card rejection for Visa number', (tester) async {

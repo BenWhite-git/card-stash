@@ -6,6 +6,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 
 ---
 
+## [Unreleased]
+
+### Added
+- Scan barcode from saved photo (e.g. screenshot) via gallery picker in scan mode
+
+---
+
 ## [1.0.0] - 2026-03-17
 
 ### Added

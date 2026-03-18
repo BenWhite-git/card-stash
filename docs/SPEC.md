@@ -204,6 +204,7 @@ Accepted via a single "Got it" button; not shown again.
 - Categories / folders (e.g. groceries, travel, gym)
 - Duplicate card number detection
 - Biometric lock (Face ID / Touch ID / fingerprint) via `local_auth`
+- On-device OCR via `google_mlkit_text_recognition` - extract card numbers, expiry dates, and names from photos using on-device ML (no network calls). Enhances the scan-from-image flow added in v1.0.
 
 #### Home Screen Widget (4×2)
 
@@ -298,6 +299,7 @@ Launch
         │     └── Tap to dismiss
         ├── FAB → Add Card
         │     ├── Scan → camera detects format automatically → name + confirm
+        │     ├── Scan from image → pick photo → detect barcode → name + confirm
         │     └── Manual → enter number → select barcode type → name + confirm
         ├── Long press card → contextual menu
         │     ├── Edit

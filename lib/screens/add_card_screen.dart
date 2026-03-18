@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeType;
 import 'package:uuid/uuid.dart';
 
@@ -40,6 +41,7 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   String? _paymentCardError;
 
   MobileScannerController? _scannerController;
+  bool _analyzingImage = false;
 
   @override
   void dispose() {
@@ -81,12 +83,43 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     });
   }
 
-  void _switchToScan() {
-    setState(() {
-      _isScanMode = true;
-      _scanned = false;
-    });
-    _scannerController?.start();
+  Future<void> _scanFromImage() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    setState(() => _analyzingImage = true);
+    try {
+      _scannerController ??= MobileScannerController();
+      final capture = await _scannerController!.analyzeImage(image.path);
+      if (capture == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No barcode found in this image.')),
+          );
+        }
+        return;
+      }
+      final result = ScannerService.extractResult(capture);
+      if (result == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No barcode found in this image.')),
+          );
+        }
+        return;
+      }
+      setState(() {
+        _scanned = true;
+        _isScanMode = false;
+        _cardNumberController.text = result.cardNumber;
+        _selectedBarcodeType = result.barcodeType;
+      });
+      _scannerController?.stop();
+      _checkPaymentCard(result.cardNumber);
+    } finally {
+      if (mounted) setState(() => _analyzingImage = false);
+    }
   }
 
   Future<void> _pickExpiryDate() async {
@@ -158,14 +191,6 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
         backgroundColor: const Color(0xFF0F172A),
         iconTheme: const IconThemeData(color: Color(0xFFF8FAFC)),
         actions: [
-          if (!_isScanMode)
-            TextButton(
-              onPressed: _switchToScan,
-              child: const Text(
-                'Scan',
-                style: TextStyle(color: Color(0xFFF59E0B)),
-              ),
-            ),
           if (_isScanMode)
             TextButton(
               onPressed: _switchToManual,
@@ -247,11 +272,35 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Point your camera at the barcode on your card.',
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            children: [
+              Text(
+                'Point your camera at the barcode on your card.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16, color: Color(0xFF94A3B8)),
+              ),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: _analyzingImage ? null : _scanFromImage,
+                icon: _analyzingImage
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFF59E0B),
+                        ),
+                      )
+                    : const Icon(Icons.photo_library_outlined),
+                label: Text(
+                  _analyzingImage ? 'Scanning...' : 'Scan from photo',
+                ),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFF59E0B),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -264,11 +313,37 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _canSave ? _saveCard : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF59E0B),
+                disabledBackgroundColor: const Color(
+                  0xFF94A3B8,
+                ).withValues(alpha: 0.2),
+                foregroundColor: const Color(0xFF0F172A),
+                disabledForegroundColor: const Color(0xFF94A3B8),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: const Text('Save card'),
+            ),
+          ),
+          const SizedBox(height: 24),
+
           const CardFormLabel(text: 'Card name'),
           const SizedBox(height: 4),
           CardTextField(
             controller: _nameController,
             hint: 'e.g. Tesco Clubcard',
+            textCapitalization: TextCapitalization.words,
             autofocus: true,
             onChanged: (_) => setState(() {}),
           ),
@@ -351,31 +426,6 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
             hint: "e.g. Partner's card",
             maxLines: 3,
             onChanged: (_) => setState(() {}),
-          ),
-          const SizedBox(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _canSave ? _saveCard : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
-                disabledBackgroundColor: const Color(
-                  0xFF94A3B8,
-                ).withValues(alpha: 0.2),
-                foregroundColor: const Color(0xFF0F172A),
-                disabledForegroundColor: const Color(0xFF94A3B8),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              child: const Text('Save card'),
-            ),
           ),
           const SizedBox(height: 32),
         ],

@@ -67,6 +67,7 @@ class BarcodeView extends StatelessWidget {
             fontSize: 28,
             fontWeight: FontWeight.w600,
             letterSpacing: 2,
+            color: Colors.black,
           ),
           textAlign: TextAlign.center,
         ),
@@ -99,8 +100,9 @@ class BarcodeView extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'JetBrains Mono',
             fontSize: 20,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             letterSpacing: 1.5,
+            color: Colors.black,
           ),
           textAlign: TextAlign.center,
         ),

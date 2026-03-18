@@ -191,6 +191,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
             CardTextField(
               controller: _nameController,
               hint: 'e.g. Tesco Clubcard',
+              textCapitalization: TextCapitalization.words,
               autofocus: true,
               onChanged: (_) => setState(() {}),
             ),
