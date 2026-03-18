@@ -273,11 +273,23 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 ---
 
-### About Screen: Light Theme via Theme Widget Override
+### Theme System: CardStashColors Extension
 
-**Decision:** The About screen uses a `Theme(data: lightTheme)` wrapper around its `Scaffold` rather than a separate `MaterialApp` or global theme switch.
+**Decision:** Define app colours in a `CardStashColors` ThemeExtension with light and dark palettes, accessed via `context.colors`. All UI element colours reference named theme variables, never hardcoded hex values.
 
-**Rationale:** A separate `MaterialApp` would break navigation context (no `Navigator.pop()` back to Settings). A global theme switch would affect the entire app. Wrapping just the About screen's subtree in a `Theme` widget overrides the inherited dark theme locally while preserving the navigation stack and all ancestor context.
+**Rationale:** The app originally used hardcoded dark theme colours throughout. Adding light/dark/system theme support required decoupling colours from the UI code. A `ThemeExtension` is the Flutter-native approach - it integrates with `MaterialApp`'s `theme`/`darkTheme`/`themeMode` system and supports `lerp` for animated transitions. The `BuildContext` extension (`context.colors`) provides a concise API.
+
+**What was rejected:** Defining colours as top-level constants with a global "current palette" variable. This doesn't integrate with Flutter's theme system and breaks when the platform brightness changes.
+
+**Theme mode persistence:** Stored in `SharedPreferences` via `ThemeModeNotifier`, read before the first frame. Default is `ThemeMode.system`.
+
+---
+
+### About Screen: App Theme, not Hardcoded Light
+
+**Decision:** The About screen uses the app's current theme (light or dark) via `context.colors`, matching the rest of the app.
+
+**Rationale:** The original spec called for a light "portfolio pattern" About screen, but on-device testing showed it looked like a different app. Consistency across screens is more important than matching an external portfolio pattern.
 
 ---
 

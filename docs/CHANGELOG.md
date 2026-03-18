@@ -10,6 +10,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 
 ### Added
 - Scan barcode from saved photo (e.g. screenshot) via gallery picker in scan mode
+- Light, dark, and system theme support with Appearance picker in Settings
+- Card list sorting (most used, A-Z, recently used, newest first) via sort button on home screen
+- Custom colour picker with HSV dialog for card backgrounds
+- 6 additional preset colours (Lime, Fuchsia, Stone, Sky, Purple, Rose)
+- Edit button on card display screen for quicker access to editing
+- Auto-capitalise words in card name field
+
+### Changed
+- About screen restyled to match the app theme instead of hardcoded light theme
+- Save button moved to top of add card form for visibility without scrolling
+- Removed Scan button from add card AppBar to prevent accidental taps
+- Card number text darkened to black for accessibility on display screen
+
+### Fixed
+- External links (Ko-fi, Privacy Policy, GitHub) now open correctly on Android and iOS
+- Android adaptive icon foreground uses transparent background for proper mask rendering
 
 ---
 

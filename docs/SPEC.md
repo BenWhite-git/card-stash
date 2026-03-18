@@ -293,9 +293,11 @@ These are intentionally excluded from the roadmap:
 
 ```
 Launch
-  └── Home (card list, sorted by usage count)
+  └── Home (card list, sort button top right)
         ├── Search bar (fuzzy match on name/issuer)
+        ├── Sort options: Most used / A-Z / Recently used / Newest first
         ├── Tap card → Card Display (full screen, max brightness)
+        │     ├── Edit button (top right) → Edit Card
         │     └── Tap to dismiss
         ├── FAB → Add Card
         │     ├── Scan → camera detects format automatically → name + confirm
@@ -307,6 +309,7 @@ Launch
         │     ├── Toggle Favourite
         │     └── Delete (confirmation required)
         └── Settings
+              ├── Appearance (System / Light / Dark)
               ├── Export cards
               │     ├── Enter passphrase → confirm passphrase
               │     └── OS share sheet (AirDrop / iCloud / Drive / etc.)
@@ -328,13 +331,15 @@ Launch
 
 ```
 lib/
+  theme.dart                # CardStashColors extension, light/dark theme builders
   models/
     card.dart               # Card model + BarcodeType enum
     card.g.dart             # Hive CE generated adapter
     export_manifest.dart    # .cardstash file envelope model
   providers/
-    card_provider.dart      # Riverpod providers for card CRUD
+    card_provider.dart      # Riverpod providers for card CRUD + sort mode
     notification_provider.dart
+    first_launch_provider.dart  # First launch flag + theme mode preference
   screens/
     home_screen.dart
     add_card_screen.dart

@@ -68,10 +68,11 @@ lib/
     card.dart               # Card model + BarcodeType enum
     card.g.dart             # Hive CE generated adapter (do not edit manually)
     export_manifest.dart    # .cardstash file envelope model
+  theme.dart                # CardStashColors extension, light/dark theme builders
   providers/
-    card_provider.dart      # Riverpod providers for card CRUD
+    card_provider.dart      # Riverpod providers for card CRUD + sort mode
     notification_provider.dart
-    first_launch_provider.dart
+    first_launch_provider.dart  # First launch flag + theme mode preference
   screens/
     home_screen.dart
     add_card_screen.dart
