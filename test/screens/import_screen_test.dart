@@ -113,6 +113,7 @@ void main() {
         totalCards: 5,
         importedCards: 5,
         skippedDuplicates: 0,
+        skippedPaymentCards: 0,
       );
       await tester.pumpWidget(buildImportScreen());
 
@@ -163,6 +164,7 @@ void main() {
         totalCards: 5,
         importedCards: 3,
         skippedDuplicates: 2,
+        skippedPaymentCards: 0,
       );
       await tester.pumpWidget(buildImportScreen());
 

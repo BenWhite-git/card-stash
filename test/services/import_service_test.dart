@@ -349,6 +349,58 @@ void main() {
       });
     });
 
+    group('payment card filtering', () {
+      test('replace all silently drops payment cards', () async {
+        await exportBox.put(
+          'visa',
+          makeCard(id: 'visa', cardNumber: '4539578763621486'),
+        );
+        await exportBox.put(
+          'loyalty',
+          makeCard(id: 'loyalty', cardNumber: '1234567890'),
+        );
+        final filePath = await exportFile('test-pass');
+        final service = ImportService(importBox, stubNotifications);
+
+        final result = await service.importCards(
+          filePath,
+          'test-pass',
+          ImportMode.replaceAll,
+        );
+
+        expect(result.totalCards, 2);
+        expect(result.importedCards, 1);
+        expect(result.skippedPaymentCards, 1);
+        expect(importBox.length, 1);
+        expect(importBox.values.first.cardNumber, '1234567890');
+      });
+
+      test('merge silently drops payment cards', () async {
+        await exportBox.put(
+          'mc',
+          makeCard(id: 'mc', cardNumber: '5425233430109903'),
+        );
+        await exportBox.put(
+          'loyalty',
+          makeCard(id: 'loyalty', cardNumber: '9876543210'),
+        );
+        final filePath = await exportFile('test-pass');
+        final service = ImportService(importBox, stubNotifications);
+
+        final result = await service.importCards(
+          filePath,
+          'test-pass',
+          ImportMode.merge,
+        );
+
+        expect(result.totalCards, 2);
+        expect(result.importedCards, 1);
+        expect(result.skippedPaymentCards, 1);
+        expect(importBox.length, 1);
+        expect(importBox.values.first.cardNumber, '9876543210');
+      });
+    });
+
     group('round-trip', () {
       test('export then import preserves all card fields', () async {
         final original = LoyaltyCard(

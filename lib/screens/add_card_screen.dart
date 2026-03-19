@@ -226,6 +226,13 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   Future<void> _saveCard() async {
     if (!_canSave) return;
 
+    // Defense-in-depth: reject payment cards even if UI state is stale.
+    final number = _cardNumberController.text.trim();
+    if (LuhnValidator.isValid(number) && BinDetector.isPaymentCard(number)) {
+      setState(() => _paymentCardError = _paymentCardMessage);
+      return;
+    }
+
     final card = LoyaltyCard(
       id: const Uuid().v4(),
       name: _nameController.text.trim(),

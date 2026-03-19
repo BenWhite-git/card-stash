@@ -14,7 +14,9 @@ import '../models/export_manifest.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import '../providers/notification_provider.dart';
+import '../utils/bin_detector.dart';
 import '../utils/crypto_utils.dart';
+import '../utils/luhn_validator.dart';
 
 enum ImportMode { replaceAll, merge }
 
@@ -22,11 +24,13 @@ class ImportResult {
   final int totalCards;
   final int importedCards;
   final int skippedDuplicates;
+  final int skippedPaymentCards;
 
   const ImportResult({
     required this.totalCards,
     required this.importedCards,
     required this.skippedDuplicates,
+    required this.skippedPaymentCards,
   });
 }
 
@@ -60,6 +64,11 @@ class ImportService {
   /// Normalise a card number by stripping spaces and hyphens.
   static String normaliseCardNumber(String number) {
     return number.replaceAll(RegExp(r'[\s\-]'), '');
+  }
+
+  /// Returns true if the card number looks like a payment card.
+  static bool _isPaymentCard(String number) {
+    return LuhnValidator.isValid(number) && BinDetector.isPaymentCard(number);
   }
 
   /// Import cards from a .cardstash file.
@@ -134,20 +143,27 @@ class ImportService {
       throw ImportFormatException('Failed to parse card data: $e');
     }
 
-    final cards = cardJsonList
+    final allCards = cardJsonList
         .map((j) => LoyaltyCard.fromExportJson(j as Map<String, dynamic>))
         .toList();
+    final cards = allCards.where((c) => !_isPaymentCard(c.cardNumber)).toList();
+    final skippedPaymentCards = allCards.length - cards.length;
 
     // 6. Apply import mode.
     switch (mode) {
       case ImportMode.replaceAll:
-        return _replaceAll(cards);
+        return _replaceAll(cards,
+            skippedPaymentCards: skippedPaymentCards);
       case ImportMode.merge:
-        return _merge(cards);
+        return _merge(cards,
+            skippedPaymentCards: skippedPaymentCards);
     }
   }
 
-  Future<ImportResult> _replaceAll(List<LoyaltyCard> cards) async {
+  Future<ImportResult> _replaceAll(
+    List<LoyaltyCard> cards, {
+    required int skippedPaymentCards,
+  }) async {
     // Cancel notifications for all existing cards.
     for (final existing in _box.values) {
       await _notifications.cancelCardNotifications(existing);
@@ -162,13 +178,17 @@ class ImportService {
     }
 
     return ImportResult(
-      totalCards: cards.length,
+      totalCards: cards.length + skippedPaymentCards,
       importedCards: cards.length,
       skippedDuplicates: 0,
+      skippedPaymentCards: skippedPaymentCards,
     );
   }
 
-  Future<ImportResult> _merge(List<LoyaltyCard> cards) async {
+  Future<ImportResult> _merge(
+    List<LoyaltyCard> cards, {
+    required int skippedPaymentCards,
+  }) async {
     final existingNumbers = _box.values
         .map((c) => normaliseCardNumber(c.cardNumber))
         .toSet();
@@ -208,9 +228,10 @@ class ImportService {
     }
 
     return ImportResult(
-      totalCards: cards.length,
+      totalCards: cards.length + skippedPaymentCards,
       importedCards: imported,
       skippedDuplicates: skipped,
+      skippedPaymentCards: skippedPaymentCards,
     );
   }
 

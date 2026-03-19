@@ -13,6 +13,7 @@ class StubImportService implements ImportService {
       totalCards: 3,
       importedCards: 3,
       skippedDuplicates: 0,
+      skippedPaymentCards: 0,
     ),
   });
 
