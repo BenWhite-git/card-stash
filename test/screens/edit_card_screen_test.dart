@@ -133,16 +133,53 @@ void main() {
       expect(find.text('My notes'), findsOneWidget);
     });
 
-    testWidgets('shows card number as read-only', (tester) async {
+    testWidgets('card number is editable', (tester) async {
       await pumpEditScreen(tester, card: _makeCard(cardNumber: '9876543210'));
 
       expect(find.text('9876543210'), findsOneWidget);
 
-      // Card number should not be in an editable TextField.
+      // Card number should be in an editable TextField.
       final textFields = tester.widgetList<TextField>(find.byType(TextField));
-      for (final field in textFields) {
-        expect(field.controller?.text, isNot('9876543210'));
-      }
+      final hasCardNumber = textFields.any(
+        (f) => f.controller?.text == '9876543210',
+      );
+      expect(hasCardNumber, isTrue);
+    });
+
+    testWidgets('saves updated card number to Hive', (tester) async {
+      await pumpEditScreen(tester, card: _makeCard(cardNumber: '1234567890'));
+
+      // Card number is the second TextField (after name).
+      final numberField = find.byType(TextField).at(1);
+      await tester.enterText(numberField, '0000011111');
+      await tester.pump();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save changes');
+      await tester.ensureVisible(saveButton);
+      await tester.pump();
+
+      await tester.runAsync(() async {
+        await tester.tap(saveButton);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump();
+
+      final saved = box.get('card-1')!;
+      expect(saved.cardNumber, '0000011111');
+    });
+
+    testWidgets('save disabled when card number is empty', (tester) async {
+      await pumpEditScreen(tester, card: _makeCard());
+
+      // Clear the card number field (second TextField).
+      final numberField = find.byType(TextField).at(1);
+      await tester.enterText(numberField, '');
+      await tester.pump();
+
+      final saveButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Save changes'),
+      );
+      expect(saveButton.onPressed, isNull);
     });
 
     testWidgets('save button disabled when name is empty', (tester) async {
@@ -183,8 +220,8 @@ void main() {
     testWidgets('saves updated notes to Hive', (tester) async {
       await pumpEditScreen(tester, card: _makeCard());
 
-      // Notes is the second TextField (after name).
-      final notesField = find.byType(TextField).at(1);
+      // Notes is the third TextField (after name and card number).
+      final notesField = find.byType(TextField).at(2);
       await tester.enterText(notesField, 'Updated notes');
       await tester.pump();
 
@@ -229,7 +266,7 @@ void main() {
       await pumpEditScreen(
         tester,
         card: _makeCard(
-          cardNumber: 'IMMUTABLE123',
+          cardNumber: 'LOYALTY123',
           usageCount: 5,
           lastUsed: DateTime(2026, 3, 1),
           isFavourite: true,
@@ -245,7 +282,7 @@ void main() {
       await tester.pump();
 
       final saved = box.get('card-1')!;
-      expect(saved.cardNumber, 'IMMUTABLE123');
+      expect(saved.cardNumber, 'LOYALTY123');
       expect(saved.usageCount, 5);
       expect(saved.lastUsed, DateTime(2026, 3, 1));
       expect(saved.isFavourite, true);
@@ -329,7 +366,8 @@ void main() {
     testWidgets('clears notes to null when text emptied', (tester) async {
       await pumpEditScreen(tester, card: _makeCard(notes: 'Old notes'));
 
-      final notesField = find.byType(TextField).at(1);
+      // Notes is the third TextField (after name and card number).
+      final notesField = find.byType(TextField).at(2);
       await tester.enterText(notesField, '');
       await tester.pump();
 
@@ -345,6 +383,70 @@ void main() {
 
       final saved = box.get('card-1')!;
       expect(saved.notes, isNull);
+    });
+
+    testWidgets(
+      'shows duplicate warning when changing number to match another card',
+      (tester) async {
+        // Add a second card to the box.
+        await tester.runAsync(() async {
+          await box.put(
+            'card-2',
+            LoyaltyCard(
+              id: 'card-2',
+              name: 'Boots Card',
+              cardNumber: '9999988888',
+              barcodeType: BarcodeType.code128,
+              colourValue: 0xFF3B82F6,
+              createdAt: DateTime(2026, 1, 1),
+            ),
+          );
+        });
+
+        await pumpEditScreen(tester, card: _makeCard(cardNumber: '1234567890'));
+
+        // Change card number to match the other card.
+        final numberField = find.byType(TextField).at(1);
+        await tester.enterText(numberField, '9999988888');
+        await tester.pump();
+
+        final saveButton = find.widgetWithText(ElevatedButton, 'Save changes');
+        await tester.ensureVisible(saveButton);
+        await tester.pump();
+
+        await tester.tap(saveButton);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.text('Duplicate card number'), findsOneWidget);
+        expect(find.textContaining('Boots Card'), findsOneWidget);
+      },
+    );
+
+    testWidgets('no duplicate warning when keeping own card number', (
+      tester,
+    ) async {
+      await pumpEditScreen(tester, card: _makeCard(cardNumber: '1234567890'));
+
+      // Don't change the card number - just change the name.
+      final nameField = find.byType(TextField).at(0);
+      await tester.enterText(nameField, 'Updated Name');
+      await tester.pump();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save changes');
+      await tester.ensureVisible(saveButton);
+      await tester.pump();
+
+      await tester.runAsync(() async {
+        await tester.tap(saveButton);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump();
+
+      // Should save without dialog since number didn't change.
+      expect(find.text('Duplicate card number'), findsNothing);
+      final saved = box.get('card-1')!;
+      expect(saved.name, 'Updated Name');
     });
   });
 }

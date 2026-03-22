@@ -269,5 +269,155 @@ void main() {
         findsNothing,
       );
     });
+
+    testWidgets('shows duplicate warning when card number exists', (
+      tester,
+    ) async {
+      // Pre-populate box with an existing card.
+      await tester.runAsync(() async {
+        await box.put(
+          'existing',
+          LoyaltyCard(
+            id: 'existing',
+            name: 'My Boots Card',
+            cardNumber: '1234567890',
+            barcodeType: BarcodeType.code128,
+            colourValue: 0xFF3B82F6,
+            createdAt: DateTime(2026, 1, 1),
+          ),
+        );
+      });
+
+      await tester.pumpWidget(_buildTestApp(box));
+      await tester.pumpAndSettle();
+
+      final nameField = find.byType(TextField).at(0);
+      await tester.enterText(nameField, 'Another Card');
+      final numberField = find.byType(TextField).at(1);
+      await tester.enterText(numberField, '1234567890');
+      await tester.pumpAndSettle();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save card');
+      await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      // Should show duplicate warning dialog.
+      expect(find.text('Duplicate card number'), findsOneWidget);
+      expect(find.textContaining('My Boots Card'), findsOneWidget);
+    });
+
+    testWidgets('duplicate warning cancel does not save', (tester) async {
+      await tester.runAsync(() async {
+        await box.put(
+          'existing',
+          LoyaltyCard(
+            id: 'existing',
+            name: 'My Boots Card',
+            cardNumber: '1234567890',
+            barcodeType: BarcodeType.code128,
+            colourValue: 0xFF3B82F6,
+            createdAt: DateTime(2026, 1, 1),
+          ),
+        );
+      });
+
+      await tester.pumpWidget(_buildTestApp(box));
+      await tester.pumpAndSettle();
+
+      final nameField = find.byType(TextField).at(0);
+      await tester.enterText(nameField, 'Another Card');
+      final numberField = find.byType(TextField).at(1);
+      await tester.enterText(numberField, '1234567890');
+      await tester.pumpAndSettle();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save card');
+      await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      // Tap Cancel in dialog.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      // Only the original card should be in the box.
+      expect(box.values.length, 1);
+      expect(box.values.first.name, 'My Boots Card');
+    });
+
+    testWidgets('duplicate dialog shows Save anyway button', (tester) async {
+      await tester.runAsync(() async {
+        await box.put(
+          'existing',
+          LoyaltyCard(
+            id: 'existing',
+            name: 'My Boots Card',
+            cardNumber: '1234567890',
+            barcodeType: BarcodeType.code128,
+            colourValue: 0xFF3B82F6,
+            createdAt: DateTime(2026, 1, 1),
+          ),
+        );
+      });
+
+      await tester.pumpWidget(_buildTestApp(box));
+      await tester.pumpAndSettle();
+
+      final nameField = find.byType(TextField).at(0);
+      await tester.enterText(nameField, 'Another Card');
+      final numberField = find.byType(TextField).at(1);
+      await tester.enterText(numberField, '1234567890');
+      await tester.pumpAndSettle();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save card');
+      await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      // Dialog should offer both Cancel and Save anyway.
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Save anyway'), findsOneWidget);
+    });
+
+    testWidgets('duplicate detection normalises card numbers', (tester) async {
+      await tester.runAsync(() async {
+        await box.put(
+          'existing',
+          LoyaltyCard(
+            id: 'existing',
+            name: 'My Boots Card',
+            cardNumber: '1234-5678-90',
+            barcodeType: BarcodeType.code128,
+            colourValue: 0xFF3B82F6,
+            createdAt: DateTime(2026, 1, 1),
+          ),
+        );
+      });
+
+      await tester.pumpWidget(_buildTestApp(box));
+      await tester.pumpAndSettle();
+
+      final nameField = find.byType(TextField).at(0);
+      await tester.enterText(nameField, 'Another Card');
+      final numberField = find.byType(TextField).at(1);
+      // Same number without hyphens.
+      await tester.enterText(numberField, '1234567890');
+      await tester.pumpAndSettle();
+
+      final saveButton = find.widgetWithText(ElevatedButton, 'Save card');
+      await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Duplicate card number'), findsOneWidget);
+    });
   });
 }

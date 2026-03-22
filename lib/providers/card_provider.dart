@@ -8,6 +8,7 @@ import '../models/card.dart';
 import '../providers/notification_provider.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
+import '../utils/card_number_utils.dart';
 
 /// Sort mode for the card list.
 enum CardSortMode { mostUsed, alphabetical, recentlyUsed, dateAdded }
@@ -72,6 +73,19 @@ class CardListNotifier extends Notifier<List<LoyaltyCard>> {
     if (card == null) return;
     card.notificationIds = ids;
     await card.save();
+  }
+
+  /// Returns the existing card with a matching normalised card number,
+  /// or null if no duplicate exists. Pass [excludeId] to skip a specific
+  /// card (used on the edit screen to avoid matching the card being edited).
+  LoyaltyCard? findDuplicate(String cardNumber, {String? excludeId}) {
+    final normalised = normaliseCardNumber(cardNumber);
+    if (normalised.isEmpty) return null;
+    for (final card in _box.values) {
+      if (excludeId != null && card.id == excludeId) continue;
+      if (normaliseCardNumber(card.cardNumber) == normalised) return card;
+    }
+    return null;
   }
 
   Future<void> addCard(LoyaltyCard card) async {

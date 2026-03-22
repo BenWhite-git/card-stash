@@ -233,6 +233,13 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
       return;
     }
 
+    // Check for duplicate card number.
+    final duplicate = ref.read(cardListProvider.notifier).findDuplicate(number);
+    if (duplicate != null && mounted) {
+      final confirmed = await confirmDuplicateDialog(context, duplicate.name);
+      if (!confirmed) return;
+    }
+
     final card = LoyaltyCard(
       id: const Uuid().v4(),
       name: _nameController.text.trim(),

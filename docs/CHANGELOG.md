@@ -9,6 +9,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 ## [Unreleased]
 
 ### Added
+- Duplicate card number detection with warning dialog on add and edit screens
+- Card number is now editable on the edit card screen
 - On-device OCR extracts card name and expiry date when scanning barcodes via camera
 - Take Photo button in scan mode for cards without barcodes - OCR reads the card number from the photo
 - Gallery scan now uses OCR alongside barcode detection to populate name, expiry, and card number
@@ -60,5 +62,4 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 ### Planned for v1.1.0
 - Categories / folders
 - Home screen widget (most used card)
-- Duplicate card number detection
 - Biometric lock (Face ID / Touch ID / fingerprint)

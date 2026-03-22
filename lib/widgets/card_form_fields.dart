@@ -553,3 +553,38 @@ Future<bool> confirmDeleteDialog(BuildContext context, String cardName) async {
   );
   return confirmed ?? false;
 }
+
+/// Shows a warning dialog when a duplicate card number is detected.
+/// Returns true if the user chooses to save anyway.
+Future<bool> confirmDuplicateDialog(
+  BuildContext context,
+  String existingCardName,
+) async {
+  final colors = context.colors;
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: colors.surface,
+      title: Text(
+        'Duplicate card number',
+        style: TextStyle(color: colors.textPrimary),
+      ),
+      content: Text(
+        'A card with this number already exists: "$existingCardName". '
+        'Save anyway?',
+        style: TextStyle(color: colors.textSecondary),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, false),
+          child: Text('Cancel', style: TextStyle(color: colors.textMuted)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext, true),
+          child: Text('Save anyway', style: TextStyle(color: colors.accent)),
+        ),
+      ],
+    ),
+  );
+  return confirmed ?? false;
+}

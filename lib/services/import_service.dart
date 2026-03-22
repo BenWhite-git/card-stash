@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:uuid/uuid.dart';
 
+import '../utils/card_number_utils.dart';
+
 import '../models/card.dart';
 import '../models/export_manifest.dart';
 import '../services/notification_service.dart';
@@ -60,11 +62,6 @@ class ImportService {
   final NotificationService _notifications;
 
   ImportService(this._box, this._notifications);
-
-  /// Normalise a card number by stripping spaces and hyphens.
-  static String normaliseCardNumber(String number) {
-    return number.replaceAll(RegExp(r'[\s\-]'), '');
-  }
 
   /// Returns true if the card number looks like a payment card.
   static bool _isPaymentCard(String number) {
@@ -152,11 +149,9 @@ class ImportService {
     // 6. Apply import mode.
     switch (mode) {
       case ImportMode.replaceAll:
-        return _replaceAll(cards,
-            skippedPaymentCards: skippedPaymentCards);
+        return _replaceAll(cards, skippedPaymentCards: skippedPaymentCards);
       case ImportMode.merge:
-        return _merge(cards,
-            skippedPaymentCards: skippedPaymentCards);
+        return _merge(cards, skippedPaymentCards: skippedPaymentCards);
     }
   }
 

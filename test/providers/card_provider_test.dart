@@ -270,4 +270,50 @@ void main() {
       expect(stubNotifications.calls, contains('cancel:1'));
     });
   });
+
+  group('CardListNotifier duplicate detection', () {
+    test('findDuplicate returns null when no cards exist', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      expect(notifier.findDuplicate('1234567890'), isNull);
+    });
+
+    test('findDuplicate returns matching card', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      await notifier.addCard(_makeCard(id: 'a', name: 'Tesco'));
+      final dup = notifier.findDuplicate('1234567890');
+      expect(dup, isNotNull);
+      expect(dup!.name, 'Tesco');
+    });
+
+    test('findDuplicate normalises before comparing', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      await notifier.addCard(_makeCard(id: 'a', name: 'Tesco'));
+      // Spaces and hyphens should be stripped.
+      expect(notifier.findDuplicate('1234 5678 90'), isNotNull);
+      expect(notifier.findDuplicate('12-3456-7890'), isNotNull);
+    });
+
+    test('findDuplicate returns null for non-matching number', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      await notifier.addCard(_makeCard(id: 'a', name: 'Tesco'));
+      expect(notifier.findDuplicate('9999999999'), isNull);
+    });
+
+    test('findDuplicate excludes card by id', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      await notifier.addCard(_makeCard(id: 'a', name: 'Tesco'));
+      // Excluding the same card should return null.
+      expect(notifier.findDuplicate('1234567890', excludeId: 'a'), isNull);
+    });
+
+    test('findDuplicate with excludeId still finds other duplicates', () async {
+      final notifier = container.read(cardListProvider.notifier);
+      await notifier.addCard(_makeCard(id: 'a', name: 'Tesco'));
+      await notifier.addCard(_makeCard(id: 'b', name: 'Duplicate'));
+      // Excluding 'b' should still find 'a'.
+      final dup = notifier.findDuplicate('1234567890', excludeId: 'b');
+      expect(dup, isNotNull);
+      expect(dup!.name, 'Tesco');
+    });
+  });
 }

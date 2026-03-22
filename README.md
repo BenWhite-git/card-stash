@@ -9,11 +9,14 @@ Built with Flutter. No accounts. No analytics. No network calls. Your cards stay
 ## Features
 
 - **Scan or enter cards manually** — camera scanning detects barcode format automatically
+- **On-device OCR** — extracts card name, expiry, and number from photos
 - **All major barcode formats** — QR, Code128, Code39, EAN-13, EAN-8, DataMatrix, PDF417, Aztec
 - **Full-screen card display** — maximum brightness, correct barcode rendering, card number as fallback
-- **Smart sorting** — most used cards rise to the top; favourites pinned
+- **Smart sorting** — most used, A-Z, recently used, or newest first; favourites pinned
 - **Rename and annotate** — label a card "Susie's Waitrose" and add notes
+- **Duplicate detection** — warns when adding a card number that already exists
 - **Optional expiry tracking** — notifications at 30 days, 7 days, and on expiry day
+- **Light, dark, and system themes** — with custom card colour picker
 - **Encrypted at rest** — AES-256 via Hive CE, key stored in device secure enclave
 - **Encrypted export/import** — migrate cards between devices with passphrase-based AES-256-GCM encryption
 - **Expiry alerts tab** — see all cards with expiry dates sorted by soonest first
@@ -87,6 +90,10 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full rationale.
 | State management | `flutter_riverpod` |
 | Image picking | `image_picker` |
 | Routing | `go_router` |
+| On-device OCR | `google_mlkit_text_recognition` |
+| Export crypto | `cryptography` |
+| Export share sheet | `share_plus` |
+| Import file picker | `flutter_file_picker` |
 
 ---
 

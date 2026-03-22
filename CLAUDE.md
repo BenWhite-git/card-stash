@@ -104,6 +104,7 @@ lib/
     luhn_validator.dart
     bin_detector.dart
     barcode_type_helper.dart
+    card_number_utils.dart  # Normalise card numbers for duplicate comparison
     colour_utils.dart
     crypto_utils.dart       # Argon2id KDF, AES-256-GCM, HMAC
 ```

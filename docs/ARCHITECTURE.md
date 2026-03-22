@@ -359,6 +359,24 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ---
 
+### Duplicate Card Number Detection
+
+**Decision:** Soft warning dialog on save, not a hard block. Normalise card numbers (strip whitespace and hyphens) before comparison.
+
+**Rationale:** Legitimate cases exist for duplicate numbers (e.g. same physical card stored under different names). A hard block would frustrate users. The warning names the existing card so the user can make an informed choice. Normalisation was already used in the import merge path - extracted to `card_number_utils.dart` for shared use.
+
+**Also:** Made card numbers editable on the edit screen. They were previously read-only, which prevented correcting manual entry mistakes.
+
+---
+
+### Editable Card Number on Edit Screen
+
+**Decision:** Replace the read-only card number display with an editable text field, including payment card rejection (same check as add screen).
+
+**Rationale:** Users who manually enter a card number may make typos. Having no way to correct the number without deleting and re-adding the card was a UX gap. Payment card rejection is applied consistently on both add and edit paths.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

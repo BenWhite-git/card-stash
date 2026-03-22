@@ -1,5 +1,5 @@
-// ABOUTME: Screen for editing an existing card's name, notes, colour, barcode type, and expiry.
-// ABOUTME: Also handles card deletion with confirmation dialog.
+// ABOUTME: Screen for editing an existing card's details including card number.
+// ABOUTME: Includes payment card rejection, duplicate detection, and deletion.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +9,13 @@ import '../models/card.dart';
 import '../providers/card_provider.dart';
 import '../providers/notification_provider.dart';
 import '../theme.dart';
+import '../utils/bin_detector.dart';
+import '../utils/luhn_validator.dart';
 import '../widgets/card_form_fields.dart';
+
+const _paymentCardMessage =
+    "This looks like a payment card. For your security, Card Stash doesn't "
+    'store credit or debit cards. Use Apple Pay or Google Wallet instead.';
 
 class EditCardScreen extends ConsumerStatefulWidget {
   final String cardId;
@@ -22,6 +28,7 @@ class EditCardScreen extends ConsumerStatefulWidget {
 
 class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   final _nameController = TextEditingController();
+  final _cardNumberController = TextEditingController();
   final _notesController = TextEditingController();
 
   BarcodeType _selectedBarcodeType = BarcodeType.code128;
@@ -29,6 +36,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
   DateTime? _expiryDate;
   String? _logoPath;
   bool _notificationsPermitted = true;
+  String? _paymentCardError;
 
   bool _initialised = false;
 
@@ -46,6 +54,7 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
     _initialised = true;
 
     _nameController.text = card.name;
+    _cardNumberController.text = card.cardNumber;
     _notesController.text = card.notes ?? '';
     _selectedBarcodeType = card.barcodeType;
     _selectedColour = card.colour;
@@ -63,24 +72,55 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
     }
   }
 
+  void _checkPaymentCard(String number) {
+    if (LuhnValidator.isValid(number) && BinDetector.isPaymentCard(number)) {
+      setState(() => _paymentCardError = _paymentCardMessage);
+    } else {
+      setState(() => _paymentCardError = null);
+    }
+  }
+
+  bool get _isPaymentCard => _paymentCardError != null;
+
   @override
   void dispose() {
     _nameController.dispose();
+    _cardNumberController.dispose();
     _notesController.dispose();
     super.dispose();
   }
 
-  bool get _canSave => _nameController.text.trim().isNotEmpty;
+  bool get _canSave {
+    final name = _nameController.text.trim();
+    final number = _cardNumberController.text.trim();
+    return name.isNotEmpty && number.isNotEmpty && !_isPaymentCard;
+  }
 
   Future<void> _saveCard(LoyaltyCard original) async {
     if (!_canSave) return;
+
+    // Defense-in-depth: reject payment cards even if UI state is stale.
+    final number = _cardNumberController.text.trim();
+    if (LuhnValidator.isValid(number) && BinDetector.isPaymentCard(number)) {
+      setState(() => _paymentCardError = _paymentCardMessage);
+      return;
+    }
+
+    // Check for duplicate card number, excluding this card.
+    final duplicate = ref
+        .read(cardListProvider.notifier)
+        .findDuplicate(number, excludeId: original.id);
+    if (duplicate != null && mounted) {
+      final confirmed = await confirmDuplicateDialog(context, duplicate.name);
+      if (!confirmed) return;
+    }
 
     final notes = _notesController.text.trim();
     final updated = LoyaltyCard(
       id: original.id,
       name: _nameController.text.trim(),
       issuer: original.issuer,
-      cardNumber: original.cardNumber,
+      cardNumber: number,
       barcodeType: _selectedBarcodeType,
       colourValue: _selectedColour.toARGB32(),
       logoPath: _logoPath,
@@ -202,19 +242,47 @@ class _EditCardScreenState extends ConsumerState<EditCardScreen> {
 
             const CardFormLabel(text: 'Card number'),
             const SizedBox(height: 4),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colors.border),
-              ),
-              child: Text(
-                card.cardNumber,
-                style: TextStyle(fontSize: 16, color: colors.textMuted),
-              ),
+            CardTextField(
+              controller: _cardNumberController,
+              hint: 'Enter the card number',
+              keyboardType: TextInputType.text,
+              onChanged: (value) {
+                setState(() {});
+                _checkPaymentCard(value);
+              },
             ),
+            if (_isPaymentCard) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colors.error.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border(
+                    left: BorderSide(color: colors.error, width: 4),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: colors.error,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _paymentCardError!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
 
             const CardFormLabel(text: 'Barcode type'),

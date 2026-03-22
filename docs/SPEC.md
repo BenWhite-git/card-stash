@@ -202,7 +202,7 @@ Accepted via a single "Got it" button; not shown again.
 ### v1.1 — Planned
 
 - Categories / folders (e.g. groceries, travel, gym)
-- Duplicate card number detection
+- ~~Duplicate card number detection~~ -- **Implemented.** On save (add or edit), card numbers are normalised (spaces/hyphens stripped) and compared against existing cards. A warning dialog names the existing card and offers Cancel or Save anyway. Edit screen excludes the card being edited from the check. See `card_number_utils.dart` and `findDuplicate` in `card_provider.dart`.
 - Biometric lock (Face ID / Touch ID / fingerprint) via `local_auth`
 - ~~On-device OCR via `google_mlkit_text_recognition`~~ -- **Implemented.** Extracts card numbers, expiry dates, and issuer names from images using on-device ML Kit. Integrated into live camera scan (auto-populates name/expiry when barcode detected), Take Photo button (for cards without barcodes), and gallery pick (parallel barcode + OCR). See `ocr_service.dart`.
 
