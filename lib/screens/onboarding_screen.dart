@@ -6,12 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers/first_launch_provider.dart';
+import '../theme.dart';
 
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -19,56 +21,48 @@ class OnboardingScreen extends ConsumerWidget {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              const Icon(
-                Icons.credit_card_outlined,
-                size: 72,
-                color: Color(0xFFF59E0B),
-              ),
+              Icon(Icons.credit_card_outlined, size: 72, color: colors.accent),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Welcome to Card Stash',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFF8FAFC),
+                  color: colors.textPrimary,
                   height: 1.25,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'A private, encrypted wallet for your loyalty and '
                 'membership cards.',
-                style: TextStyle(fontSize: 16, color: Color(0xFFCBD5E1)),
+                style: TextStyle(fontSize: 16, color: colors.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.15),
+                  color: colors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFFF59E0B), width: 4),
+                  border: Border(
+                    left: BorderSide(color: colors.accent, width: 4),
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.info_outline,
-                      color: Color(0xFFF59E0B),
-                      size: 20,
-                    ),
+                    Icon(Icons.info_outline, color: colors.accent, size: 20),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Card Stash is for loyalty and membership cards '
                         "only. Don't store credit or debit cards - use "
                         'Apple Pay or Google Wallet for those.',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Color(0xFFF8FAFC),
+                          color: colors.textPrimary,
                           height: 1.5,
                         ),
                       ),
@@ -85,8 +79,8 @@ class OnboardingScreen extends ConsumerWidget {
                     if (context.mounted) context.go('/cards');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: const Color(0xFF0F172A),
+                    backgroundColor: colors.accent,
+                    foregroundColor: colors.background,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
