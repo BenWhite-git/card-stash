@@ -1,7 +1,8 @@
-// ABOUTME: Maps mobile_scanner barcode formats to BarcodeType enum.
+// ABOUTME: Maps ML Kit barcode formats to BarcodeType enum.
 // ABOUTME: Defaults to code128 for unrecognised formats.
 
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    hide BarcodeType;
 
 import '../models/card.dart' as model;
 

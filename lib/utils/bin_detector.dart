@@ -8,7 +8,9 @@ class BinDetector {
 
   static CardScheme? detect(String number) {
     final digits = number.replaceAll(RegExp(r'[\s\-]'), '');
-    if (digits.length < 4) return null;
+    // Real payment cards are 12-19 digits. Shorter numbers are loyalty cards
+    // that happen to share a BIN prefix.
+    if (digits.length < 12) return null;
 
     // Amex: 34, 37
     if (digits.startsWith('34') || digits.startsWith('37')) {

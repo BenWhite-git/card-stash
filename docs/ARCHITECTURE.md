@@ -377,6 +377,20 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ---
 
+### Live Camera OCR: camera + ML Kit replaces mobile_scanner
+
+**Decision:** Replace `mobile_scanner` with `camera` + `google_mlkit_barcode_scanning` for the card scanning experience. Text recognition (`google_mlkit_text_recognition`, already a dependency) now runs on live camera frames alongside barcode detection.
+
+**Rationale:** `mobile_scanner` only fires callbacks when a barcode is detected, so OCR could only run on barcode detection frames or required a separate "Take Photo" step. Cards without scannable barcodes needed multiple taps and mode switches. Switching to the `camera` package gives direct access to the frame stream, allowing both barcode detection and text recognition to run in parallel on every frame (throttled). This enables a Google Translate-style live text overlay where users see detected text highlighted on the camera feed in real-time.
+
+**What was rejected:** Keeping `mobile_scanner` and adding a separate OCR camera mode - this would require two camera sessions or a mode switch, which doesn't solve the fragmented UX. Also considered running OCR less frequently than barcode detection, but the "drop if busy" back-pressure pattern naturally handles device speed differences without explicit tiering.
+
+**Implementation:** `CameraFrameProcessor` orchestrates frame dispatch to both ML Kit recognizers with back-pressure throttling (drop frame if previous still processing, plus 150ms minimum interval). Camera runs at `ResolutionPreset.medium` (720p) to keep processing fast on older devices. `TextOverlayPainter` draws 2px amber bounding boxes around detected text blocks. Barcodes auto-accept immediately (high confidence); text-only results require user confirmation via "Use these details" button.
+
+**Trade-off:** Net dependency change is +1 package (swap 1 for 2). The `camera` package requires more manual lifecycle management (`WidgetsBindingObserver` for pause/resume) compared to `mobile_scanner`'s self-contained widget. Frame-to-InputImage conversion is platform-specific (NV21 on Android, BGRA8888 on iOS).
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

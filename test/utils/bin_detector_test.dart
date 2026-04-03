@@ -105,6 +105,12 @@ void main() {
         expect(BinDetector.detect('1234567890'), isNull);
       });
 
+      test('returns null for short number with payment BIN prefix', () {
+        // 513131615 starts with 51 (Mastercard range) and passes Luhn,
+        // but at 9 digits it is a loyalty card, not a payment card.
+        expect(BinDetector.detect('513131615'), isNull);
+      });
+
       test('returns null for short number', () {
         expect(BinDetector.detect('123'), isNull);
       });

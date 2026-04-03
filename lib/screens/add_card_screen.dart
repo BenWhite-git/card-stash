@@ -1,20 +1,29 @@
-// ABOUTME: Screen for adding a new card via camera scan or manual entry.
+// ABOUTME: Screen for adding a new card via live camera scan or manual entry.
 // ABOUTME: Includes payment card rejection via Luhn + BIN detection.
 
+import 'dart:ui' as ui;
+
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    hide BarcodeType;
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeType;
 import 'package:uuid/uuid.dart';
 
 import '../models/card.dart';
 import '../providers/card_provider.dart';
+import '../services/camera_frame_processor.dart';
 import '../services/ocr_service.dart';
 import '../services/scanner_service.dart';
 import '../theme.dart';
 import '../utils/bin_detector.dart';
 import '../utils/luhn_validator.dart';
 import '../widgets/card_form_fields.dart';
+import '../widgets/scan_status_bar.dart';
+import '../widgets/text_overlay_painter.dart';
 
 const _paymentCardMessage =
     "This looks like a payment card. For your security, Card Stash doesn't "
@@ -29,7 +38,8 @@ class AddCardScreen extends ConsumerStatefulWidget {
   ConsumerState<AddCardScreen> createState() => _AddCardScreenState();
 }
 
-class _AddCardScreenState extends ConsumerState<AddCardScreen> {
+class _AddCardScreenState extends ConsumerState<AddCardScreen>
+    with WidgetsBindingObserver {
   late bool _isScanMode = widget.initialScanMode;
   bool _scanned = false;
 
@@ -42,16 +52,185 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   DateTime? _expiryDate;
   String? _paymentCardError;
 
-  MobileScannerController? _scannerController;
+  // Camera and frame processing state.
+  CameraController? _cameraController;
+  CameraFrameProcessor? _frameProcessor;
+  bool _cameraInitialised = false;
+  String? _cameraError;
+
+  // Live recognition state.
+  List<Rect> _liveRelevantBoxes = [];
+  OcrResult? _liveOcrResult;
+  ui.Size _imageSize = ui.Size.zero;
+
   bool _analyzingImage = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    if (widget.initialScanMode) {
+      _initCamera();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _nameController.dispose();
     _cardNumberController.dispose();
     _notesController.dispose();
-    _scannerController?.dispose();
+    _stopCamera();
+    _frameProcessor?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_isScanMode) return;
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      _stopCamera();
+    } else if (state == AppLifecycleState.resumed) {
+      _initCamera();
+    }
+  }
+
+  Future<void> _initCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) {
+        if (mounted) {
+          setState(() => _cameraError = 'No camera available on this device.');
+        }
+        return;
+      }
+
+      // Prefer back camera.
+      final camera = cameras.firstWhere(
+        (c) => c.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+
+      final controller = CameraController(
+        camera,
+        ResolutionPreset.high,
+        enableAudio: false,
+        imageFormatGroup: defaultTargetPlatform == TargetPlatform.iOS
+            ? ImageFormatGroup.bgra8888
+            : ImageFormatGroup.nv21,
+      );
+
+      await controller.initialize();
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
+
+      _cameraController = controller;
+      _frameProcessor ??= CameraFrameProcessor();
+
+      await controller.startImageStream(_onFrameAvailable);
+
+      setState(() {
+        _cameraInitialised = true;
+        _cameraError = null;
+      });
+    } on CameraException catch (e) {
+      if (mounted) {
+        setState(() => _cameraError = _cameraErrorMessage(e));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(
+          () => _cameraError =
+              'Could not access the camera. '
+              'You can enter the card details manually instead.',
+        );
+      }
+    }
+  }
+
+  void _stopCamera() {
+    _cameraController?.dispose();
+    _cameraController = null;
+    _cameraInitialised = false;
+  }
+
+  void _onFrameAvailable(CameraImage image) {
+    if (_scanned || !_isScanMode) return;
+
+    final camera = _cameraController;
+    if (camera == null) return;
+
+    final sensorOrientation = camera.description.sensorOrientation;
+
+    _frameProcessor
+        ?.processFrame(image, sensorOrientation, DeviceOrientation.portraitUp)
+        .then((result) {
+          if (result == null || !mounted || _scanned) return;
+
+          // Barcode detected: auto-accept immediately.
+          final scanResult = ScannerService.extractResult(result.barcodes);
+          if (scanResult != null) {
+            _scanned = true;
+            _cameraController?.stopImageStream();
+            setState(() {
+              _isScanMode = false;
+              _cardNumberController.text = scanResult.cardNumber;
+              _selectedBarcodeType = scanResult.barcodeType;
+            });
+            _checkPaymentCard(scanResult.cardNumber);
+
+            // Also apply any text recognition for name/expiry.
+            if (result.recognizedText != null &&
+                result.recognizedText!.text.isNotEmpty) {
+              final ocr = OcrService.parseText(result.recognizedText!.text);
+              if (ocr != null) _applyOcrResult(ocr);
+            }
+            return;
+          }
+
+          // No barcode - update live overlay and OCR result.
+          if (result.recognizedText != null &&
+              result.recognizedText!.text.isNotEmpty) {
+            final ocr = OcrService.parseText(result.recognizedText!.text);
+            // Only highlight blocks with card numbers or expiry patterns.
+            final boxes = result.recognizedText!.blocks
+                .where((b) => OcrService.isRelevantText(b.text))
+                .map((b) => b.boundingBox)
+                .toList();
+            // ML Kit returns bounding boxes in the rotated coordinate
+            // space, but CameraImage dimensions are in the sensor's native
+            // orientation. Swap width/height when sensor is rotated 90/270.
+            final rotated = sensorOrientation == 90 || sensorOrientation == 270;
+            final effectiveSize = rotated
+                ? ui.Size(result.imageSize.height, result.imageSize.width)
+                : result.imageSize;
+            setState(() {
+              _liveRelevantBoxes = boxes;
+              _imageSize = effectiveSize;
+              _liveOcrResult = ocr;
+            });
+          }
+        });
+  }
+
+  void _acceptLiveResults() {
+    if (_liveOcrResult == null) return;
+
+    _scanned = true;
+    _cameraController?.stopImageStream();
+
+    setState(() {
+      _isScanMode = false;
+      if (_liveOcrResult!.cardNumber != null) {
+        _cardNumberController.text = _liveOcrResult!.cardNumber!;
+        _selectedBarcodeType = BarcodeType.displayOnly;
+        _checkPaymentCard(_liveOcrResult!.cardNumber!);
+      }
+      _applyOcrResult(_liveOcrResult!);
+    });
   }
 
   void _applyOcrResult(OcrResult ocr) {
@@ -65,29 +244,6 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     });
   }
 
-  void _onScanDetect(BarcodeCapture capture) {
-    if (_scanned) return;
-    final result = ScannerService.extractResult(capture);
-    if (result == null) return;
-
-    setState(() {
-      _scanned = true;
-      _isScanMode = false;
-      _cardNumberController.text = result.cardNumber;
-      _selectedBarcodeType = result.barcodeType;
-    });
-    _scannerController?.stop();
-    _checkPaymentCard(result.cardNumber);
-
-    // Run OCR on the captured image to extract name and expiry.
-    final imageBytes = capture.image;
-    if (imageBytes != null) {
-      OcrService.extractCardInfoFromBytes(imageBytes).then((ocr) {
-        if (ocr != null && mounted) _applyOcrResult(ocr);
-      });
-    }
-  }
-
   void _checkPaymentCard(String number) {
     if (LuhnValidator.isValid(number) && BinDetector.isPaymentCard(number)) {
       setState(() => _paymentCardError = _paymentCardMessage);
@@ -97,7 +253,8 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   }
 
   void _switchToManual() {
-    _scannerController?.stop();
+    _cameraController?.stopImageStream();
+    _stopCamera();
     setState(() {
       _isScanMode = false;
       _scanned = false;
@@ -111,79 +268,50 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
 
     setState(() => _analyzingImage = true);
     try {
-      // Run barcode detection and OCR in parallel.
-      _scannerController ??= MobileScannerController();
-      final results = await Future.wait([
-        _scannerController!.analyzeImage(image.path),
-        OcrService.extractCardInfo(image.path),
-      ]);
-      final capture = results[0] as BarcodeCapture?;
-      final ocr = results[1] as OcrResult?;
+      // Run barcode detection and OCR in parallel using ML Kit directly.
+      final barcodeScanner = BarcodeScanner();
+      final inputImage = InputImage.fromFilePath(image.path);
+      try {
+        final results = await Future.wait([
+          barcodeScanner.processImage(inputImage),
+          OcrService.extractCardInfo(image.path),
+        ]);
+        final barcodes = results[0] as List<Barcode>;
+        final ocr = results[1] as OcrResult?;
 
-      final scanResult = capture != null
-          ? ScannerService.extractResult(capture)
-          : null;
+        final scanResult = ScannerService.extractResult(barcodes);
 
-      if (scanResult != null) {
-        // Barcode found: use barcode number + type, supplement with OCR.
-        setState(() {
-          _scanned = true;
-          _isScanMode = false;
-          _cardNumberController.text = scanResult.cardNumber;
-          _selectedBarcodeType = scanResult.barcodeType;
-        });
-        _scannerController?.stop();
-        _checkPaymentCard(scanResult.cardNumber);
-        if (ocr != null && mounted) _applyOcrResult(ocr);
-      } else if (ocr?.cardNumber != null) {
-        // No barcode but OCR found a number: use as displayOnly.
-        setState(() {
-          _scanned = true;
-          _isScanMode = false;
-          _cardNumberController.text = ocr!.cardNumber!;
-          _selectedBarcodeType = BarcodeType.displayOnly;
-        });
-        _scannerController?.stop();
-        _checkPaymentCard(ocr!.cardNumber!);
-        _applyOcrResult(ocr);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No barcode or text found in this image.'),
-            ),
-          );
+        if (scanResult != null) {
+          setState(() {
+            _scanned = true;
+            _isScanMode = false;
+            _cardNumberController.text = scanResult.cardNumber;
+            _selectedBarcodeType = scanResult.barcodeType;
+          });
+          _stopCamera();
+          _checkPaymentCard(scanResult.cardNumber);
+          if (ocr != null && mounted) _applyOcrResult(ocr);
+        } else if (ocr?.cardNumber != null) {
+          setState(() {
+            _scanned = true;
+            _isScanMode = false;
+            _cardNumberController.text = ocr!.cardNumber!;
+            _selectedBarcodeType = BarcodeType.displayOnly;
+          });
+          _stopCamera();
+          _checkPaymentCard(ocr!.cardNumber!);
+          _applyOcrResult(ocr);
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No barcode or text found in this image.'),
+              ),
+            );
+          }
         }
-      }
-    } finally {
-      if (mounted) setState(() => _analyzingImage = false);
-    }
-  }
-
-  Future<void> _captureAndScan() async {
-    final picker = ImagePicker();
-    final photo = await picker.pickImage(source: ImageSource.camera);
-    if (photo == null) return;
-
-    setState(() => _analyzingImage = true);
-    try {
-      final ocr = await OcrService.extractCardInfo(photo.path);
-      if (ocr?.cardNumber != null) {
-        setState(() {
-          _scanned = true;
-          _isScanMode = false;
-          _cardNumberController.text = ocr!.cardNumber!;
-          _selectedBarcodeType = BarcodeType.displayOnly;
-        });
-        _scannerController?.stop();
-        _checkPaymentCard(ocr!.cardNumber!);
-        _applyOcrResult(ocr);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No text found in this photo.')),
-          );
-        }
+      } finally {
+        barcodeScanner.close();
       }
     } finally {
       if (mounted) setState(() => _analyzingImage = false);
@@ -287,114 +415,125 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
   }
 
   Widget _buildScanMode() {
-    _scannerController ??= MobileScannerController(returnImage: true);
     final colors = context.colors;
+
+    if (_cameraError != null) {
+      return _buildCameraError(colors);
+    }
+
+    if (!_cameraInitialised || _cameraController == null) {
+      return Center(child: CircularProgressIndicator(color: colors.accent));
+    }
+
     return Column(
       children: [
         Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              MobileScanner(
-                controller: _scannerController!,
-                onDetect: _onScanDetect,
-                errorBuilder: (context, error) {
-                  final errColors = context.colors;
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.camera_alt_outlined,
-                            size: 48,
-                            color: errColors.textMuted,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _cameraErrorMessage(error),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: errColors.textMuted,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          OutlinedButton(
-                            onPressed: _switchToManual,
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: errColors.accent),
-                            ),
-                            child: Text(
-                              'Enter manually',
-                              style: TextStyle(color: errColors.accent),
-                            ),
-                          ),
-                        ],
+          child: ClipRect(
+            child: Stack(
+              fit: StackFit.expand,
+              alignment: Alignment.center,
+              children: [
+                // Camera preview.
+                CameraPreview(_cameraController!),
+                // Live text overlay (filtered to card-relevant blocks only).
+                if (_liveRelevantBoxes.isNotEmpty)
+                  CustomPaint(
+                    painter: TextOverlayPainter(
+                      relevantBoxes: _liveRelevantBoxes,
+                      imageSize: _imageSize,
+                      color: colors.accent,
+                    ),
+                  ),
+                // Viewfinder card guide.
+                IgnorePointer(
+                  child: Center(
+                    child: Container(
+                      width: 280,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: colors.accent.withValues(alpha: 0.7),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  );
-                },
-              ),
-              // Viewfinder overlay.
-              IgnorePointer(
-                child: Container(
-                  width: 280,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: colors.accent.withValues(alpha: 0.7),
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+        // Status bar and gallery button.
+        ScanStatusBar(
+          ocrResult: _liveOcrResult,
+          onAccept: _liveOcrResult?.cardNumber != null
+              ? _acceptLiveResults
+              : null,
+        ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.only(bottom: 16, top: 4),
           child: Column(
             children: [
-              Text(
-                'Point your camera at the barcode on your card.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: colors.textMuted),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton.icon(
-                    onPressed: _analyzingImage ? null : _captureAndScan,
-                    icon: _analyzingImage
-                        ? SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: colors.accent,
-                            ),
-                          )
-                        : const Icon(Icons.camera_alt_outlined),
-                    label: const Text('Take photo'),
-                    style: TextButton.styleFrom(foregroundColor: colors.accent),
+              if (_liveOcrResult == null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Point your camera at a card to scan it.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14, color: colors.textMuted),
                   ),
-                  const SizedBox(width: 16),
-                  TextButton.icon(
-                    onPressed: _analyzingImage ? null : _scanFromImage,
-                    icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('From gallery'),
-                    style: TextButton.styleFrom(foregroundColor: colors.accent),
-                  ),
-                ],
+                ),
+              TextButton.icon(
+                onPressed: _analyzingImage ? null : _scanFromImage,
+                icon: _analyzingImage
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colors.accent,
+                        ),
+                      )
+                    : const Icon(Icons.photo_library_outlined),
+                label: const Text('From gallery'),
+                style: TextButton.styleFrom(foregroundColor: colors.accent),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCameraError(CardStashColors colors) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.camera_alt_outlined, size: 48, color: colors.textMuted),
+            const SizedBox(height: 16),
+            Text(
+              _cameraError!,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, color: colors.textMuted),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton(
+              onPressed: _switchToManual,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: colors.accent),
+              ),
+              child: Text(
+                'Enter manually',
+                style: TextStyle(color: colors.accent),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -520,14 +659,12 @@ class _AddCardScreenState extends ConsumerState<AddCardScreen> {
     );
   }
 
-  String _cameraErrorMessage(MobileScannerException error) {
-    switch (error.errorCode) {
-      case MobileScannerErrorCode.permissionDenied:
-        return 'Camera permission is required to scan barcodes. '
-            'You can grant it in Settings, or enter the card manually.';
-      default:
-        return 'Could not access the camera. '
-            'You can enter the card details manually instead.';
+  String _cameraErrorMessage(CameraException error) {
+    if (error.code == 'CameraAccessDenied') {
+      return 'Camera permission is required to scan cards. '
+          'You can grant it in Settings, or enter the card manually.';
     }
+    return 'Could not access the camera. '
+        'You can enter the card details manually instead.';
   }
 }

@@ -57,7 +57,8 @@ enum BarcodeType {
 
 #### Add Card
 
-- Camera scan via `mobile_scanner`; barcode format detected automatically
+- Live camera scan via `camera` + ML Kit with real-time text overlay; both barcodes and text detected simultaneously on the live feed
+- Barcodes auto-accepted on detection; text-only cards show detected fields as status chips with a "Use these details" confirmation button
 - Manual entry fallback: card number entered by hand, barcode type selected from list
 - Colour picker for card background
 - Optional logo image from camera roll (`image_picker`)
@@ -204,7 +205,7 @@ Accepted via a single "Got it" button; not shown again.
 - Categories / folders (e.g. groceries, travel, gym)
 - ~~Duplicate card number detection~~ -- **Implemented.** On save (add or edit), card numbers are normalised (spaces/hyphens stripped) and compared against existing cards. A warning dialog names the existing card and offers Cancel or Save anyway. Edit screen excludes the card being edited from the check. See `card_number_utils.dart` and `findDuplicate` in `card_provider.dart`.
 - Biometric lock (Face ID / Touch ID / fingerprint) via `local_auth`
-- ~~On-device OCR via `google_mlkit_text_recognition`~~ -- **Implemented.** Extracts card numbers, expiry dates, and issuer names from images using on-device ML Kit. Integrated into live camera scan (auto-populates name/expiry when barcode detected), Take Photo button (for cards without barcodes), and gallery pick (parallel barcode + OCR). See `ocr_service.dart`.
+- ~~On-device OCR via `google_mlkit_text_recognition`~~ -- **Implemented.** Extracts card numbers, expiry dates, and issuer names using on-device ML Kit. Runs on live camera frames alongside barcode detection (via `camera` + `google_mlkit_barcode_scanning`), with real-time text overlay showing detected text bounding boxes. Also runs on gallery images. See `ocr_service.dart`, `camera_frame_processor.dart`.
 
 #### Home Screen Widget (4×2)
 
@@ -300,8 +301,8 @@ Launch
         │     ├── Edit button (top right) → Edit Card
         │     └── Tap to dismiss
         ├── FAB → Add Card
-        │     ├── Scan → camera detects format automatically → name + confirm
-        │     ├── Scan from image → pick photo → detect barcode → name + confirm
+        │     ├── Live scan → camera detects barcodes + text in real-time → auto-accept or confirm → form
+        │     ├── From gallery → pick photo → detect barcode + OCR → form
         │     └── Manual → enter number → select barcode type → name + confirm
         ├── Long press card → contextual menu
         │     ├── Edit

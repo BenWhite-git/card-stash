@@ -4,12 +4,20 @@ A clean, local-first loyalty and membership card wallet for iOS and Android.
 
 Built with Flutter. No accounts. No analytics. No network calls. Your cards stay on your device, encrypted.
 
+I built Card Stash because every store card app in the app stores is either stuffed with ads, wants an account, or tracks you across half the internet. I just wanted to scan my loyalty cards, search for them at the till, and sort them by how often I use them. So I built one.
+
+<p align="center">
+  <img src="docs/Cards%20stashed.png" alt="Card Stash home screen showing a searchable list of loyalty cards sorted by most used, with colour-coded card tiles for Nectar, Tesco, B and Q, Waitrose, and others" width="250" />
+  <img src="docs/Barcode.png" alt="Full-screen card display showing a Tesco Clubcard barcode at maximum brightness with the card number below as a fallback" width="250" />
+  <img src="docs/Manual%20entry.png" alt="Add card screen with fields for card name, number, barcode type selector, colour picker, optional expiry date, and notes" width="250" />
+</p>
+
 ---
 
 ## Features
 
-- **Scan or enter cards manually** — camera scanning detects barcode format automatically
-- **On-device OCR** — extracts card name, expiry, and number from photos
+- **Live camera scanning** — point at any card to detect barcodes and text in real-time with live overlay
+- **On-device OCR** — extracts card name, expiry, and number automatically from the camera feed or photos
 - **All major barcode formats** — QR, Code128, Code39, EAN-13, EAN-8, DataMatrix, PDF417, Aztec
 - **Full-screen card display** — maximum brightness, correct barcode rendering, card number as fallback
 - **Smart sorting** — most used, A-Z, recently used, or newest first; favourites pinned
@@ -62,7 +70,7 @@ Add the following to `ios/Runner/Info.plist`:
 
 ### Android — Camera Permissions
 
-`mobile_scanner` handles camera permissions automatically. No manual manifest changes required.
+The `camera` package handles camera permissions automatically. No manual manifest changes required.
 
 ### Android — Disable Auto-Backup
 
@@ -84,7 +92,8 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full rationale.
 |---|---|
 | Local storage | `hive_ce`, `hive_ce_flutter` |
 | Encryption key | `flutter_secure_storage` |
-| Card scanning | `mobile_scanner` |
+| Camera + frame streaming | `camera` |
+| Barcode detection | `google_mlkit_barcode_scanning` |
 | Barcode rendering | `barcode_widget` |
 | Notifications | `flutter_local_notifications` |
 | State management | `flutter_riverpod` |

@@ -1,9 +1,11 @@
-// ABOUTME: Wrapper around mobile_scanner for barcode scanning.
-// ABOUTME: Returns card number and detected BarcodeType from camera input.
+// ABOUTME: Extracts card number and barcode type from ML Kit barcode results.
+// ABOUTME: Returns ScanResult from detected barcodes for use in camera and gallery flows.
+
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    hide BarcodeType;
 
 import '../models/card.dart' show BarcodeType;
 import '../utils/barcode_type_helper.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeType;
 
 class ScanResult {
   final String cardNumber;
@@ -15,8 +17,7 @@ class ScanResult {
 class ScannerService {
   ScannerService._();
 
-  static ScanResult? extractResult(BarcodeCapture capture) {
-    final barcodes = capture.barcodes;
+  static ScanResult? extractResult(List<Barcode> barcodes) {
     if (barcodes.isEmpty) return null;
 
     final barcode = barcodes.first;

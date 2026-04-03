@@ -1,10 +1,11 @@
 // ABOUTME: Unit tests for BarcodeTypeHelper.
-// ABOUTME: Verifies mapping from mobile_scanner BarcodeFormat to BarcodeType enum.
+// ABOUTME: Verifies mapping from ML Kit BarcodeFormat to BarcodeType enum.
 
 import 'package:card_stash/models/card.dart' show BarcodeType;
 import 'package:card_stash/utils/barcode_type_helper.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobile_scanner/mobile_scanner.dart' hide BarcodeType;
+import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart'
+    hide BarcodeType;
 
 void main() {
   group('BarcodeTypeHelper', () {
@@ -73,14 +74,14 @@ void main() {
 
     test('defaults to code128 for UPC-A format', () {
       expect(
-        BarcodeTypeHelper.fromScannerFormat(BarcodeFormat.upcA),
+        BarcodeTypeHelper.fromScannerFormat(BarcodeFormat.upca),
         BarcodeType.code128,
       );
     });
 
     test('defaults to code128 for UPC-E format', () {
       expect(
-        BarcodeTypeHelper.fromScannerFormat(BarcodeFormat.upcE),
+        BarcodeTypeHelper.fromScannerFormat(BarcodeFormat.upce),
         BarcodeType.code128,
       );
     });

@@ -45,7 +45,8 @@ These are hard rules. Do not work around them, do not add exceptions, do not ask
 |---|---|
 | Local storage | `hive_ce`, `hive_ce_flutter` |
 | Encryption key | `flutter_secure_storage` |
-| Card scanning | `mobile_scanner` |
+| Camera preview + frames | `camera` |
+| Barcode detection | `google_mlkit_barcode_scanning` |
 | Barcode rendering | `barcode_widget` |
 | Notifications | `flutter_local_notifications` |
 | State management | `flutter_riverpod` |
@@ -91,9 +92,12 @@ lib/
     barcode_view.dart
     expiry_badge.dart
     passphrase_field.dart
+    text_overlay_painter.dart  # Live text bounding box overlay on camera preview
+    scan_status_bar.dart       # Detection status chips + accept button for live scan
   services/
     storage_service.dart    # Hive CE init + encrypted box management
-    scanner_service.dart
+    scanner_service.dart    # Extracts ScanResult from ML Kit barcode list
+    camera_frame_processor.dart  # Dual ML Kit processing with throttling
     notification_service.dart
     brightness_service.dart
     export_service.dart     # Serialise, encrypt, sign, share

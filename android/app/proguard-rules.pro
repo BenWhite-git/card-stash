@@ -1,3 +1,6 @@
+# ML Kit barcode scanning
+-dontwarn com.google.mlkit.vision.barcode.**
+
 # ML Kit text recognition: suppress warnings for optional language modules
 # that are referenced but not included (Chinese, Devanagari, Japanese, Korean).
 -dontwarn com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions$Builder

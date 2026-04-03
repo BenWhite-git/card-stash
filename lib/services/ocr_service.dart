@@ -38,9 +38,17 @@ class OcrService {
 
   /// Extract card info from an image file path via ML Kit.
   static Future<OcrResult?> extractCardInfo(String imagePath) async {
+    final inputImage = InputImage.fromFilePath(imagePath);
+    return extractCardInfoFromInputImage(inputImage);
+  }
+
+  /// Extract card info from an [InputImage] via ML Kit.
+  /// Used for both file-based and live camera frame processing.
+  static Future<OcrResult?> extractCardInfoFromInputImage(
+    InputImage inputImage,
+  ) async {
     final recognizer = TextRecognizer();
     try {
-      final inputImage = InputImage.fromFilePath(imagePath);
       final recognised = await recognizer.processImage(inputImage);
       if (recognised.text.isEmpty) return null;
       return parseText(recognised.text);
@@ -87,10 +95,13 @@ class OcrService {
   /// Find the longest digit sequence (8+ digits) after stripping spaces and
   /// hyphens.
   static String? _extractCardNumber(String text) {
+    // Replace newlines with spaces so digit sequences split across ML Kit
+    // text blocks can be matched as a single number.
+    final normalised = text.replaceAll('\n', ' ');
     // Match sequences of digits, spaces, and hyphens that contain at least
     // one digit.
     final pattern = RegExp(r'[\d][\d \-]*[\d]|[\d]');
-    final matches = pattern.allMatches(text);
+    final matches = pattern.allMatches(normalised);
 
     String? longest;
     for (final match in matches) {
@@ -126,6 +137,28 @@ class OcrService {
       return DateTime(year, month, 1);
     }
     return null;
+  }
+
+  /// Check whether a text block contains high-confidence card data.
+  /// Only matches digit sequences (4+) and expiry patterns - not plain
+  /// text names, which are too noisy for the live overlay. The 4-digit
+  /// threshold catches number segments that ML Kit splits across blocks.
+  static bool isRelevantText(String text) {
+    if (text.trim().isEmpty) return false;
+    // Contains 4+ digit sequence (card number or segment of one).
+    final digitPattern = RegExp(r'[\d][\d \-]*[\d]|[\d]');
+    for (final match in digitPattern.allMatches(text)) {
+      final digits = match.group(0)!.replaceAll(RegExp(r'[\s\-]'), '');
+      if (digits.length >= 4) return true;
+    }
+    // Contains expiry pattern.
+    if (RegExp(
+      r'(?:(?:EXP(?:IRY)?|VALID\s*THRU)\s*)?(\d{2})\s*/\s*(\d{2,4})\b',
+      caseSensitive: false,
+    ).hasMatch(text)) {
+      return true;
+    }
+    return false;
   }
 
   /// Find first text block that contains only letters and spaces, is at least
