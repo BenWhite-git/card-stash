@@ -6,6 +6,8 @@ Built with Flutter. No accounts. No analytics. No network calls. Your cards stay
 
 I built Card Stash because every store card app in the app stores is either stuffed with ads, wants an account, or tracks you across half the internet. I just wanted to scan my loyalty cards, search for them at the till, and sort them by how often I use them. So I built one.
 
+**[Download the Android APK](https://github.com/BenWhite-git/card-stash/releases/latest)**
+
 <p align="center">
   <img src="docs/Cards%20stashed.png" alt="Card Stash home screen showing a searchable list of loyalty cards sorted by most used, with colour-coded card tiles for Nectar, Tesco, B and Q, Waitrose, and others" width="250" />
   <img src="docs/Barcode.png" alt="Full-screen card display showing a Tesco Clubcard barcode at maximum brightness with the card number below as a fallback" width="250" />

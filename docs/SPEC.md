@@ -358,7 +358,7 @@ lib/
     passphrase_field.dart   # Shared secure text input for export/import
   services/
     storage_service.dart    # Hive CE init, encrypted box management
-    scanner_service.dart    # mobile_scanner wrapper
+    scanner_service.dart    # ML Kit barcode result extraction
     notification_service.dart
     brightness_service.dart # Screen brightness control
     export_service.dart     # Serialise, encrypt, sign, share

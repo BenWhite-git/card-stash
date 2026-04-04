@@ -22,6 +22,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Auto-capitalise words in card name field
 
 ### Changed
+- Replaced `mobile_scanner` with `camera` + `google_mlkit_barcode_scanning` for direct frame access and parallel ML Kit processing
+- iOS minimum deployment target raised to 15.5 for ML Kit compatibility
 - About screen restyled to match the app theme instead of hardcoded light theme
 - Save button moved to top of add card form for visibility without scrolling
 - Removed Scan button from add card AppBar to prevent accidental taps

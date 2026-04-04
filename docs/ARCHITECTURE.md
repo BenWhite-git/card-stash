@@ -75,7 +75,7 @@ The secure enclave approach means the key is as strong as the device's lock scre
 
 **Decision:** Detect payment cards via Luhn algorithm and BIN prefix matching on the card number string, not by attempting to parse payment card barcodes.
 
-**Rationale:** Payment cards are not typically barcoded in a format that `mobile_scanner` would encounter during normal loyalty card scanning. The real risk is a user manually entering a Visa or Mastercard number. Luhn + BIN matching is a well-understood heuristic that catches the vast majority of cases without requiring any external data.
+**Rationale:** Payment cards are not typically barcoded in a format encountered during normal loyalty card scanning. The real risk is a user manually entering a Visa or Mastercard number. Luhn + BIN matching is a well-understood heuristic that catches the vast majority of cases without requiring any external data.
 
 Detection is implemented in pure Dart with no package dependency — the logic is simple enough to own.
 
@@ -194,14 +194,6 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 **Decision:** The router is created via `createRouter({bool isFirstLaunch})` rather than a `final appRouter` at module level.
 
 **Rationale:** The initial route depends on whether this is the user's first launch (onboarding vs home). A factory function accepts this parameter and creates the router with the correct initial location. Additionally, `GlobalKey<NavigatorState>` instances are scoped inside the factory, avoiding key reuse between router instances in tests.
-
----
-
-### mobile_scanner BarcodeType Conflict
-
-**Decision:** Import `card.dart` with `as model` prefix in `barcode_type_helper.dart` to resolve the name clash between our `BarcodeType` enum and `mobile_scanner`'s `BarcodeType`.
-
-**Rationale:** Both our model and mobile_scanner export a `BarcodeType` name. A prefix import on our model cleanly resolves the ambiguity without renaming either enum. In test files, `show`/`hide` directives on the imports achieve the same disambiguation.
 
 ---
 
@@ -351,7 +343,7 @@ AirDrop is the correct answer for iPhone-to-iPhone migration specifically — it
 
 **Rationale:** When scanning a card, the barcode scanner detects the barcode value and type, but the user must manually type the card name and expiry. OCR fills these fields automatically. It also handles cards with no barcode at all - the user photographs the card and OCR extracts the number.
 
-`google_mlkit_text_recognition` was chosen because it runs entirely on-device (no network calls, consistent with the app's zero-network constraint), ships with minimal binary size impact (~260KB), and leverages the same ML Kit infrastructure already present via `mobile_scanner`. Alternatives considered: `tesseract_ocr` (larger binary, more complex setup, lower accuracy on mobile), building custom regex extraction from barcode raw values (only works if the barcode encodes the text, which loyalty cards rarely do).
+`google_mlkit_text_recognition` was chosen because it runs entirely on-device (no network calls, consistent with the app's zero-network constraint), ships with minimal binary size impact (~260KB), and leverages the same on-device ML Kit infrastructure used by the barcode scanner (`google_mlkit_barcode_scanning`). Alternatives considered: `tesseract_ocr` (larger binary, more complex setup, lower accuracy on mobile), building custom regex extraction from barcode raw values (only works if the barcode encodes the text, which loyalty cards rarely do).
 
 The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency, making it fully unit-testable without device or emulator.
 

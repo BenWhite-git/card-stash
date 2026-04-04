@@ -124,7 +124,9 @@ Card Stash relies on the following packages with security implications:
 |---|---|---|
 | `hive_ce` | Encrypted storage | AES-256; actively maintained community fork |
 | `flutter_secure_storage` | Key storage | Wraps iOS Keychain and Android Keystore |
-| `mobile_scanner` | Camera / barcode scan | Camera permission only; no network access |
+| `camera` | Live camera access | Camera permission only; no network access |
+| `google_mlkit_barcode_scanning` | Barcode detection | On-device ML Kit; no network access |
+| `google_mlkit_text_recognition` | OCR text extraction | On-device ML Kit; no network access |
 | `flutter_local_notifications` | Expiry notifications | Local only; no push infrastructure |
 | `cryptography` | Export encryption | Argon2id KDF, AES-256-GCM, HMAC-SHA256; pure Dart |
 
