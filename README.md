@@ -100,3 +100,7 @@ Contributions are welcome. Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.
 ## Licence
 
 MIT — see [LICENSE](LICENSE)
+
+---
+
+Built by [Ben White](https://benwhite.co/lab/)
