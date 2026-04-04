@@ -48,7 +48,7 @@ Your data is encrypted using a 256-bit key stored in your device's secure enclav
 
 - Flutter 3.41+
 - Dart 3.11+
-- iOS 13+ / Android 6.0+ (API 23+)
+- iOS 15.5+ / Android 6.0+ (API 23+)
 
 ### Setup
 
@@ -59,30 +59,7 @@ flutter pub get
 flutter run
 ```
 
-### iOS — Camera Permissions
-
-Add the following to `ios/Runner/Info.plist`:
-
-```xml
-<key>NSCameraUsageDescription</key>
-<string>Card Stash uses the camera to scan loyalty and membership cards.</string>
-```
-
-### Android — Camera Permissions
-
-The `camera` package handles camera permissions automatically. No manual manifest changes required.
-
-### Android — Disable Auto-Backup
-
-Add the following to `android/app/src/main/AndroidManifest.xml` to prevent encrypted Hive data being backed up without its key:
-
-```xml
-<application
-  android:allowBackup="false"
-  ...>
-```
-
-See [docs/SECURITY.md](docs/SECURITY.md) for full rationale.
+Camera permissions (iOS) and disabled auto-backup (Android) are already configured in the repo. See [docs/SECURITY.md](docs/SECURITY.md) for rationale on the backup setting.
 
 ---
 
