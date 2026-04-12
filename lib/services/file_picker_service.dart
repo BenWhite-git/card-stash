@@ -11,7 +11,7 @@ final filePickerServiceProvider = Provider<FilePickerService>((ref) {
 class FilePickerService {
   /// Picks a .cardstash file and returns its path, or null if cancelled.
   Future<String?> pickCardstashFile() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['cardstash'],
     );

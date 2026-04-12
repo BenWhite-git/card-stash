@@ -383,6 +383,18 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ---
 
+### file_picker 11 Upgrade and Deferred win32 Transition
+
+**Decision:** Upgrade `file_picker` from 10.3.10 to 11.0.2 for the Android path-traversal fix. Defer `share_plus` 12 to 13 and `package_info_plus` 9 to 10 until a `file_picker` release ships with `win32 ^6.0.0`.
+
+**Rationale:** `file_picker` 11.0.2 patches a path-traversal vulnerability (CWE-22) in the Android external content provider resolver, which is directly relevant to the `.cardstash` import flow. The API change is narrow — `FilePicker.platform.pickFiles(...)` became `FilePicker.pickFiles(...)` (static) — and touches a single call site in `file_picker_service.dart`, covered by the existing `FakeFilePickerService` fake in `import_screen_test.dart`.
+
+**What was rejected:** Bumping all three majors together. `share_plus` 13.0.0 and `package_info_plus` 10.0.0 both require `win32 ^6.0.0` as their only breaking change (no API surface changes), but `file_picker` 11.0.2 still pins `win32 ^5.9.0`. The pub solver can resolve `file_picker` 11 **or** (`share_plus` 13 + `package_info_plus` 10), not all three. Holding file_picker at 10 to take the other two majors was considered and rejected — the security fix outweighs cosmetic transitive bumps that deliver no API or runtime improvement.
+
+**Trade-off:** Two deferred major bumps in the pub outdated report until `file_picker` adopts `win32 ^6`. Neither deferred major has API changes, so revisiting is a one-line pubspec bump when unblocked.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

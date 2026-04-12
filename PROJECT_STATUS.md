@@ -1,6 +1,6 @@
 # Card Stash - Project Status
 
-## Current Phase: Phase 4 Complete - Add Card Screen
+## Current State: v1.0.0 shipped 2026-03-17, unreleased work in progress
 
 ## Phase Progress
 
@@ -11,46 +11,26 @@
 | 2 | Card Display Screen | Done |
 | 3 | Home Screen (Card List) | Done |
 | 4 | Add Card Screen | Done |
-| 5 | Edit Card Screen | Next |
-| 6 | Expiry Notifications | Pending |
-| 7 | Settings, Export and Import | Pending |
-| 8 | About Screen | Pending |
-| 9 | Polish and Pre-Release | Pending |
+| 5 | Edit Card Screen | Done |
+| 6 | Expiry Notifications | Done |
+| 7 | Settings, Export and Import | Done |
+| 8 | About Screen | Done |
+| 9 | Polish and Pre-Release | Done |
 
-## Phase 4 Completed
+v1.0.0 shipped 2026-03-17 with the full MVP scope. Feature detail lives in `docs/CHANGELOG.md`; per-phase history lives in `docs/BUILD_ORDER.md` and git log.
 
-- LuhnValidator: pure Dart Luhn algorithm (payment card checksum detection)
-- BinDetector: BIN range matching for Visa, Mastercard, Amex, Maestro, Discover
-- BarcodeTypeHelper: maps mobile_scanner formats to BarcodeType enum
-- ScannerService: wraps mobile_scanner, extracts card number and barcode type
-- AddCardScreen: camera scan with viewfinder, manual entry with form fields, payment card rejection, colour picker, barcode type chips, expiry date picker
-- OnboardingScreen: first-launch-only with payment card warning, sets SharedPreferences flag
-- Router updated to factory function `createRouter()` with first-launch routing
-- 144 total tests, all passing, zero analyzer warnings
+## Unreleased Work
 
-## Phase 3 Completed
+Queued for the next release (see `docs/CHANGELOG.md` [Unreleased] for detail):
 
-- ExpiryBadge widget with UTC date comparison (DST-safe)
-- CardTile widget with colour accent, favourite star, note indicator, expiry badge
-- HomeScreen with sorted list, fuzzy search, Pinned/Most Used sections, empty state
-- Long-press action sheet: Edit, Share, Toggle Favourite, Delete with confirmation
-- go_router with ShellRoute for bottom nav (Cards, Alerts, About)
-- CardDisplayScreen pushed as full-screen overlay outside the nav shell
-- Sunlight dark theme on app shell and navigation bar
-
-## Phase 2 Completed
-
-- BrightnessService with save/force/restore via screen_brightness
-- BarcodeView widget rendering all barcode types at max safe width
-- CardDisplayScreen with full-screen display, tap to dismiss
-- Usage tracking delegated to caller (not screen) due to FakeAsync/Hive constraint
-
-## Phase 1 Completed
-
-- LoyaltyCard model, BarcodeType enum, Hive CE generated adapters
-- StorageService with encrypted box, 256-bit key in secure enclave
-- CardListNotifier with full CRUD, sorted by favourites then usage
-- First-launch flag via SharedPreferences
+- Live camera OCR with real-time text overlay (camera + parallel ML Kit barcode and text recognition)
+- Duplicate card number detection on add and edit
+- Editable card number on the edit screen
+- Scan barcode from saved photo via gallery picker
+- Light / dark / system theme with Appearance picker
+- Card list sorting modes
+- Custom HSV colour picker plus six additional preset colours
+- `file_picker` upgraded 10 to 11.0.2 (Android path-traversal CVE fix)
 
 ## Notes
 
@@ -58,3 +38,9 @@
 - Style guide: `docs/sunlight-style-guide.md`
 - All docs live in `/docs`
 - No secrets, no network calls, no analytics
+
+## Pre-Release Follow-ups
+
+- Verify `.cardstash` import on a real iOS device and a real Android device after the `file_picker` 10 to 11 upgrade (2026-04-12). Unit tests cover the wrapper via `FakeFilePickerService`, but the real file association path (iOS UTType + Android content provider) needs hardware testing before the next release ships.
+- Revisit `share_plus` 12 to 13 and `package_info_plus` 9 to 10 once `file_picker` publishes a version compatible with `win32 ^6.0.0` — both are cosmetic transitive bumps with no API changes, currently blocked by a three-way win32 conflict.
+- Consider adding `osv-scanner --lockfile=pubspec.lock` to CI before the next release — Dart has no built-in vulnerability scanner and the 2026-04-12 audit flagged this as a gap.

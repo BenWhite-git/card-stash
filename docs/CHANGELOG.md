@@ -28,10 +28,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Save button moved to top of add card form for visibility without scrolling
 - Removed Scan button from add card AppBar to prevent accidental taps
 - Card number text darkened to black for accessibility on display screen
+- Upgraded `file_picker` from 10.3.10 to 11.0.2 and migrated the one call site from `FilePicker.platform.pickFiles` to the new static `FilePicker.pickFiles` API
 
 ### Fixed
 - External links (Ko-fi, Privacy Policy, GitHub) now open correctly on Android and iOS
 - Android adaptive icon foreground uses transparent background for proper mask rendering
+
+### Security
+- `file_picker` 11.0.2 patches an Android path-traversal vulnerability (CWE-22) in external content provider resolution, relevant to the `.cardstash` import flow
 
 ---
 
