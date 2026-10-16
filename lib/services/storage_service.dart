@@ -34,14 +34,17 @@ class StorageService {
     FlutterSecureStorage? secureStorage,
     bool skipHiveInit = false,
   }) async {
+    // Resolving the Hive directory and reading the key from secure storage
+    // are independent platform calls, so they run concurrently.
+    final keyFuture = _getOrCreateKey(
+      secureStorage ?? const FlutterSecureStorage(),
+    );
     if (!skipHiveInit) {
       await Hive.initFlutter();
       Hive.registerAdapters();
     }
 
-    final key = await _getOrCreateKey(
-      secureStorage ?? const FlutterSecureStorage(),
-    );
+    final key = await keyFuture;
     final encryptionCipher = HiveAesCipher(key);
 
     final box = await Hive.openBox<LoyaltyCard>(

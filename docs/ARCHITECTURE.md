@@ -395,6 +395,16 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ---
 
+### Startup: No Timezone Database, Parallel Initialisation, Single Router
+
+**Decision:** Stop loading the `timezone` package's full database at launch. Notification instants are built by `NotificationService.scheduledDateFor`, which converts local 9am on the target day to a UTC `TZDateTime`. In `main`, storage, SharedPreferences and notification plugin initialisation run concurrently, and `StorageService.init` reads the secure-storage key while Hive resolves its directory. `CardStashApp` creates its `GoRouter` once in state rather than on every build. The native launch windows use `@color/launch_background` (Android, light and night variants) and the `LaunchBackground` colour set (iOS) so they match `CardStashColors` backgrounds.
+
+**Rationale:** `timezone/data/latest_all.dart` embeds roughly 450 KB of zone data in the snapshot and deserialises every zone on the main isolate before the first frame (12 ms in JIT on an M-series Mac, an order of magnitude more on a mid-range phone). `tz.local` was never set, so scheduling already used UTC instants; making that explicit removes the database with no behaviour change. The three init calls hit independent platform channels, so awaiting them one after another stacked the keychain, path_provider and plugin latencies. Recreating the router on each rebuild reset navigation to `/cards` whenever the theme changed. A white (light) or pure black (dark) launch window followed by the slate app background read as a flash and made startup feel slower than it was.
+
+**What was rejected:** Switching to `latest_10y` (smaller, but still unnecessary work at launch). Calling `runApp` before initialisation with a loading screen: it adds loading and error states to handle, and with the parallel init the pre-frame wait should be well under the threshold where a splash earns its place. Measure on a device first (see `docs/TODO.md`).
+
+**Trade-off:** Notifications are pinned to the UTC instant of local 9am at scheduling time; if the user later changes time zone, the alert fires at 9am in the original zone. This matches the previous behaviour exactly.
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

@@ -160,6 +160,15 @@ class NotificationService {
     return (cardId.hashCode + index).abs() % 2147483647;
   }
 
+  /// Returns the instant at 9:00 local time on the given day, expressed in
+  /// UTC so the timezone database never needs loading. The device clock
+  /// resolves local 9am (including DST) and the instant is what the platform
+  /// scheduler fires on.
+  static tz.TZDateTime scheduledDateFor(DateTime day) {
+    final localNineAm = DateTime(day.year, day.month, day.day, 9);
+    return tz.TZDateTime.from(localNineAm, tz.UTC);
+  }
+
   /// Schedules expiry notifications for a card. Returns the notification IDs.
   ///
   /// If the card has no expiry date, returns an empty list.
@@ -183,15 +192,7 @@ class NotificationService {
       final id = generateNotificationId(card.id, i);
       ids.add(id);
 
-      final scheduledDate = tz.TZDateTime.from(
-        DateTime(
-          notification.time.year,
-          notification.time.month,
-          notification.time.day,
-          9, // 9:00 AM local time.
-        ),
-        tz.local,
-      );
+      final scheduledDate = scheduledDateFor(notification.time);
 
       await _plugin.zonedSchedule(
         id: id,

@@ -9,6 +9,7 @@ import 'package:card_stash/models/card.dart';
 import 'package:card_stash/providers/first_launch_provider.dart';
 import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
@@ -29,21 +30,43 @@ void main() {
     prefs = await SharedPreferences.getInstance();
   });
 
-  testWidgets('App renders Card Stash heading', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
-          notificationServiceProvider.overrideWithValue(
-            StubNotificationService(),
-          ),
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
-        child: const CardStashApp(),
-      ),
+  Widget buildApp() {
+    return ProviderScope(
+      overrides: [
+        storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
+        notificationServiceProvider.overrideWithValue(
+          StubNotificationService(),
+        ),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const CardStashApp(),
     );
+  }
+
+  testWidgets('App renders Card Stash heading', (WidgetTester tester) async {
+    await tester.pumpWidget(buildApp());
     await tester.pump();
 
     expect(find.text('Card Stash'), findsOneWidget);
+  });
+
+  testWidgets('Changing theme keeps the current tab', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(buildApp());
+    await tester.pump();
+
+    await tester.tap(find.text('Settings'));
+    await tester.pump();
+    expect(find.text('Appearance'), findsOneWidget);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CardStashApp)),
+    );
+    await container.read(themeModeProvider.notifier).setMode(ThemeMode.light);
+    await tester.pump();
+
+    expect(find.text('Appearance'), findsOneWidget);
+    expect(find.text('Card Stash'), findsNothing);
   });
 }

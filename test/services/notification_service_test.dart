@@ -3,6 +3,7 @@
 
 import 'package:card_stash/services/notification_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 void main() {
   group('NotificationService.computeSchedule', () {
@@ -163,6 +164,39 @@ void main() {
       expect(schedule, hasLength(2));
       expect(schedule[0].time, DateTime(2026, 3, 2));
       expect(schedule[0].title, 'JustOver7 expires in 7 days');
+    });
+  });
+
+  group('NotificationService.scheduledDateFor', () {
+    // No timezone database is initialised in these tests, mirroring app
+    // startup: scheduling must not depend on tz.initializeTimeZones().
+    test('fires at 9:00 local time on the given day', () {
+      final day = DateTime(2030, 6, 15, 23, 59);
+
+      final scheduled = NotificationService.scheduledDateFor(day);
+
+      expect(scheduled.isAtSameMomentAs(DateTime(2030, 6, 15, 9)), isTrue);
+    });
+
+    test('uses the UTC location so no timezone database is required', () {
+      final scheduled = NotificationService.scheduledDateFor(
+        DateTime(2030, 1, 1),
+      );
+
+      expect(scheduled.location, tz.UTC);
+    });
+
+    test('preserves the instant across a DST boundary', () {
+      // 30 March 2030 is a DST transition day in Europe/London. The instant
+      // must equal local 9am on that day regardless of the device zone.
+      final day = DateTime(2030, 3, 30);
+
+      final scheduled = NotificationService.scheduledDateFor(day);
+
+      expect(
+        scheduled.millisecondsSinceEpoch,
+        DateTime(2030, 3, 30, 9).millisecondsSinceEpoch,
+      );
     });
   });
 
