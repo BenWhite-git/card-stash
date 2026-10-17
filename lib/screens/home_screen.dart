@@ -208,13 +208,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Card Stash',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          color: colors.textPrimary,
-                          height: 1.25,
+                      Expanded(
+                        child: Text(
+                          'Card Stash',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
+                            height: 1.25,
+                          ),
                         ),
                       ),
                       IconButton(
@@ -252,10 +254,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
-                  if (showBackupReminder) ...[
-                    const SizedBox(height: 16),
-                    const BackupReminderBanner(),
-                  ],
                 ],
               ),
             ),
@@ -264,7 +262,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? _buildEmptyState()
                   : filtered.isEmpty
                   ? _buildNoResults()
-                  : _buildCardList(favourites, others),
+                  : _buildCardList(
+                      favourites,
+                      others,
+                      showBackupReminder: showBackupReminder,
+                    ),
             ),
           ],
         ),
@@ -327,11 +329,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _buildCardList(
     List<LoyaltyCard> favourites,
-    List<LoyaltyCard> others,
-  ) {
+    List<LoyaltyCard> others, {
+    required bool showBackupReminder,
+  }) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       children: [
+        // The banner scrolls with the list so large text can never push the
+        // cards off the bottom of the screen.
+        if (showBackupReminder) ...[
+          const BackupReminderBanner(),
+          const SizedBox(height: 16),
+        ],
         if (favourites.isNotEmpty) ...[
           _SectionHeader(label: 'PINNED'),
           const SizedBox(height: 8),

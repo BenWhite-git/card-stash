@@ -61,8 +61,8 @@ class BackupReminderBanner extends ConsumerWidget {
               style: TextStyle(fontSize: 14, color: colors.textSecondary),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Wrap(
+            alignment: WrapAlignment.end,
             children: [
               TextButton(
                 onPressed: () =>

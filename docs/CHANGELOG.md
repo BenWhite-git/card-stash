@@ -37,6 +37,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Upgraded `file_picker` from 10.3.10 to 11.0.2 and migrated the one call site from `FilePicker.platform.pickFiles` to the new static `FilePicker.pickFiles` API
 
 ### Fixed
+- Home, card display and backup banner layouts no longer overflow at 200% system text size; the card display scrolls when its content is taller than the screen
 - Passphrase fields on the export and import screens now follow the light theme instead of always rendering dark
 - Expiry badge, export and import status colours come from the theme palette
 - Changing Appearance no longer resets navigation back to the Cards tab

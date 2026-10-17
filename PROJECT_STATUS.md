@@ -33,6 +33,7 @@ Queued for the next release (see `docs/CHANGELOG.md` [Unreleased] for detail):
 - `file_picker` upgraded 10 to 11.0.2 (Android path-traversal CVE fix)
 - Faster cold start: timezone database dropped from launch, parallel initialisation, router created once, themed launch windows (2026-10-16)
 - Fix: changing Appearance no longer resets navigation to the Cards tab
+- Backlog pass (2026-10-17, branch `chore/backlog-fixes`): usage count owned by the display screen, search by card number, all UI colours on theme tokens, release signing guard, GitHub Actions CI with OSV scan, `file_picker` 13 / `share_plus` 13 / `package_info_plus` 10, backup reminder banner, 200% text-scale overflow fixes with an automated check in `test/accessibility/`
 
 ## Notes
 
@@ -44,6 +45,13 @@ Queued for the next release (see `docs/CHANGELOG.md` [Unreleased] for detail):
 - No secrets, no network calls, no analytics
 
 ## Pre-Release Follow-ups
+
+The full backlog lives in `docs/TODO.md`. The two items that block the next release:
+
+- Create the release keystore and `android/key.properties` (the build now refuses release builds without them).
+- Verify `.cardstash` import on real iOS and Android hardware after the `file_picker` 13 upgrade.
+
+Older notes:
 
 - Verify `.cardstash` import on a real iOS device and a real Android device after the `file_picker` 10 to 11 upgrade (2026-04-12). Unit tests cover the wrapper via `FakeFilePickerService`, but the real file association path (iOS UTType + Android content provider) needs hardware testing before the next release ships.
 - Revisit `share_plus` 12 to 13 and `package_info_plus` 9 to 10 once `file_picker` publishes a version compatible with `win32 ^6.0.0` — both are cosmetic transitive bumps with no API changes, currently blocked by a three-way win32 conflict.

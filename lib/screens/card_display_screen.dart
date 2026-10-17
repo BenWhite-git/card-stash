@@ -76,53 +76,70 @@ class _CardDisplayScreenState extends ConsumerState<CardDisplayScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 40),
-                    Expanded(
-                      child: Text(
-                        card.name,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+          // Scrolls only when large text makes the content taller than the
+          // screen; otherwise the Spacers centre the barcode as before.
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const SizedBox(width: 40),
+                            Expanded(
+                              child: Text(
+                                card.name,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit_outlined,
+                                color: Colors.black54,
+                              ),
+                              tooltip: 'Edit card',
+                              onPressed: () {
+                                _dismiss();
+                                context.push('/cards/${card.id}/edit');
+                              },
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                        const SizedBox(height: 8),
+                        if (card.issuer != null && card.issuer!.isNotEmpty)
+                          Text(
+                            card.issuer!,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        const Spacer(),
+                        BarcodeView(
+                          cardNumber: card.cardNumber,
+                          barcodeType: card.barcodeType,
+                        ),
+                        const Spacer(),
+                        _buildMetadata(card),
+                        const SizedBox(height: 16),
+                      ],
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.edit_outlined,
-                        color: Colors.black54,
-                      ),
-                      tooltip: 'Edit card',
-                      onPressed: () {
-                        _dismiss();
-                        context.push('/cards/${card.id}/edit');
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (card.issuer != null && card.issuer!.isNotEmpty)
-                  Text(
-                    card.issuer!,
-                    style: const TextStyle(fontSize: 16, color: Colors.black54),
-                    textAlign: TextAlign.center,
                   ),
-                const Spacer(),
-                BarcodeView(
-                  cardNumber: card.cardNumber,
-                  barcodeType: card.barcodeType,
                 ),
-                const Spacer(),
-                _buildMetadata(card),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
           ),
         ),
@@ -197,17 +214,23 @@ class _MetadataRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade600,
+          Flexible(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade600,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
           ),
         ],
       ),
