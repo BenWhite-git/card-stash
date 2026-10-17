@@ -207,6 +207,15 @@ Accepted via a single "Got it" button; not shown again.
 - Biometric lock (Face ID / Touch ID / fingerprint) via `local_auth`
 - ~~On-device OCR via `google_mlkit_text_recognition`~~ -- **Implemented.** Extracts card numbers, expiry dates, and issuer names using on-device ML Kit. Runs on live camera frames alongside barcode detection (via `camera` + `google_mlkit_barcode_scanning`), with real-time text overlay showing detected text bounding boxes. Also runs on gallery images. See `ocr_service.dart`, `camera_frame_processor.dart`.
 
+#### Backup Reminder -- Implemented
+
+A banner on the home screen nudges the user to export an encrypted backup, because a lost phone means lost cards. It appears when:
+
+- the wallet has at least 3 cards and no export has ever been made, or
+- the last export is more than 30 days old and at least one card was added since.
+
+"Back up" opens the export screen. "Later" hides the banner for 7 days. A successful export records the time and clears any snooze. State lives in SharedPreferences (`last_export_at`, `backup_reminder_snoozed_until`); no card data is involved. See `backup_reminder_provider.dart` and `backup_reminder_banner.dart`.
+
 #### Home Screen Widget (4×2)
 
 A 4×2 home screen widget showing the top card's barcode and a quick-swap strip for the top 3 cards.

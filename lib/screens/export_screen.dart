@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/backup_reminder_provider.dart';
 import '../services/export_service.dart';
 import '../theme.dart';
 import '../widgets/passphrase_field.dart';
@@ -55,6 +56,7 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final file = await service.buildExportFile(_passphrase);
       await service.shareExportFile(file);
       await service.cleanupExportFile(file);
+      await ref.read(backupReminderProvider.notifier).recordExport();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

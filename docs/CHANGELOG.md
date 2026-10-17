@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 ## [Unreleased]
 
 ### Added
+- Backup reminder banner on the home screen once three cards exist without an export, or when the last export is over 30 days old and cards were added since; Later snoozes it for a week
 - Search matches card numbers as well as names and issuers, ignoring spaces and hyphens
 - Live camera OCR with real-time text overlay - point at any card to see detected text highlighted, with status chips showing found fields
 - Barcodes still auto-detected instantly on the live feed; text-only cards now work without extra taps

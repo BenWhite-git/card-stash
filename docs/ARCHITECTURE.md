@@ -427,6 +427,18 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ---
 
+### Backup Reminder
+
+**Decision:** A `backupReminderDueProvider` derives whether to show the home screen banner from the card list and a small `BackupReminderNotifier` state (last export time, snooze-until) persisted in SharedPreferences. Thresholds are constants in `backup_reminder_provider.dart`: 3 cards before the first reminder, 30 days before a backup counts as stale, 7-day snooze. A `clockProvider` supplies the current time so the rules are unit-tested at fixed instants.
+
+**Rationale:** Export is the only recovery path and nothing prompted users to use it. Deriving "due" from existing data (card `createdAt`) rather than tracking every edit keeps the rule simple and needs no model change. SharedPreferences already holds the first-launch and theme flags, so it is the natural home for two more timestamps.
+
+**What was rejected:** A scheduled local notification for backups (a push-like nag is heavier than a banner and needs permission the user may have declined). Tracking edits as well as additions (would need a `modifiedAt` field on the card model and a Hive migration for a marginal gain).
+
+**Trade-off:** Editing cards without adding any never makes a backup stale; the user still has their earlier export of those cards, only with older details.
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

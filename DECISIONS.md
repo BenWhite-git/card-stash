@@ -28,3 +28,12 @@ Append-only log of decisions made on Card Stash, numbered from D001 upwards with
 **Alternatives rejected.** Falling back to the debug key when `key.properties` is missing (the status quo, and exactly the failure being fixed). Letting Gradle fail with its own "keystore not set" error (unclear, and reached only at the signing step after a long build). Committing an encrypted keystore to the repo (unnecessary for a single maintainer).
 **Consequences.** The next release changes the signing key, so existing v1.0.0 installs must export, uninstall and import. Contributors cannot produce release builds without the maintainer's keystore, which is intended. CI builds only debug artefacts.
 **Reversal cost.** Trivial to revert the Gradle change; the key change itself cannot be reversed once a signed release has shipped.
+
+## D004 - Backup reminder thresholds: 3 cards, 30 days stale, 7 day snooze
+**Date.** 2026-10-17
+**Status.** Accepted
+**Decision.** Show the home screen backup banner when the wallet has at least 3 cards and has never been exported, or when the last export is older than 30 days and at least one card was added since. "Later" snoozes for 7 days. State is two ISO timestamps in SharedPreferences.
+**Why.** No specification existed for this; the thresholds resolve the uncertainty by picking values that avoid nagging a brand-new user (1 or 2 cards) and avoid nagging anyone whose wallet has not changed since their last export. Staleness is judged from `createdAt`, which already exists on the card model.
+**Alternatives rejected.** Reminder on first card (too eager). Tracking edits via a new `modifiedAt` field (model change plus Hive migration for little benefit). A scheduled local notification (needs permission, heavier than a banner).
+**Consequences.** Edits alone never trigger a reminder. Thresholds are constants, so tuning is a one-line change.
+**Reversal cost.** Trivial, remove the banner and the provider; the two preference keys can be left orphaned or cleared.

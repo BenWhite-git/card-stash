@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:card_stash/hive_registrar.g.dart';
 import 'package:card_stash/models/card.dart';
+import 'package:card_stash/providers/first_launch_provider.dart';
 import 'package:card_stash/screens/home_screen.dart';
 import 'package:card_stash/providers/notification_provider.dart';
 import 'package:card_stash/services/storage_service.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/stub_notification_service.dart';
 
@@ -46,6 +48,7 @@ LoyaltyCard _makeCard({
 
 void main() {
   late Box<LoyaltyCard> box;
+  late SharedPreferences prefs;
 
   setUpAll(() async {
     _tempDir = await Directory.systemTemp.createTemp('card_stash_home_');
@@ -56,6 +59,8 @@ void main() {
   setUp(() async {
     _boxCounter++;
     box = await Hive.openBox<LoyaltyCard>('test_home_$_boxCounter');
+    SharedPreferences.setMockInitialValues({});
+    prefs = await SharedPreferences.getInstance();
   });
 
   tearDown(() async {
@@ -85,6 +90,7 @@ void main() {
           notificationServiceProvider.overrideWithValue(
             StubNotificationService(),
           ),
+          sharedPreferencesProvider.overrideWithValue(prefs),
         ],
         child: const MaterialApp(home: HomeScreen()),
       ),
@@ -171,6 +177,48 @@ void main() {
 
       expect(find.text('My Card'), findsOneWidget);
       expect(find.text('Other Card'), findsNothing);
+    });
+
+    testWidgets(
+      'shows backup reminder once three cards exist and nothing exported',
+      (tester) async {
+        await pumpHomeScreen(
+          tester,
+          cards: [
+            _makeCard(id: 'a', name: 'A'),
+            _makeCard(id: 'b', name: 'B'),
+            _makeCard(id: 'c', name: 'C'),
+          ],
+        );
+        expect(find.text('Back up your cards'), findsOneWidget);
+      },
+    );
+
+    testWidgets('hides backup reminder with fewer than three cards', (
+      tester,
+    ) async {
+      await pumpHomeScreen(
+        tester,
+        cards: [
+          _makeCard(id: 'a', name: 'A'),
+          _makeCard(id: 'b', name: 'B'),
+        ],
+      );
+      expect(find.text('Back up your cards'), findsNothing);
+    });
+
+    testWidgets('Later dismisses the backup reminder', (tester) async {
+      await pumpHomeScreen(
+        tester,
+        cards: [
+          _makeCard(id: 'a', name: 'A'),
+          _makeCard(id: 'b', name: 'B'),
+          _makeCard(id: 'c', name: 'C'),
+        ],
+      );
+      await tester.tap(find.text('Later'));
+      await tester.pump();
+      expect(find.text('Back up your cards'), findsNothing);
     });
 
     testWidgets('search filters cards by card number ignoring spaces', (

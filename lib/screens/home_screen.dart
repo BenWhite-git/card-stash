@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/card.dart';
+import '../providers/backup_reminder_provider.dart';
 import '../providers/card_provider.dart';
 import '../theme.dart';
 import '../utils/card_number_utils.dart';
+import '../widgets/backup_reminder_banner.dart';
 import '../widgets/card_form_fields.dart';
 import '../widgets/card_tile.dart';
 
@@ -191,6 +193,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final favourites = filtered.where((c) => c.isFavourite).toList();
     final others = filtered.where((c) => !c.isFavourite).toList();
     final colors = context.colors;
+    final showBackupReminder = ref.watch(backupReminderDueProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -249,6 +252,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     ),
                   ),
+                  if (showBackupReminder) ...[
+                    const SizedBox(height: 16),
+                    const BackupReminderBanner(),
+                  ],
                 ],
               ),
             ),
