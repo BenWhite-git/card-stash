@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../models/card.dart';
 import '../providers/card_provider.dart';
 import '../theme.dart';
+import '../utils/card_number_utils.dart';
 import '../widgets/card_form_fields.dart';
 import '../widgets/card_tile.dart';
 
@@ -92,9 +93,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<LoyaltyCard> _filteredCards(List<LoyaltyCard> cards) {
     if (_searchQuery.isEmpty) return cards;
     final query = _searchQuery.toLowerCase();
+    final numberQuery = normaliseCardNumber(query);
     return cards.where((card) {
       return card.name.toLowerCase().contains(query) ||
-          (card.issuer?.toLowerCase().contains(query) ?? false);
+          (card.issuer?.toLowerCase().contains(query) ?? false) ||
+          (numberQuery.isNotEmpty &&
+              normaliseCardNumber(
+                card.cardNumber,
+              ).toLowerCase().contains(numberQuery));
     }).toList();
   }
 
@@ -309,7 +315,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _openCard(LoyaltyCard card) {
-    ref.read(cardListProvider.notifier).incrementUsage(card.id);
     context.push('/cards/${card.id}');
   }
 

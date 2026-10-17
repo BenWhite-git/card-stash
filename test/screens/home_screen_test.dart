@@ -23,6 +23,7 @@ LoyaltyCard _makeCard({
   String id = '1',
   String name = 'Test Card',
   String? issuer,
+  String cardNumber = '1234567890',
   int usageCount = 0,
   bool isFavourite = false,
   String? notes,
@@ -32,7 +33,7 @@ LoyaltyCard _makeCard({
     id: id,
     name: name,
     issuer: issuer,
-    cardNumber: '1234567890',
+    cardNumber: cardNumber,
     barcodeType: BarcodeType.code128,
     colourValue: Colors.blue.toARGB32(),
     createdAt: DateTime(2026, 1, 1),
@@ -170,6 +171,23 @@ void main() {
 
       expect(find.text('My Card'), findsOneWidget);
       expect(find.text('Other Card'), findsNothing);
+    });
+
+    testWidgets('search filters cards by card number ignoring spaces', (
+      tester,
+    ) async {
+      await pumpHomeScreen(
+        tester,
+        cards: [
+          _makeCard(id: 'a', name: 'Boots', cardNumber: '6340 1234 5678'),
+          _makeCard(id: 'b', name: 'Nectar', cardNumber: '9876543210'),
+        ],
+      );
+      await tester.enterText(find.byType(TextField), '12345678');
+      await tester.pump();
+
+      expect(find.text('Boots'), findsOneWidget);
+      expect(find.text('Nectar'), findsNothing);
     });
 
     testWidgets('shows no results message when search has no matches', (

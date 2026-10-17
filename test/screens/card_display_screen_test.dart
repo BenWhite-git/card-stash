@@ -95,29 +95,52 @@ void main() {
     }
   });
 
-  /// Puts a card in the box via runAsync (to avoid FakeAsync deadlock on Hive
-  /// I/O) and pumps the screen.
+  /// Puts a card in the box and pumps the screen inside runAsync, because
+  /// both the seed write and the usage-count write triggered by initState are
+  /// Hive I/O that deadlocks under FakeAsync.
   Future<void> pumpCardScreen(
     WidgetTester tester, {
     required LoyaltyCard card,
     required FakeBrightnessControl brightness,
   }) async {
-    await tester.runAsync(() => box.put(card.id, card));
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          storageServiceProvider.overrideWithValue(StorageService.fromBox(box)),
-          notificationServiceProvider.overrideWithValue(
-            StubNotificationService(),
-          ),
-          brightnessServiceProvider.overrideWithValue(
-            BrightnessService(brightnessControl: brightness),
-          ),
-        ],
-        child: MaterialApp(home: CardDisplayScreen(cardId: card.id)),
-      ),
-    );
+    await tester.runAsync(() async {
+      await box.put(card.id, card);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            storageServiceProvider.overrideWithValue(
+              StorageService.fromBox(box),
+            ),
+            notificationServiceProvider.overrideWithValue(
+              StubNotificationService(),
+            ),
+            brightnessServiceProvider.overrideWithValue(
+              BrightnessService(brightnessControl: brightness),
+            ),
+          ],
+          child: MaterialApp(home: CardDisplayScreen(cardId: card.id)),
+        ),
+      );
+      // Let the usage-count write started in initState complete.
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+    });
   }
+
+  group('usage tracking', () {
+    testWidgets('opening the screen increments usageCount and sets lastUsed', (
+      tester,
+    ) async {
+      await pumpCardScreen(
+        tester,
+        card: _makeCard(usageCount: 3),
+        brightness: fakeBrightness,
+      );
+
+      final stored = box.get('test-1')!;
+      expect(stored.usageCount, 4);
+      expect(stored.lastUsed, isNotNull);
+    });
+  });
 
   group('card info display', () {
     testWidgets('shows card name', (tester) async {
@@ -242,8 +265,13 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
+      // Opening the screen writes the usage count to Hive, so run in real
+      // time to avoid the FakeAsync deadlock.
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      });
       expect(fakeBrightness.applicationBrightnessValue, 1.0);
 
       Navigator.of(tester.element(find.byType(CardDisplayScreen))).pop();
@@ -291,11 +319,19 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      });
 
-      await tester.tap(find.byType(CardDisplayScreen));
-      await tester.pumpAndSettle();
+      // The push future was awaited in real time above, so its completion
+      // must also be observed in real time.
+      await tester.runAsync(() async {
+        await tester.tap(find.byType(CardDisplayScreen));
+        await tester.pumpAndSettle();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      });
 
       expect(didPop, isTrue);
     });

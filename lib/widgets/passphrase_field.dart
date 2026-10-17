@@ -3,6 +3,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 class PassphraseField extends StatefulWidget {
   final String labelText;
   final ValueChanged<String> onChanged;
@@ -24,40 +26,41 @@ class _PassphraseFieldState extends State<PassphraseField> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return TextField(
       onChanged: widget.onChanged,
       obscureText: _obscured,
-      style: const TextStyle(fontSize: 16, color: Color(0xFFF8FAFC)),
+      style: TextStyle(fontSize: 16, color: colors.textPrimary),
       decoration: InputDecoration(
         labelText: widget.labelText,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color(0xFFCBD5E1),
+          color: colors.textSecondary,
         ),
         errorText: widget.errorText,
-        errorStyle: const TextStyle(fontSize: 12, color: Color(0xFFEF4444)),
+        errorStyle: TextStyle(fontSize: 12, color: colors.error),
         filled: true,
-        fillColor: const Color(0xFF1E293B),
+        fillColor: colors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: colors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF334155)),
+          borderSide: BorderSide(color: colors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFF59E0B), width: 2),
+          borderSide: BorderSide(color: colors.accent, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFEF4444)),
+          borderSide: BorderSide(color: colors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
+          borderSide: BorderSide(color: colors.error, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
@@ -68,7 +71,7 @@ class _PassphraseFieldState extends State<PassphraseField> {
             _obscured
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            color: const Color(0xFF94A3B8),
+            color: colors.textMuted,
           ),
           tooltip: _obscured ? 'Show passphrase' : 'Hide passphrase',
           onPressed: () => setState(() => _obscured = !_obscured),

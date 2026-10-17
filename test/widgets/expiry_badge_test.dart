@@ -1,6 +1,7 @@
 // ABOUTME: Tests for ExpiryBadge widget.
 // ABOUTME: Verifies correct colour and text for various expiry timeframes.
 
+import 'package:card_stash/theme.dart';
 import 'package:card_stash/widgets/expiry_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -81,13 +82,13 @@ void main() {
         wrap(ExpiryBadge(expiryDate: _daysFromToday(20))),
       );
       final text = tester.widget<Text>(find.text('20d left'));
-      expect(text.style?.color, const Color(0xFFF59E0B));
+      expect(text.style?.color, CardStashColors.dark.accent);
     });
 
     testWidgets('red badge has red colour scheme', (tester) async {
       await tester.pumpWidget(wrap(ExpiryBadge(expiryDate: _daysFromToday(3))));
       final text = tester.widget<Text>(find.text('3d left'));
-      expect(text.style?.color, const Color(0xFFEF4444));
+      expect(text.style?.color, CardStashColors.dark.error);
     });
   });
 }

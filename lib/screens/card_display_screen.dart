@@ -33,6 +33,8 @@ class _CardDisplayScreenState extends ConsumerState<CardDisplayScreen> {
     super.initState();
     _brightnessService = ref.read(brightnessServiceProvider);
     _brightnessService.setMaxBrightness();
+    // Every open of this screen counts as a use, whichever route led here.
+    ref.read(cardListProvider.notifier).incrementUsage(widget.cardId);
   }
 
   @override

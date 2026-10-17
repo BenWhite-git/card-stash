@@ -14,6 +14,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
   final Color textMuted;
   final Color accent;
   final Color error;
+  final Color success;
+  final Color info;
 
   const CardStashColors({
     required this.background,
@@ -24,6 +26,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
     required this.textMuted,
     required this.accent,
     required this.error,
+    required this.success,
+    required this.info,
   });
 
   static const dark = CardStashColors(
@@ -35,6 +39,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
     textMuted: Color(0xFF94A3B8),
     accent: Color(0xFFF59E0B),
     error: Color(0xFFEF4444),
+    success: Color(0xFF34D399),
+    info: Color(0xFF312E81),
   );
 
   static const light = CardStashColors(
@@ -46,6 +52,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
     textMuted: Color(0xFF94A3B8),
     accent: Color(0xFFF59E0B),
     error: Color(0xFFEF4444),
+    success: Color(0xFF059669),
+    info: Color(0xFF6D28D9),
   );
 
   @override
@@ -58,6 +66,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
     Color? textMuted,
     Color? accent,
     Color? error,
+    Color? success,
+    Color? info,
   }) {
     return CardStashColors(
       background: background ?? this.background,
@@ -68,6 +78,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
       textMuted: textMuted ?? this.textMuted,
       accent: accent ?? this.accent,
       error: error ?? this.error,
+      success: success ?? this.success,
+      info: info ?? this.info,
     );
   }
 
@@ -83,6 +95,8 @@ class CardStashColors extends ThemeExtension<CardStashColors> {
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       error: Color.lerp(error, other.error, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      info: Color.lerp(info, other.info, t)!,
     );
   }
 }
