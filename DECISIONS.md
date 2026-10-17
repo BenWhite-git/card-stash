@@ -19,3 +19,12 @@ Append-only log of decisions made on Card Stash, numbered from D001 upwards with
 **Alternatives rejected.** `runApp` immediately with a themed placeholder and async initialisation, deferred until measurement shows more than roughly 300 ms before the first frame (tracked in `docs/TODO.md`).
 **Consequences.** The native launch window is the only thing on screen during initialisation, which is why its colour now matches the app background.
 **Reversal cost.** Moderate, requires a loading widget, an error state for `StorageService.init` failures and widget tests for both.
+
+## D003 - Require the release keystore for release builds and fail loudly without it
+**Date.** 2026-10-17
+**Status.** Accepted
+**Decision.** `android/app/build.gradle.kts` signs release builds from `android/key.properties` and throws a `GradleException` from `taskGraph.whenReady` when a release task is requested and the file is absent. Debug builds are unaffected.
+**Why.** The v1.0.0 APK on GitHub Releases was signed with the Android debug key because the template `signingConfig = debug` was never replaced. A debug-signed release cannot be updated in place by a properly signed one, and the longer it ships the more users are affected. Failing at configuration time for release tasks only is the smallest change that makes the mistake impossible to repeat.
+**Alternatives rejected.** Falling back to the debug key when `key.properties` is missing (the status quo, and exactly the failure being fixed). Letting Gradle fail with its own "keystore not set" error (unclear, and reached only at the signing step after a long build). Committing an encrypted keystore to the repo (unnecessary for a single maintainer).
+**Consequences.** The next release changes the signing key, so existing v1.0.0 installs must export, uninstall and import. Contributors cannot produce release builds without the maintainer's keystore, which is intended. CI builds only debug artefacts.
+**Reversal cost.** Trivial to revert the Gradle change; the key change itself cannot be reversed once a signed release has shipped.

@@ -405,6 +405,28 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 **Trade-off:** Notifications are pinned to the UTC instant of local 9am at scheduling time; if the user later changes time zone, the alert fires at 9am in the original zone. This matches the previous behaviour exactly.
 
+---
+
+### Deferred Major Bumps Taken: file_picker 13, share_plus 13, package_info_plus 10
+
+**Decision:** Upgrade `file_picker` 11 to 13.1.0, `share_plus` 12 to 13.3.1 and `package_info_plus` 9 to 10.2.2 together. This closes the deferral recorded in "file_picker 11 Upgrade and Deferred win32 Transition".
+
+**Rationale:** `file_picker` 13 depends on `win32 ^6`, so the three-way solver conflict is gone. The only API change at our call site is that `FilePicker.pickFiles` now returns `List<PlatformFile>` and single selection moved to `FilePicker.pickFile`, which returns `PlatformFile?`. `file_picker_service.dart` uses `pickFile` and still returns a local path: the Android and iOS implementations copy the picked file into the app cache, so `PlatformFile.path` is non-null for `.cardstash` imports. `share_plus` 13 keeps the `SharePlus.instance.share(ShareParams)` API already in use.
+
+**Trade-off:** The `.cardstash` import flow on real devices is still on the hardware verification list in `docs/TODO.md`; the fake-backed widget tests cannot prove the native copy-to-cache path. Note for anyone bumping a plugin major: Gradle kept stale intermediates for `package_info_plus` under `build/package_info_plus`, so the first debug build after the bump failed with `cannot find symbol PackageInfoPlugin`; `./gradlew :package_info_plus:clean` fixed it.
+
+---
+
+### Release Signing Guard and GitHub Actions CI
+
+**Decision:** Release builds are signed from `android/key.properties` and the Gradle build throws at configuration time when a release task is requested without it. A GitHub Actions workflow runs `dart format --set-exit-if-changed`, `flutter analyze` and `flutter test` on pushes to `main` and on pull requests, plus `osv-scanner` against `pubspec.lock` in a separate job.
+
+**Rationale:** See `DECISIONS.md` D003 for the signing guard. For CI, the project had no automated check at all; the three local commands in `CLAUDE.md` are now enforced on every PR, and OSV covers the gap left by Dart's lack of a built-in vulnerability scanner.
+
+**What was rejected:** Building release artefacts in CI (would require the keystore as a repository secret; releases remain a local, maintainer-only step). Using the osv-scanner reusable workflow (adds SARIF upload and code-scanning permissions the repo does not need).
+
+---
+
 - No dependency injection framework (Riverpod providers are sufficient)
 - No repository pattern abstraction over Hive (unnecessary indirection for this scope)
 - No remote feature flags or configuration

@@ -126,6 +126,18 @@ Test by sending a `.cardstash` file via email/Drive and tapping it.
 
 ---
 
+## Release Signing
+
+Release builds (`flutter build apk --release`, `flutter build appbundle --release`) must be signed with the Card Stash release keystore. `android/app/build.gradle.kts` reads the credentials from `android/key.properties`, which is gitignored, and fails the build with a clear message if the file is missing. Debug builds are unaffected.
+
+Create the keystore once with `keytool -genkey` (RSA 2048, validity 10000 days, alias `cardstash`) and keep it outside the repository, backed up somewhere safe. Losing it means existing installs can never be updated in place.
+
+Then create `android/key.properties` with four keys: `storeFile` (absolute path to the keystore), `storePassword`, `keyPassword` and `keyAlias`. A relative `storeFile` is resolved against the `android/` directory. Never commit the keystore or `key.properties`.
+
+Prefer `flutter build apk --release --split-per-abi` for GitHub Releases (publish `arm64-v8a` and `armeabi-v7a`) and `flutter build appbundle --release` for Google Play. The fat APK bundles three ABIs and is roughly three times the download for no benefit.
+
+---
+
 ## Licence
 
 By contributing, you agree that your contributions will be licenced under the MIT Licence.

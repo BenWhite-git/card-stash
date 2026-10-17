@@ -9,6 +9,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 ## [Unreleased]
 
 ### Added
+- Search matches card numbers as well as names and issuers, ignoring spaces and hyphens
 - Live camera OCR with real-time text overlay - point at any card to see detected text highlighted, with status chips showing found fields
 - Barcodes still auto-detected instantly on the live feed; text-only cards now work without extra taps
 - Duplicate card number detection with warning dialog on add and edit screens
@@ -22,6 +23,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Auto-capitalise words in card name field
 
 ### Changed
+- Opening a card now counts as a use however the display screen is reached, not only from the home list
+- Upgraded `file_picker` to 13.1.0, `share_plus` to 13.3.1 and `package_info_plus` to 10.2.2
 - Faster cold start: the timezone database is no longer loaded at launch, and encrypted storage, preferences and notification initialisation now run in parallel
 - Launch screen background matches the app palette in light and dark mode on Android and iOS, removing the white or black flash before the first frame
 - Replaced `mobile_scanner` with `camera` + `google_mlkit_barcode_scanning` for direct frame access and parallel ML Kit processing
@@ -33,11 +36,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Upgraded `file_picker` from 10.3.10 to 11.0.2 and migrated the one call site from `FilePicker.platform.pickFiles` to the new static `FilePicker.pickFiles` API
 
 ### Fixed
+- Passphrase fields on the export and import screens now follow the light theme instead of always rendering dark
+- Expiry badge, export and import status colours come from the theme palette
 - Changing Appearance no longer resets navigation back to the Cards tab
 - External links (Ko-fi, Privacy Policy, GitHub) now open correctly on Android and iOS
 - Android adaptive icon foreground uses transparent background for proper mask rendering
 
 ### Security
+- Release builds must be signed with the release keystore from `android/key.properties`; the build fails instead of falling back to the debug key
+- GitHub Actions CI runs format, analyse, test and an OSV vulnerability scan of `pubspec.lock` on every pull request
 - `file_picker` 11.0.2 patches an Android path-traversal vulnerability (CWE-22) in external content provider resolution, relevant to the `.cardstash` import flow
 
 ---

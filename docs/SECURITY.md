@@ -57,6 +57,11 @@ If granular backup rules are required in future, use `android:fullBackupContent`
 
 ---
 
+
+## Release Signing
+
+Android verifies that every update to an installed app is signed with the same key as the installed version. Release builds are therefore signed with a dedicated release keystore held offline by the maintainer, never the Android debug key. The Gradle build refuses to produce a release artefact without `android/key.properties` (see `CONTRIBUTING.md`, "Release Signing"), so an unsigned or debug-signed build cannot be published by accident. Changing the signing key is a breaking change for existing installs: users must export, uninstall and import.
+
 ## Payment Card Rejection
 
 Card Stash is not designed or permitted to store credit or debit card numbers. Two layers of protection are implemented:

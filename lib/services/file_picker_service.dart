@@ -9,12 +9,15 @@ final filePickerServiceProvider = Provider<FilePickerService>((ref) {
 });
 
 class FilePickerService {
-  /// Picks a .cardstash file and returns its path, or null if cancelled.
+  /// Picks a .cardstash file and returns its local path, or null if cancelled.
+  ///
+  /// Android and iOS copy the picked file into the app cache, so the path
+  /// is always a readable local file.
   Future<String?> pickCardstashFile() async {
-    final result = await FilePicker.pickFiles(
+    final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: ['cardstash'],
     );
-    return result?.files.single.path;
+    return file?.path;
   }
 }
