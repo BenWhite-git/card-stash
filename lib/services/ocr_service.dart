@@ -65,7 +65,7 @@ class OcrService {
     final tempFile = File('${tempDir.path}/capture.jpg');
     try {
       await tempFile.writeAsBytes(bytes);
-      return extractCardInfo(tempFile.path);
+      return await extractCardInfo(tempFile.path);
     } finally {
       tempDir.delete(recursive: true).ignore();
     }

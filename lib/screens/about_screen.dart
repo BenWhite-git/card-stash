@@ -189,14 +189,19 @@ class _CardContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Container(
+    // A Material rather than a decorated box so the ListTiles inside paint
+    // their ink splashes on this surface instead of behind it.
+    return SizedBox(
       width: double.infinity,
-      decoration: BoxDecoration(
+      child: Material(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.border),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colors.border),
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }
