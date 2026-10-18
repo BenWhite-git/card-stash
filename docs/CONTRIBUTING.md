@@ -130,7 +130,7 @@ Test by sending a `.cardstash` file via email/Drive and tapping it.
 
 Release builds (`flutter build apk --release`, `flutter build appbundle --release`) must be signed with the Card Stash release keystore. `android/app/build.gradle.kts` reads the credentials from `android/key.properties`, which is gitignored, and fails the build with a clear message if the file is missing. Debug builds are unaffected.
 
-Create the keystore once with `keytool -genkey` (RSA 2048, validity 10000 days, alias `cardstash`) and keep it outside the repository, backed up somewhere safe. Losing it means existing installs can never be updated in place.
+Create the keystore once with `keytool -genkey` (RSA 2048, validity 10000 days, alias `cardstash`) and keep it outside the repository, backed up somewhere safe. Losing it means existing installs can never be updated in place. On a Mac without a system JDK, `/usr/bin/keytool` is a stub that reports "Unable to locate a Java Runtime"; use the copy bundled with Android Studio at `/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin/keytool` instead. Run it in an interactive terminal, since it prompts for the password.
 
 Then create `android/key.properties` with four keys: `storeFile` (absolute path to the keystore), `storePassword`, `keyPassword` and `keyAlias`. A relative `storeFile` is resolved against the `android/` directory. Never commit the keystore or `key.properties`.
 

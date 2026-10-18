@@ -6,7 +6,7 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 
 ## Fixes
 
-- [ ] **Create the release keystore and sign the next release with it.** The Gradle build now refuses release builds without `android/key.properties` (see `CONTRIBUTING.md`, "Release Signing"). Generating the keystore and backing it up is a maintainer step that cannot be automated. The signature change means existing v1.0.0 installs must export, uninstall and import. Priority: high.
+- [ ] **Sign the next GitHub Release with the release keystore.** The keystore exists and is backed up (created 18 October 2026) and a signed build has been verified locally. The signature change from the debug-signed v1.0.0 means existing installs must export, uninstall and import; the release notes must say so. Priority: high.
 - [ ] **Verify `.cardstash` import on real iOS and Android hardware** after the `file_picker` 13 upgrade. The file association paths (iOS UTType, Android content provider) have only been exercised through fakes, and `file_picker` 12 rewrote the native layer. Priority: high before the next release.
 - [ ] **Benchmark Argon2id export parameters on a low-end device** and tune to keep the KDF under about one second. Still an open risk in `SPEC.md`. Priority: medium.
 - [ ] **Test EAN-13 quiet zones against real till scanners.** Still an open risk in `SPEC.md`. Priority: medium.
@@ -17,11 +17,12 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 - [ ] **Measure cold start on a real phone** before and after the startup work. Use `flutter run --profile --trace-startup` and, on Android, `adb shell am start -W co.benwhite.card_stash/.MainActivity` for `TotalTime`. Record the numbers in `ARCHITECTURE.md`. Priority: high.
 - [ ] **Splash-first startup** if measurement still shows more than ~300 ms before the first frame: call `runApp` immediately with a themed placeholder and initialise asynchronously. Deliberately not done yet, see `DECISIONS.md` D002. Priority: depends on measurement.
 - [ ] **Publish split-per-ABI APKs** for the next GitHub Release (documented in `CONTRIBUTING.md`); the v1.0.0 fat APK bundles three ABIs. Priority: medium, at release time.
+- [ ] **Upgrade the Android Gradle Plugin to 9.0.1 or later and Kotlin to 2.3.20 or later.** Flutter 3.47 warns that support for AGP 8.11.1 and Kotlin 2.2.20 will soon be dropped. Check the Flutter template for the current pair and verify the debug and release builds afterwards. Priority: medium.
 - [ ] **`ListView.builder` on the home screen.** Tiles are built eagerly; only matters once wallets exceed roughly 50 cards. Priority: low.
 
 ## Growth
 
-- [ ] **Google Play listing.** Copy is drafted in `STORE_LISTINGS.md`. Blocked on the release keystore (see Fixes).
+- [ ] **Google Play listing.** Copy is drafted in `STORE_LISTINGS.md`. The release keystore now exists, so this is unblocked.
 - [ ] **App Store / TestFlight release.** Needs an Apple Developer account; the Team ID was removed from the Xcode project and must be set locally at archive time.
 - [ ] **Categories / folders** (groceries, travel, gym). Planned in `SPEC.md` v1.1.
 - [ ] **Biometric lock** via `local_auth`. Planned in `SPEC.md` v1.1. New permission on both platforms, so flag it explicitly.
