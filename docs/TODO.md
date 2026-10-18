@@ -7,7 +7,7 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 ## Fixes
 
 - [ ] **Sign the next GitHub Release with the release keystore.** The keystore exists and is backed up (created 18 October 2026) and a signed build has been verified locally. The signature change from the debug-signed v1.0.0 means existing installs must export, uninstall and import; the release notes must say so. Priority: high.
-- [ ] **Verify `.cardstash` import on real iOS and Android hardware** after the `file_picker` 13 upgrade. The file association paths (iOS UTType, Android content provider) have only been exercised through fakes, and `file_picker` 12 rewrote the native layer. Priority: high before the next release.
+- [ ] **Verify `.cardstash` import on real iOS hardware** after the `file_picker` 13 upgrade. Android was verified on 18 October 2026 with a Drive-picked file (Replace All): the picker and decrypt path worked, and the test exposed the home list not reloading after import, since fixed. iOS UTType association remains exercised only through fakes. Priority: high before the next release.
 - [ ] **Benchmark Argon2id export parameters on a low-end device** and tune to keep the KDF under about one second. Still an open risk in `SPEC.md`. Priority: medium.
 - [ ] **Test EAN-13 quiet zones against real till scanners.** Still an open risk in `SPEC.md`. Priority: medium.
 - [ ] **Manual screen-reader pass** with TalkBack and VoiceOver on the add, edit and display screens. The automated 200% text-scale layout check now runs in `test/accessibility/`, but reading order and announcements need a human. Priority: medium.

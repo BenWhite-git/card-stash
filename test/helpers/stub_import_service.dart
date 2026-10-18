@@ -8,6 +8,10 @@ class StubImportService implements ImportService {
   ImportResult resultToReturn;
   Exception? exceptionToThrow;
 
+  /// Runs before the result is returned, so a test can mimic the side effects
+  /// of a real import such as writing cards into the box.
+  Future<void> Function()? onImport;
+
   StubImportService({
     this.resultToReturn = const ImportResult(
       totalCards: 3,
@@ -27,6 +31,7 @@ class StubImportService implements ImportService {
     if (exceptionToThrow != null) {
       throw exceptionToThrow!;
     }
+    await onImport?.call();
     return resultToReturn;
   }
 }

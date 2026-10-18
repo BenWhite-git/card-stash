@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/card_provider.dart';
 import '../services/file_picker_service.dart';
 import '../services/import_service.dart';
 import '../theme.dart';
@@ -50,6 +51,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     try {
       final service = ref.read(importServiceProvider);
       final result = await service.importCards(_filePath!, _passphrase, _mode);
+      // The import writes straight to the box, so the list the home screen
+      // watches must be rebuilt from storage.
+      ref.invalidate(cardListProvider);
       if (mounted) {
         setState(() => _result = result);
       }
