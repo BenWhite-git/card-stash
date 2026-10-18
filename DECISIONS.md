@@ -37,3 +37,12 @@ Append-only log of decisions made on Card Stash, numbered from D001 upwards with
 **Alternatives rejected.** Reminder on first card (too eager). Tracking edits via a new `modifiedAt` field (model change plus Hive migration for little benefit). A scheduled local notification (needs permission, heavier than a banner).
 **Consequences.** Edits alone never trigger a reminder. Thresholds are constants, so tuning is a one-line change.
 **Reversal cost.** Trivial, remove the banner and the provider; the two preference keys can be left orphaned or cleared.
+
+## D005 - Commit pubspec.lock
+**Date.** 2026-10-18
+**Status.** Accepted
+**Decision.** `pubspec.lock` is tracked in git. The Phase 0 scaffold had gitignored it.
+**Why.** Card Stash is an application, not a library, and Dart's guidance is to commit the lockfile for applications so every build resolves identical versions. The CI vulnerability scan reads the lockfile, so without it the scan had nothing to inspect and the job failed. Ben confirmed the choice.
+**Alternatives rejected.** Keep it ignored and run `flutter pub get` inside the scan job: the scan would then report on whatever resolved that day rather than what ships, and local and CI builds could still drift.
+**Consequences.** Dependency updates now show up as lockfile diffs and must be committed deliberately. Contributors get the pinned set on `flutter pub get` rather than the newest compatible versions.
+**Reversal cost.** Trivial, re-add the ignore line and delete the file.

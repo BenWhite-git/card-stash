@@ -419,7 +419,7 @@ The OCR text parsing logic (`parseText`) is pure Dart with no ML Kit dependency,
 
 ### Release Signing Guard and GitHub Actions CI
 
-**Decision:** Release builds are signed from `android/key.properties` and the Gradle build throws at configuration time when a release task is requested without it. A GitHub Actions workflow runs `dart format --set-exit-if-changed`, `flutter analyze` and `flutter test` on pushes to `main` and on pull requests, plus `osv-scanner` against `pubspec.lock` in a separate job.
+**Decision:** Release builds are signed from `android/key.properties` and the Gradle build throws at configuration time when a release task is requested without it. A GitHub Actions workflow runs `dart format --set-exit-if-changed`, `flutter analyze` and `flutter test` on pushes to `main` and on pull requests, plus `osv-scanner` against `pubspec.lock` in a separate job. The lockfile is committed so the scan and every build see the same resolved versions (D005).
 
 **Rationale:** See `DECISIONS.md` D003 for the signing guard. For CI, the project had no automated check at all; the three local commands in `CLAUDE.md` are now enforced on every PR, and OSV covers the gap left by Dart's lack of a built-in vulnerability scanner.
 

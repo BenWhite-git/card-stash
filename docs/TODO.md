@@ -10,7 +10,6 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 - [ ] **Verify `.cardstash` import on real iOS and Android hardware** after the `file_picker` 13 upgrade. The file association paths (iOS UTType, Android content provider) have only been exercised through fakes, and `file_picker` 12 rewrote the native layer. Priority: high before the next release.
 - [ ] **Benchmark Argon2id export parameters on a low-end device** and tune to keep the KDF under about one second. Still an open risk in `SPEC.md`. Priority: medium.
 - [ ] **Test EAN-13 quiet zones against real till scanners.** Still an open risk in `SPEC.md`. Priority: medium.
-- [ ] **Decide whether to commit `pubspec.lock`.** It is gitignored, so CI and contributors resolve dependencies fresh and the OSV scan in CI has no lockfile to read until one is committed. For an application (not a library) the lockfile is normally committed. Priority: medium.
 - [ ] **Manual screen-reader pass** with TalkBack and VoiceOver on the add, edit and display screens. The automated 200% text-scale layout check now runs in `test/accessibility/`, but reading order and announcements need a human. Priority: medium.
 
 ## Improvements
@@ -35,4 +34,4 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 ## Done since the 16 October 2026 review
 
 Shipped on `perf/faster-startup` and `chore/backlog-fixes`; detail in `CHANGELOG.md` [Unreleased]:
-startup speed-ups and themed launch windows, router no longer reset on theme change, usage count owned by the display screen, search by card number, all UI colours on theme tokens, release signing guard, GitHub Actions CI with OSV scan, `file_picker` 13 / `share_plus` 13 / `package_info_plus` 10, backup reminder banner, 200% text-scale layout fixes and automated check.
+startup speed-ups and themed launch windows, router no longer reset on theme change, usage count owned by the display screen, search by card number, all UI colours on theme tokens, release signing guard, GitHub Actions CI with OSV scan, `file_picker` 13 / `share_plus` 13 / `package_info_plus` 10, backup reminder banner, 200% text-scale layout fixes and automated check. Then on CI feedback: OCR temp-file race fixed, About rows on a Material surface, `pubspec.lock` committed (D005).
