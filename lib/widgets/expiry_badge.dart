@@ -3,6 +3,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 class ExpiryBadge extends StatelessWidget {
   final DateTime? expiryDate;
 
@@ -29,13 +31,13 @@ class ExpiryBadge extends StatelessWidget {
 
     if (daysLeft <= 0) {
       label = 'Expired';
-      colour = const Color(0xFFEF4444); // danger
+      colour = context.colors.error;
     } else if (daysLeft <= 7) {
       label = '${daysLeft}d left';
-      colour = const Color(0xFFEF4444); // danger / red
+      colour = context.colors.error;
     } else {
       label = '${daysLeft}d left';
-      colour = const Color(0xFFF59E0B); // accent-fill / amber
+      colour = context.colors.accent;
     }
 
     return Container(

@@ -6,8 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/card.dart';
+import '../providers/backup_reminder_provider.dart';
 import '../providers/card_provider.dart';
 import '../theme.dart';
+import '../utils/card_number_utils.dart';
+import '../widgets/backup_reminder_banner.dart';
 import '../widgets/card_form_fields.dart';
 import '../widgets/card_tile.dart';
 
@@ -92,9 +95,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<LoyaltyCard> _filteredCards(List<LoyaltyCard> cards) {
     if (_searchQuery.isEmpty) return cards;
     final query = _searchQuery.toLowerCase();
+    final numberQuery = normaliseCardNumber(query);
     return cards.where((card) {
       return card.name.toLowerCase().contains(query) ||
-          (card.issuer?.toLowerCase().contains(query) ?? false);
+          (card.issuer?.toLowerCase().contains(query) ?? false) ||
+          (numberQuery.isNotEmpty &&
+              normaliseCardNumber(
+                card.cardNumber,
+              ).toLowerCase().contains(numberQuery));
     }).toList();
   }
 
@@ -185,6 +193,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final favourites = filtered.where((c) => c.isFavourite).toList();
     final others = filtered.where((c) => !c.isFavourite).toList();
     final colors = context.colors;
+    final showBackupReminder = ref.watch(backupReminderDueProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -199,13 +208,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Card Stash',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w600,
-                          color: colors.textPrimary,
-                          height: 1.25,
+                      Expanded(
+                        child: Text(
+                          'Card Stash',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600,
+                            color: colors.textPrimary,
+                            height: 1.25,
+                          ),
                         ),
                       ),
                       IconButton(
@@ -251,7 +262,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ? _buildEmptyState()
                   : filtered.isEmpty
                   ? _buildNoResults()
-                  : _buildCardList(favourites, others),
+                  : _buildCardList(
+                      favourites,
+                      others,
+                      showBackupReminder: showBackupReminder,
+                    ),
             ),
           ],
         ),
@@ -309,17 +324,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _openCard(LoyaltyCard card) {
-    ref.read(cardListProvider.notifier).incrementUsage(card.id);
     context.push('/cards/${card.id}');
   }
 
   Widget _buildCardList(
     List<LoyaltyCard> favourites,
-    List<LoyaltyCard> others,
-  ) {
+    List<LoyaltyCard> others, {
+    required bool showBackupReminder,
+  }) {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       children: [
+        // The banner scrolls with the list so large text can never push the
+        // cards off the bottom of the screen.
+        if (showBackupReminder) ...[
+          const BackupReminderBanner(),
+          const SizedBox(height: 16),
+        ],
         if (favourites.isNotEmpty) ...[
           _SectionHeader(label: 'PINNED'),
           const SizedBox(height: 8),

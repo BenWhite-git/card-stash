@@ -19,3 +19,30 @@ Append-only log of decisions made on Card Stash, numbered from D001 upwards with
 **Alternatives rejected.** `runApp` immediately with a themed placeholder and async initialisation, deferred until measurement shows more than roughly 300 ms before the first frame (tracked in `docs/TODO.md`).
 **Consequences.** The native launch window is the only thing on screen during initialisation, which is why its colour now matches the app background.
 **Reversal cost.** Moderate, requires a loading widget, an error state for `StorageService.init` failures and widget tests for both.
+
+## D003 - Require the release keystore for release builds and fail loudly without it
+**Date.** 2026-10-17
+**Status.** Accepted
+**Decision.** `android/app/build.gradle.kts` signs release builds from `android/key.properties` and throws a `GradleException` from `taskGraph.whenReady` when a release task is requested and the file is absent. Debug builds are unaffected.
+**Why.** The v1.0.0 APK on GitHub Releases was signed with the Android debug key because the template `signingConfig = debug` was never replaced. A debug-signed release cannot be updated in place by a properly signed one, and the longer it ships the more users are affected. Failing at configuration time for release tasks only is the smallest change that makes the mistake impossible to repeat.
+**Alternatives rejected.** Falling back to the debug key when `key.properties` is missing (the status quo, and exactly the failure being fixed). Letting Gradle fail with its own "keystore not set" error (unclear, and reached only at the signing step after a long build). Committing an encrypted keystore to the repo (unnecessary for a single maintainer).
+**Consequences.** The next release changes the signing key, so existing v1.0.0 installs must export, uninstall and import. Contributors cannot produce release builds without the maintainer's keystore, which is intended. CI builds only debug artefacts.
+**Reversal cost.** Trivial to revert the Gradle change; the key change itself cannot be reversed once a signed release has shipped.
+
+## D004 - Backup reminder thresholds: 3 cards, 30 days stale, 7 day snooze
+**Date.** 2026-10-17
+**Status.** Accepted
+**Decision.** Show the home screen backup banner when the wallet has at least 3 cards and has never been exported, or when the last export is older than 30 days and at least one card was added since. "Later" snoozes for 7 days. State is two ISO timestamps in SharedPreferences.
+**Why.** No specification existed for this; the thresholds resolve the uncertainty by picking values that avoid nagging a brand-new user (1 or 2 cards) and avoid nagging anyone whose wallet has not changed since their last export. Staleness is judged from `createdAt`, which already exists on the card model.
+**Alternatives rejected.** Reminder on first card (too eager). Tracking edits via a new `modifiedAt` field (model change plus Hive migration for little benefit). A scheduled local notification (needs permission, heavier than a banner).
+**Consequences.** Edits alone never trigger a reminder. Thresholds are constants, so tuning is a one-line change.
+**Reversal cost.** Trivial, remove the banner and the provider; the two preference keys can be left orphaned or cleared.
+
+## D005 - Commit pubspec.lock
+**Date.** 2026-10-18
+**Status.** Accepted
+**Decision.** `pubspec.lock` is tracked in git. The Phase 0 scaffold had gitignored it.
+**Why.** Card Stash is an application, not a library, and Dart's guidance is to commit the lockfile for applications so every build resolves identical versions. The CI vulnerability scan reads the lockfile, so without it the scan had nothing to inspect and the job failed. Ben confirmed the choice.
+**Alternatives rejected.** Keep it ignored and run `flutter pub get` inside the scan job: the scan would then report on whatever resolved that day rather than what ships, and local and CI builds could still drift.
+**Consequences.** Dependency updates now show up as lockfile diffs and must be committed deliberately. Contributors get the pinned set on `flutter pub get` rather than the newest compatible versions.
+**Reversal cost.** Trivial, re-add the ignore line and delete the file.

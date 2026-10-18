@@ -230,10 +230,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF34D399).withValues(alpha: 0.15),
+                  color: colors.success.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFF34D399), width: 4),
+                  border: Border(
+                    left: BorderSide(color: colors.success, width: 4),
                   ),
                 ),
                 child: Column(
@@ -241,10 +241,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                   children: [
                     Text(
                       '${_result!.importedCards} cards imported',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF34D399),
+                        color: colors.success,
                       ),
                     ),
                     if (_result!.skippedDuplicates > 0)

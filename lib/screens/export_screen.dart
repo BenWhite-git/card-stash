@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/backup_reminder_provider.dart';
 import '../services/export_service.dart';
 import '../theme.dart';
 import '../widgets/passphrase_field.dart';
@@ -55,12 +56,13 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
       final file = await service.buildExportFile(_passphrase);
       await service.shareExportFile(file);
       await service.cleanupExportFile(file);
+      await ref.read(backupReminderProvider.notifier).recordExport();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cards exported.'),
-            backgroundColor: Color(0xFF34D399),
+          SnackBar(
+            content: const Text('Cards exported.'),
+            backgroundColor: context.colors.success,
           ),
         );
         Navigator.of(context).pop();
@@ -137,18 +139,18 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF312E81).withValues(alpha: 0.15),
+                  color: colors.info.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
-                  border: const Border(
-                    left: BorderSide(color: Color(0xFF312E81), width: 4),
+                  border: Border(
+                    left: BorderSide(color: colors.info, width: 4),
                   ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.tips_and_updates_outlined,
-                      color: Color(0xFF312E81),
+                      color: colors.info,
                       size: 20,
                     ),
                     const SizedBox(width: 12),
