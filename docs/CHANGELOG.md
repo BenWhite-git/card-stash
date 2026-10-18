@@ -37,6 +37,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Upgraded `file_picker` from 10.3.10 to 11.0.2 and migrated the one call site from `FilePicker.platform.pickFiles` to the new static `FilePicker.pickFiles` API
 
 ### Fixed
+- Imported cards appear on the home screen straight away instead of only after restarting the app
 - Gallery OCR no longer deletes the captured image before ML Kit has read it
 - About screen rows show tap feedback; their container is now a Material surface
 - Home, card display and backup banner layouts no longer overflow at 200% system text size; the card display scrolls when its content is taller than the screen
