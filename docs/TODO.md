@@ -17,7 +17,7 @@ Living backlog of fixes, improvements and growth ideas, ordered by priority with
 - [ ] **Measure cold start on a real phone** before and after the startup work. Use `flutter run --profile --trace-startup` and, on Android, `adb shell am start -W co.benwhite.card_stash/.MainActivity` for `TotalTime`. Record the numbers in `ARCHITECTURE.md`. Priority: high.
 - [ ] **Splash-first startup** if measurement still shows more than ~300 ms before the first frame: call `runApp` immediately with a themed placeholder and initialise asynchronously. Deliberately not done yet, see `DECISIONS.md` D002. Priority: depends on measurement.
 - [ ] **Publish split-per-ABI APKs** for the next GitHub Release (documented in `CONTRIBUTING.md`); the v1.0.0 fat APK bundles three ABIs. Priority: medium, at release time.
-- [ ] **Upgrade the Android Gradle Plugin to 9.0.1 or later and Kotlin to 2.3.20 or later.** Flutter 3.47 warns that support for AGP 8.11.1 and Kotlin 2.2.20 will soon be dropped. Check the Flutter template for the current pair and verify the debug and release builds afterwards. Priority: medium.
+- [ ] **Upgrade the Android Gradle Plugin to 9.0.1 or later and Kotlin to 2.3.20 or later.** Flutter 3.47 warns that support for AGP 8.11.1 and Kotlin 2.2.20 will soon be dropped. Check the Flutter template for the current pair, remove the `android.builtInKotlin=false` and `android.newDsl=false` flags the Flutter migrator added to `android/gradle.properties`, and verify the debug and release builds afterwards. Priority: medium.
 - [ ] **`ListView.builder` on the home screen.** Tiles are built eagerly; only matters once wallets exceed roughly 50 cards. Priority: low.
 
 ## Growth
