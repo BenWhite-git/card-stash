@@ -22,6 +22,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Auto-capitalise words in card name field
 
 ### Changed
+- Faster cold start: the timezone database is no longer loaded at launch, and encrypted storage, preferences and notification initialisation now run in parallel
+- Launch screen background matches the app palette in light and dark mode on Android and iOS, removing the white or black flash before the first frame
 - Replaced `mobile_scanner` with `camera` + `google_mlkit_barcode_scanning` for direct frame access and parallel ML Kit processing
 - iOS minimum deployment target raised to 15.5 for ML Kit compatibility
 - About screen restyled to match the app theme instead of hardcoded light theme
@@ -31,6 +33,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Version
 - Upgraded `file_picker` from 10.3.10 to 11.0.2 and migrated the one call site from `FilePicker.platform.pickFiles` to the new static `FilePicker.pickFiles` API
 
 ### Fixed
+- Changing Appearance no longer resets navigation back to the Cards tab
 - External links (Ko-fi, Privacy Policy, GitHub) now open correctly on Android and iOS
 - Android adaptive icon foreground uses transparent background for proper mask rendering
 

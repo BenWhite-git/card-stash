@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches CardStashColors.dark.background so the launch window blends into the first frame. -->
+    <color name="launch_background">#0F172A</color>
+</resources>

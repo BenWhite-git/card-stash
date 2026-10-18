@@ -1,11 +1,11 @@
 // ABOUTME: App entry point for Card Stash.
-// ABOUTME: Initialises encrypted storage and SharedPreferences before launch.
+// ABOUTME: Initialises encrypted storage, preferences and notifications in parallel before launch.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
 
 import 'providers/first_launch_provider.dart';
 import 'providers/notification_provider.dart';
@@ -17,14 +17,20 @@ import 'theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  tz.initializeTimeZones();
-
-  final storageService = await StorageService.init();
-  final sharedPreferences = await SharedPreferences.getInstance();
   final notificationService = NotificationService(
     FlutterLocalNotificationsPlugin(),
   );
-  await notificationService.init();
+
+  // The three initialisations touch independent platform channels, so they
+  // run concurrently to keep the time before first frame as short as possible.
+  final storageFuture = StorageService.init();
+  final prefsFuture = SharedPreferences.getInstance();
+  final notificationsFuture = notificationService.init();
+
+  final storageService = await storageFuture;
+  final sharedPreferences = await prefsFuture;
+  await notificationsFuture;
+
   final isFirstLaunch =
       !(sharedPreferences.getBool('first_launch_completed') ?? false);
 
@@ -40,20 +46,31 @@ void main() async {
   );
 }
 
-class CardStashApp extends ConsumerWidget {
+class CardStashApp extends ConsumerStatefulWidget {
   final bool isFirstLaunch;
 
   const CardStashApp({super.key, this.isFirstLaunch = false});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CardStashApp> createState() => _CardStashAppState();
+}
+
+class _CardStashAppState extends ConsumerState<CardStashApp> {
+  // Created once so theme changes rebuild the app without resetting
+  // navigation state.
+  late final GoRouter _router = createRouter(
+    isFirstLaunch: widget.isFirstLaunch,
+  );
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     return MaterialApp.router(
       title: 'Card Stash',
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       themeMode: themeMode,
-      routerConfig: createRouter(isFirstLaunch: isFirstLaunch),
+      routerConfig: _router,
     );
   }
 }

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#0F172A</color>
+    <!-- Matches CardStashColors.light.background so the launch window blends into the first frame. -->
+    <color name="launch_background">#F8FAFC</color>
 </resources>

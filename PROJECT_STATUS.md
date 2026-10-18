@@ -31,9 +31,13 @@ Queued for the next release (see `docs/CHANGELOG.md` [Unreleased] for detail):
 - Card list sorting modes
 - Custom HSV colour picker plus six additional preset colours
 - `file_picker` upgraded 10 to 11.0.2 (Android path-traversal CVE fix)
+- Faster cold start: timezone database dropped from launch, parallel initialisation, router created once, themed launch windows (2026-10-16)
+- Fix: changing Appearance no longer resets navigation to the Cards tab
 
 ## Notes
 
+- Backlog of fixes, improvements and growth ideas: `docs/TODO.md`
+- Decision log with reversal costs: `DECISIONS.md` (root); architectural rationale: `docs/ARCHITECTURE.md`
 - GitHub repo: https://github.com/BenWhite-git/card-stash (public)
 - Style guide: `docs/sunlight-style-guide.md`
 - All docs live in `/docs`
